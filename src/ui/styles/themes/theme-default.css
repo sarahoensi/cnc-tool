@@ -1,0 +1,71 @@
+:root[data-theme="default"] {
+  /* ========================== */
+  /* App surfaces               */
+  /* ========================== */
+
+  --color-app-bg: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-alt: #f0f0f0;
+
+  /* ========================== */
+  /* Inputs                     */
+  /* ========================== */
+
+  --input-bg-user: #c7f5fd;
+  --input-bg-machine: #a5fa8f;
+  --input-bg-disabled: #f3f3f3;
+  --input-bg-empty: #ffffff;
+  --input-bg-locked: #9e9e9e;
+
+  /* ========================== */
+  /* Primary actions            */
+  /* ========================== */
+
+  --color-primary: #0a84ff;
+  --color-primary-hover: #006be6;
+  --color-primary-soft: #dce8ff;
+
+  /* ========================== */
+  /* States                     */
+  /* ========================== */
+
+  --color-danger: #d32f2f;
+  --color-focus: #0a84ff;
+
+  /* ========================== */
+  /* Text                       */
+  /* ========================== */
+
+  --color-text: #111111;
+  --color-text-muted: #666666;
+  --color-text-placeholder: #999999;
+
+  /* ========================== */
+  /* Borders                    */
+  /* ========================== */
+
+  --color-border: #dddddd;
+
+  /* ========================== */
+  /* Buttons (theme-specific)   */
+  /* ========================== */
+
+  /* Primary button */
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-bg-hover: var(--color-primary-hover);
+  --btn-primary-text: #ffffff;
+
+  /* Secondary button */
+  --btn-secondary-bg: var(--color-surface-alt);
+  --btn-secondary-text: var(--color-text);
+
+  /* Danger button */
+  --btn-danger-bg: var(--color-danger);
+  --btn-danger-text: #ffffff;
+
+  /* Icon button */
+  --btn-icon-hover-bg: rgba(10, 132, 255, 0.12);
+
+  /* Focus ring */
+  --btn-focus-ring: var(--color-focus);
+}

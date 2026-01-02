@@ -13,6 +13,18 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "@app": ["app/index.ts"],
+      "@app/*": ["app/*"],
+      "@core": ["core/index.ts"],
+      "@core/*": ["core/*"],
+      "@assets/*": ["assets/*"],
+      "@ui": ["ui/index.ts"],
+      "@ui/*": ["ui/*"],
+      "@utils": ["utils/index.ts"],
+      "@utils/*": ["utils/*"]
+    },
 
     /* Linting */
     "strict": true,

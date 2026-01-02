@@ -1,0 +1,72 @@
+:root[data-theme="forest"] {
+  /* ========================== */
+  /* App surfaces               */
+  /* ========================== */
+
+  --color-app-bg: #DAD7CD;
+  --color-surface: #E4E2D8;
+  --color-surface-alt: #A3B18A;
+
+  /* ========================== */
+  /* Inputs                     */
+  /* ========================== */
+
+  --input-bg-user: #E9EFE3;
+  --input-bg-machine: #D6E2CC;
+  --input-bg-disabled: #CFCFC6;
+  --input-bg-empty: #F2F4EE;
+  --input-bg-locked: #A3B18A;
+
+  /* ========================== */
+  /* Primary actions            */
+  /* ========================== */
+
+  --color-primary: #588157;
+  --color-primary-hover: #3A5A40;
+  --color-primary-soft: #A3B18A;
+
+  /* ========================== */
+  /* States                     */
+  /* ========================== */
+
+  /* Danger = mørk, jordnær rød */
+  --color-danger: #8B3A3A;
+  --color-focus: #588157;
+
+  /* ========================== */
+  /* Text                       */
+  /* ========================== */
+
+  --color-text: #1F2D24;
+  --color-text-muted: #4A5D4E;
+  --color-text-placeholder: #6F7F73;
+
+  /* ========================== */
+  /* Borders                    */
+  /* ========================== */
+
+  --color-border: #B5C0AD;
+
+  /* ========================== */
+  /* Buttons                    */
+  /* ========================== */
+
+  /* Primary */
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-bg-hover: var(--color-primary-hover);
+  --btn-primary-text: #ffffff;
+
+  /* Secondary */
+  --btn-secondary-bg: var(--color-surface-alt);
+  --btn-secondary-text: var(--color-text);
+
+  /* Danger */
+  --btn-danger-bg: var(--color-danger);
+  --btn-danger-text: #ffffff;
+
+  /* Icon button */
+  --btn-icon-hover-bg: rgba(88, 129, 87, 0.18);
+
+  /* Focus ring */
+  --btn-focus-ring: var(--color-focus);
+}

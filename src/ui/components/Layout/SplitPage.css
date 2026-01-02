@@ -1,0 +1,19 @@
+.split-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.panel {
+  background: var(--panel-bg, #111);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.input-panel {
+  /* evt egne styles */
+}
+
+.side-panel {
+  /* evt egne styles */
+}

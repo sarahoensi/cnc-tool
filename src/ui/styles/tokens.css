@@ -1,0 +1,55 @@
+/* src/ui/styles/tokens.css */
+:root {
+    /* App layout */
+    --app-bg: var(--color-app-bg, #ffffff);
+
+    /* Sidebar */
+    --sidebar-bg: var(--color-surface-alt, var(--color-surface));
+    --sidebar-border: var(--color-border);
+    --sidebar-item-bg: var(--color-surface);
+    --sidebar-item-bg-active: var(--color-primary-soft, #dce8ff);
+    --sidebar-item-border-active: var(--color-primary, #a6c4ff);
+
+    /* Topbar */
+    --topbar-bg: var(--color-surface);
+    --topbar-border: var(--color-border);
+
+    /* Text */
+    --text-primary: var(--color-text, #000);
+
+    /* Input */
+    --input-bg-user: var(--color-user);
+    --input-bg-machine: var(--color-machine);
+    --input-bg-disabled: var(--color-disabled);
+    --input-bg-empty: var(--color-surface);
+    --input-bg-locked: var(--color-locked);
+
+    /* Text */
+    --text-muted: var(--color-text-muted);
+    --text-placeholder: var(--color-text-placeholder);
+
+    /* Error */
+    --color-error: var(--color-danger);
+    --border-error: var(--color-danger);
+
+    /* Surfaces */
+    --surface-default: var(--color-surface);
+    --border-default: var(--color-border);
+
+      /* Buttons – primary */
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-bg-hover: var(--color-primary-hover);
+  --btn-primary-text: #fff;
+
+  /* Buttons – secondary */
+  --btn-secondary-bg: var(--color-surface-alt, #eee);
+  --btn-secondary-text: var(--color-text, #333);
+
+  /* Buttons – danger */
+  --btn-danger-bg: var(--color-danger);
+  --btn-danger-text: #fff;
+
+  /* Buttons – icon */
+  --btn-icon-hover-bg: rgba(0, 0, 0, 0.06);
+  --btn-focus-ring: var(--color-primary);
+}

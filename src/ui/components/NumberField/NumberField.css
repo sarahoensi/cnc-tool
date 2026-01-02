@@ -1,0 +1,107 @@
+/* src/ui/components/NumberField/NumberField.css */
+
+.number-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nf-label {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.nf-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nf-input {
+  width: 100%;
+  padding: 0.2rem;
+  padding-right: 38px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* Input states – bruker tokens */
+.nf-input.user {
+  background: var(--input-bg-user);
+}
+
+.nf-input.machine {
+  background: var(--input-bg-machine);
+  font-weight: 600;
+}
+
+.nf-input.empty {
+  background: var(--input-bg-empty);
+  color: var(--text-placeholder);
+}
+
+.number-field.locked {
+  cursor: pointer;
+}
+
+.nf-input.locked {
+  background: var(--input-bg-locked);
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.nf-label.locked {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.nf-input.disabled {
+  background: var(--input-bg-disabled);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.nf-input.has-error {
+  border-color: var(--border-error);
+}
+
+/* Unit */
+.nf-unit {
+  position: absolute;
+  right: 10px;
+  color: #666;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+/* Error message */
+.nf-error {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+/* Tooltip icon */
+.nf-tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+
+  cursor: pointer;
+  vertical-align: middle;
+  flex: 0 0 auto;
+
+  position: relative;
+}
+
+/* Force the image/SVG to actually be 14x14 */
+.nf-tooltip-icon img {
+  width: 14px;
+  height: 14px;
+  display: block;
+}

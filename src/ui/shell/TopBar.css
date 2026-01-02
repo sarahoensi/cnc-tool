@@ -1,0 +1,22 @@
+/* src/ui/shell/TopBar.css */
+
+.topbar {
+  height: 60px;
+  border-bottom: 1px solid var(--topbar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--topbar-bg);
+}
+
+.topbar-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

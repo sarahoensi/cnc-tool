@@ -1,0 +1,44 @@
+/* scr/ui/shell/AppShell.css */
+
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+/* Sidebar til venstre */
+.sidebar {
+  width: 200px;
+  border-right: 1px solid var(--sidebar-border);
+}
+
+/* Hovedområdet */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Topbar alltid på samme sted */
+.topbar {
+  height: 60px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--topbar-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: var(--topbar-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Sideinnhold som scroller */
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}

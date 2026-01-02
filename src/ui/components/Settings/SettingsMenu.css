@@ -1,0 +1,37 @@
+.settings-menu {
+  position: absolute;
+  top: 56px;
+  right: 20px;
+
+  min-width: 160px;
+  padding: 8px;
+
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.settings-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.settings-menu button {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-menu button:hover {
+  background: var(--input-bg-empty);
+}
