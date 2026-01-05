@@ -6,7 +6,6 @@ import type {
 } from "../types";
 
 import { validateTriangleInput } from "../rules/validateTriangleInput";
-import { getTriangleAvailability } from "../rules/availability";
 import { sinDeg, atanDeg } from "@utils/math";
 
 function isPos(x: unknown): x is number {
@@ -16,16 +15,9 @@ function isPos(x: unknown): x is number {
 export function solveTriangle(
   input: TriangleSolverInput
 ): TriangleSolverSolution {
-  // --------------------------------------------------
-  // 0. Absolutt krav: input må være gyldig og entydig
-  // --------------------------------------------------
+  // 0. Input må være gyldig og entydig
   validateTriangleInput(input);
 
-  // availability beskriver kun hva som var GITT
-  const availability = getTriangleAvailability(input);
-  const { has } = availability;
-
-  // Arbeidskopi – her fyller vi ut løsningen
   let a = input.a;
   let b = input.b;
   let c = input.c;
@@ -33,66 +25,70 @@ export function solveTriangle(
   let beta = input.beta;
 
   // --------------------------------------------------
-  // 1. Hypotenus
+  // Iterer til stabil løsning
   // --------------------------------------------------
-  if (!has.c && isPos(a) && isPos(b)) {
-    c = Math.sqrt(a * a + b * b);
-  }
+  let changed = true;
 
-  // --------------------------------------------------
-  // 2. Vinkel α
-  // --------------------------------------------------
-  if (!has.alpha) {
-    if (isPos(a) && isPos(b)) {
-      alpha = atanDeg(a / b);
-    } else if (isPos(a) && isPos(c)) {
-      alpha = Math.asin(a / c) * (180 / Math.PI);
-    } else if (isPos(b) && isPos(c)) {
-      alpha = Math.acos(b / c) * (180 / Math.PI);
-    }
-  }
+  while (changed) {
+    changed = false;
 
-  // --------------------------------------------------
-  // 3. Vinkel β
-  // --------------------------------------------------
-  if (!has.beta) {
-    if (isPos(alpha)) {
+    // beta
+    if (!isPos(beta) && isPos(alpha)) {
       beta = 90 - alpha;
+      changed = true;
+    }
+
+    // alpha
+    if (!isPos(alpha)) {
+      if (isPos(a) && isPos(b)) {
+        alpha = atanDeg(a / b);
+        changed = true;
+      } else if (isPos(a) && isPos(c)) {
+        alpha = Math.asin(a / c) * 180 / Math.PI;
+        changed = true;
+      } else if (isPos(b) && isPos(c)) {
+        alpha = Math.acos(b / c) * 180 / Math.PI;
+        changed = true;
+      }
+    }
+
+    // b
+    if (!isPos(b)) {
+      if (isPos(a) && isPos(alpha)) {
+        b = a / Math.tan(alpha * Math.PI / 180);
+        changed = true;
+      } else if (isPos(c) && isPos(beta)) {
+        b = c * sinDeg(beta);
+        changed = true;
+      }
+    }
+
+    // a
+    if (!isPos(a)) {
+      if (isPos(b) && isPos(beta)) {
+        a = b * Math.tan(beta * Math.PI / 180);
+        changed = true;
+      } else if (isPos(c) && isPos(alpha)) {
+        a = c * sinDeg(alpha);
+        changed = true;
+      }
+    }
+
+    // c
+    if (!isPos(c) && isPos(a) && isPos(b)) {
+      c = Math.sqrt(a * a + b * b);
+      changed = true;
     }
   }
 
   // --------------------------------------------------
-  // 4. Katet a
-  // --------------------------------------------------
-  if (!has.a) {
-    if (isPos(c) && isPos(alpha)) {
-      a = c * sinDeg(alpha);
-    } else if (isPos(b) && isPos(beta)) {
-      a = b * Math.tan(beta * Math.PI / 180);
-    }
-  }
-
-  // --------------------------------------------------
-  // 5. Katet b
-  // --------------------------------------------------
-  if (!has.b) {
-    if (isPos(c) && isPos(beta)) {
-      b = c * sinDeg(beta);
-    } else if (isPos(a) && isPos(alpha)) {
-      b = a / Math.tan(alpha * Math.PI / 180);
-    }
-  }
-
-  // --------------------------------------------------
-  // 6. Sikkerhet: ingen NaN / undefined
+  // Sikkerhet: alt må være beregnet
   // --------------------------------------------------
   const result = { a, b, c, alpha, beta };
 
   for (const [key, value] of Object.entries(result)) {
     if (!Number.isFinite(value)) {
-      throw new Error(
-        `Intern feil: ${key} kunne ikke beregnes`
-      );
+      throw new Error(`Intern feil: ${key} kunne ikke beregnes`);
     }
   }
 
