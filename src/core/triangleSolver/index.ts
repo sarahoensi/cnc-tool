@@ -1,5 +1,6 @@
 //src/core/triangleSolver/index
 
-export * from "./logic";
 export * from "./types";
-export * from "./availability";
+export * from "./solve/solveTriangle";
+export * from "./rules/availability";
+export * from "./rules/validateTriangleInput";
