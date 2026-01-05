@@ -17,6 +17,9 @@ import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks";
 
+import { triangleTooltips } from "./triangleTooltips";
+
+
 import {
   SplitPage,
   InputPanel,
@@ -132,6 +135,7 @@ if (Object.keys(errors).length > 0) {
     key: FieldKeys,
     label: string,
     unit?: string,
+    tooltip?: string,
     autoFocus?: boolean,
     inputRef?: Ref<HTMLInputElement>
   ) {
@@ -141,6 +145,7 @@ if (Object.keys(errors).length > 0) {
           label={label}
           field={fields[key]}
           unit={unit}
+          tooltip={tooltip}
           error={fieldErrors[key]}
           autoFocus={autoFocus}
           inputRef={inputRef}
@@ -157,11 +162,11 @@ if (Object.keys(errors).length > 0) {
     <SplitPage
       left={
         <InputPanel title="Rettvinklet trekant">
-          {renderInput("a", "Katet a", "mm", true)}
-          {renderInput("b", "Katet b", "mm")}
-          {renderInput("c", "Hypotenus c", "mm")}
-          {renderInput("alpha", "Vinkel α", "°")}
-          {renderInput("beta", "Vinkel β", "°")}
+          {renderInput("a", "Katet a", "mm", triangleTooltips.a, true)}
+          {renderInput("b", "Katet b", "mm", triangleTooltips.b)}
+          {renderInput("c", "Hypotenus c", "mm", triangleTooltips.c)}
+          {renderInput("alpha", "Vinkel α", "°", triangleTooltips.alpha)}
+          {renderInput("beta", "Vinkel β", "°", triangleTooltips.beta)}
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
