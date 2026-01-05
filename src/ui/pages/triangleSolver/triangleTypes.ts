@@ -1,3 +1,5 @@
+//src/ui/pages/triangleSolver/triangleTypes.ts
+
 import { FieldState } from "@app/state/field/field";
 
 export type TriangleFields = {

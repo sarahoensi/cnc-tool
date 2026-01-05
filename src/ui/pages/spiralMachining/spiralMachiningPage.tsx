@@ -1,8 +1,10 @@
+// SpiralMachiningPage.tsx
+
 import "./spiralMachiningPage.css";
 
 import { useEffect, useRef } from "react";
-import { solveHelix } from "@core";
-import type { HelixInput, HelixMode, HelixSolution } from "@core";
+import { solveHelix } from "@core/helix";
+import type { HelixInput, HelixSolution, HelixMode } from "@core/helix";
 import { FieldValidationError } from "@core/errors";
 
 import { NumberField } from "@ui/components/NumberField";
@@ -20,23 +22,6 @@ import { applySolveResult } from "@app/solver/applySolveResult";
 import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./spiralTypes";
-import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-
-/* ---------------------------------------------------------
- * TYPES
- * ------------------------------------------------------- */
-
-type SpiralDriver = "pitch" | "angle";
-
-function isDriver(
-  key: keyof SpiralFields
-): key is SpiralDriver {
-  return key === "pitch" || key === "angle";
-}
-
-/* ---------------------------------------------------------
- * COMPONENT
- * ------------------------------------------------------- */
 
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
@@ -44,8 +29,7 @@ export function SpiralMachining() {
   const [mode, setMode] =
     usePersistentState<HelixMode>("spiral:mode", "inner");
 
-  // sørger for korrekt mode i solve (ingen stale closures)
-  const modeRef = useRef<HelixMode>(mode);
+  const modeRef = useRef(mode);
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
@@ -59,11 +43,6 @@ export function SpiralMachining() {
       pitch: emptyField(),
       angle: emptyField(),
     }));
-
-  /* ---------------- DRIVER (UI-INTENSJON) ---------------- */
-
-  const { driver, setDriver, clearDriver } =
-    useDriverOverride<SpiralDriver>();
 
   /* ---------------- RESULT / ERROR ---------------- */
 
@@ -88,14 +67,9 @@ export function SpiralMachining() {
     clearAllFieldErrors,
   } = useFieldErrors<keyof SpiralFields>();
 
-  /* ---------------- HELPERS ---------------- */
-
   const updateField = useFieldUpdater({
     setFields,
     clearError: () => {
-      // når bruker endrer input:
-      // – maskinverdier tømmes i useFieldUpdater
-      // – resultat/feil ryddes
       setResult(null);
       setError(null);
     },
@@ -108,24 +82,14 @@ export function SpiralMachining() {
   } = useAutoFocusOnVisibility<HTMLInputElement>();
 
   /* ---------------- RESET ---------------- */
-
+//TODO: Ikke bytte mode ved reset
   const resetPage = usePageReset("spiral:");
 
   function handleReset() {
     resetPage();
     clearAllFieldErrors();
-    clearDriver();
     setResult(null);
     setError(null);
-    focusFirstField();
-  }
-
-  function handleModeChange(next: HelixMode) {
-    setMode(next);
-    clearDriver();
-    setResult(null);
-    setError(null);
-    clearAllFieldErrors();
     focusFirstField();
   }
 
@@ -136,36 +100,29 @@ export function SpiralMachining() {
     clearAllFieldErrors();
     setResult(null);
 
-    if (!driver) {
-      setError("Oppgi enten pitch eller vinkel");
-      return;
-    }
-
     try {
       const input: HelixInput = {
         mode: modeRef.current,
         diameter: toNumber(fields.diameter.value),
         toolDiameter: toNumber(fields.toolDiameter.value),
         pitch:
-          driver === "pitch"
+          fields.pitch.value !== ""
             ? toNumber(fields.pitch.value)
             : undefined,
         angle:
-          driver === "angle"
+          fields.angle.value !== ""
             ? toNumber(fields.angle.value)
             : undefined,
       };
 
       const res = solveHelix(input);
 
-      // 🔑 maskin fyller KUN det avledede feltet
+      // maskin fyller ut det som manglet
       setFields(prev =>
-        applySolveResult(
-          prev,
-          driver === "pitch"
-            ? { angle: res.angle }
-            : { pitch: res.pitch }
-        )
+        applySolveResult(prev, {
+          pitch: res.pitch,
+          angle: res.angle,
+        })
       );
 
       setResult(res);
@@ -174,11 +131,14 @@ export function SpiralMachining() {
         setFieldErrors(e.fieldErrors);
         return;
       }
-      setError(e instanceof Error ? e.message : "Ukjent feil");
+
+      setError(
+        e instanceof Error ? e.message : "Ukjent feil"
+      );
     }
   }
 
-  /* ---------------- INPUT RENDER ---------------- */
+  /* ---------------- INPUT ---------------- */
 
   function renderInput(
     key: keyof SpiralFields,
@@ -195,18 +155,7 @@ export function SpiralMachining() {
         error={fieldErrors[key]}
         autoFocus={autoFocus}
         inputRef={inputRef}
-        onChange={next => {
-          updateField(key, next);
-
-          // driver settes/cleares KUN av eksplisitt brukerinput
-          if (!isDriver(key)) return;
-
-          if (next.value === "") {
-            clearDriver();
-          } else {
-            setDriver(key);
-          }
-        }}
+        onChange={next => updateField(key, next)}
       />
     );
   }
@@ -218,8 +167,8 @@ export function SpiralMachining() {
       left={
         <InputPanel title="Spiral / Helix">
           <p className="hint">
-            Velg indre/ytre. Oppgi diameter, verktøydiameter
-            og enten pitch eller vinkel.
+            Velg indre/ytre. Oppgi diameter,
+            verktøydiameter og enten pitch eller vinkel.
           </p>
 
           <div className="number-field">
@@ -229,7 +178,7 @@ export function SpiralMachining() {
                 <input
                   type="radio"
                   checked={mode === "inner"}
-                  onChange={() => handleModeChange("inner")}
+                  onChange={() => setMode("inner")}
                 />
                 Inner
               </label>
@@ -237,7 +186,7 @@ export function SpiralMachining() {
                 <input
                   type="radio"
                   checked={mode === "outer"}
-                  onChange={() => handleModeChange("outer")}
+                  onChange={() => setMode("outer")}
                 />
                 Outer
               </label>
@@ -266,10 +215,14 @@ export function SpiralMachining() {
                 {result.effectiveDiameter.toFixed(4)}
               </div>
               <div>Pitch: {result.pitch.toFixed(4)}</div>
-              <div>Vinkel: {result.angle.toFixed(4)}°</div>
+              <div>
+                Vinkel: {result.angle.toFixed(4)}°
+              </div>
             </>
           ) : (
-            <p className="hint">Ingen beregning utført ennå.</p>
+            <p className="hint">
+              Ingen beregning utført ennå.
+            </p>
           )}
         </SidePanel>
       }

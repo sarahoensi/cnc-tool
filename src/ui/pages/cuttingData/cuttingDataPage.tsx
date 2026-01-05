@@ -2,63 +2,63 @@
 
 import "./cuttingDataPage.css";
 
-import { solveCuttingData } from "@core";
-import type { CuttingDataInput, CuttingDataSolution } from "@core";
+import { Ref } from "react";
+import { solveCuttingData } from "@core/cuttingData";
+import type {
+  CuttingDataInput,
+  CuttingDataSolution,
+} from "@core/cuttingData";
+import { FieldValidationError } from "@core/errors";
 
 import { NumberField } from "@ui/components/NumberField";
-
 import {
   CalculateButton,
   ResetButton,
 } from "@ui/components/Button/Button";
-
-import { usePersistentState } from "@app/state";
-import { emptyField } from "@app/state/field/field";
-import { applySolveResult } from "@app/solver/applySolveResult";
-
-
-import { toNumber } from "@utils/number";
-import { usePageReset } from "@app/hooks/ui/usePageReset";
-import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
-
 import {
   SplitPage,
   InputPanel,
   SidePanel,
 } from "@ui/components/Layout";
 
-import { FieldValidationError } from "@core/errors";
-import { Ref } from "react";
+import { usePersistentState } from "@app/state";
+import { emptyField } from "@app/state/field/field";
+import { applySolveResult } from "@app/solver/applySolveResult";
+import { toNumber } from "@utils/number";
+
+import { usePageReset } from "@app/hooks/ui/usePageReset";
+import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 
+import type { CuttingFields } from "./cuttingTypes";
 import {
-  CuttingFields,
   SpeedDriver,
   FeedDriver,
 } from "./cuttingTypes";
-
-
-
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 
 type FieldKeys = keyof CuttingFields;
 
 export function CuttingData() {
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // FELTER
-  // -------------------------------------------------------
-  const [fields, setFields] = usePersistentState<CuttingFields>(
-    "cutting:fields",
-    () => ({
-      D: emptyField(),
-      z: emptyField(),
-      Vc: emptyField(),
-      n: emptyField(),
-      F: emptyField(),
-      fz: emptyField(),
-    })
-  );
+  // --------------------------------------------------
+  const [fields, setFields] =
+    usePersistentState<CuttingFields>(
+      "cutting:fields",
+      () => ({
+        D: emptyField(),
+        z: emptyField(),
+        Vc: emptyField(),
+        n: emptyField(),
+        F: emptyField(),
+        fz: emptyField(),
+      })
+    );
 
+  // --------------------------------------------------
+  // FELTFEIL
+  // --------------------------------------------------
   const {
     fieldErrors,
     setFieldErrors,
@@ -66,19 +66,17 @@ export function CuttingData() {
     clearAllFieldErrors,
   } = useFieldErrors<FieldKeys>();
 
+  // --------------------------------------------------
+  // DRIVER (UI-INTENSJON, IKKE VALIDERING)
+  // --------------------------------------------------
+  const speedDriver =
+    useDriverOverride<SpeedDriver>();
+  const feedDriver =
+    useDriverOverride<FeedDriver>();
 
-
-  // -------------------------------------------------------
-  // DRIVER (kun brukerintensjon)
-  // -------------------------------------------------------
-  const speedDriver = useDriverOverride<SpeedDriver>();
-  const feedDriver = useDriverOverride<FeedDriver>();
-
-
-
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // RESULTAT / FEIL
-  // -------------------------------------------------------
+  // --------------------------------------------------
   const [result, setResult] =
     usePersistentState<CuttingDataSolution | null>(
       "cutting:result",
@@ -86,26 +84,28 @@ export function CuttingData() {
     );
 
   const [error, setError] =
-    usePersistentState<string | null>("cutting:error", null);
+    usePersistentState<string | null>(
+      "cutting:error",
+      null
+    );
 
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // RESET
-  // -------------------------------------------------------
-  const resetSection = usePageReset("cutting:");
+  // --------------------------------------------------
+  const resetPage = usePageReset("cutting:");
 
   function handleReset() {
-    resetSection();
+    resetPage();
     clearAllFieldErrors();
     setError(null);
     setResult(null);
-
     speedDriver.clearDriver();
     feedDriver.clearDriver();
   }
 
-  // -------------------------------------------------------
-  // FELT-OPPDATERING
-  // -------------------------------------------------------
+  // --------------------------------------------------
+  // FELTOPPDATERING
+  // --------------------------------------------------
   const updateField = useFieldUpdater({
     setFields,
     clearError: () => {
@@ -115,55 +115,56 @@ export function CuttingData() {
     clearFieldError,
   });
 
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // BEREGNING
-  // -------------------------------------------------------
+  // --------------------------------------------------
   function handleSolve() {
-  clearAllFieldErrors();
-  setError(null);
-  setResult(null);
+    clearAllFieldErrors();
+    setError(null);
+    setResult(null);
 
-  const input: CuttingDataInput = {};
+    // Bygg core-input (kun parsing)
+    const input: CuttingDataInput = {};
 
-  for (const key of Object.keys(fields) as FieldKeys[]) {
-    const raw = fields[key].value;
-    if (raw === "") continue;
+    for (const key of Object.keys(fields) as FieldKeys[]) {
+      const raw = fields[key].value;
+      if (raw === "") continue;
 
-    const parsed = toNumber(raw);
-    if (Number.isFinite(parsed)) {
-      input[key] = parsed;
+      const parsed = toNumber(raw);
+      if (Number.isFinite(parsed)) {
+        input[key] = parsed;
+      }
+    }
+
+    try {
+      const res = solveCuttingData(input);
+
+      setResult(res);
+
+      // Etter solve: ingen driver låst
+      speedDriver.clearDriver();
+      feedDriver.clearDriver();
+
+      setFields(prev =>
+        applySolveResult(prev, res)
+      );
+    } catch (e) {
+      if (e instanceof FieldValidationError) {
+        setFieldErrors(e.fieldErrors);
+        return;
+      }
+
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Ukjent feil"
+      );
     }
   }
 
-  try {
-    const res = solveCuttingData(input);
-
-    setResult(res);
-
-    // Etter beregning: UI skal ikke være låst
-    speedDriver.clearDriver();
-    feedDriver.clearDriver();
-
-    setFields(prev =>
-      applySolveResult(prev, res)
-    );
-  } catch (e) {
-    if (e instanceof FieldValidationError) {
-      setFieldErrors(e.fieldErrors);
-      return;
-    }
-
-    setError(e instanceof Error ? e.message : "Ukjent feil");
-  }
-}
-
-
-
-
-
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // INPUT-RENDER
-  // -------------------------------------------------------
+  // --------------------------------------------------
   function renderInput(
     key: FieldKeys,
     label: string,
@@ -182,7 +183,6 @@ export function CuttingData() {
           tooltip={tooltip}
           autoFocus={autoFocus}
           inputRef={inputRef}
-
           onChange={next => {
             updateField(key, next);
 
@@ -206,9 +206,9 @@ export function CuttingData() {
     );
   }
 
-  // -------------------------------------------------------
+  // --------------------------------------------------
   // RENDER
-  // -------------------------------------------------------
+  // --------------------------------------------------
   return (
     <SplitPage
       left={
@@ -218,14 +218,14 @@ export function CuttingData() {
           {renderInput("Vc", "Skjærehastighet Vc", "m/min")}
           {renderInput("n", "Omdreininger n", "rpm")}
           {renderInput("F", "Matning F", "mm/min")}
-          {renderInput("fz", "Matning per tann fz", "mm/tann")}
-
-
-        
+          {renderInput(
+            "fz",
+            "Matning per tann fz",
+            "mm/tann"
+          )}
 
           <div className="button-row">
-            <CalculateButton onClick={handleSolve} 
-            />
+            <CalculateButton onClick={handleSolve} />
             <ResetButton onClick={handleReset} />
           </div>
 
@@ -233,11 +233,21 @@ export function CuttingData() {
         </InputPanel>
       }
       right={
-        <SidePanel title="Resultat" children={undefined}>
-          {/* Kan bygges senere */}
+        <SidePanel title="Resultat">
+          {result ? (
+            <>
+              <div>Vc: {result.Vc.toFixed(3)}</div>
+              <div>n: {result.n.toFixed(0)}</div>
+              <div>F: {result.F.toFixed(3)}</div>
+              <div>fz: {result.fz.toFixed(4)}</div>
+            </>
+          ) : (
+            <p className="hint">
+              Ingen beregning utført ennå.
+            </p>
+          )}
         </SidePanel>
       }
     />
   );
 }
-

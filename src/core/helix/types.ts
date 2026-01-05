@@ -16,27 +16,3 @@ export type HelixSolution = {
   pitch: number;
   angle: number;
 };
-
-/*
-// Finn vinkel fra pitch
-export interface HelixFromPitchInput {
-  pitch: number;        // mm per omdreining
-  diameter: number;    // hull-Ø (inner) eller kontur-Ø (outer)
-  toolDiameter: number;
-  mode: HelixMode;
-}
-
-export interface HelixFromAngleInput {
-  angleDeg: number;    // grader
-  diameter: number;   // hull-Ø (inner) eller kontur-Ø (outer)
-  toolDiameter: number;
-  mode: HelixMode;
-}
-
-export interface HelixSolution {
-  pitch: number;
-  angleDeg: number;
-  effectiveDiameter: number;
-  mode: HelixMode;
-}
-  */

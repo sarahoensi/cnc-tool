@@ -1,9 +1,6 @@
-// ui/pages/triangleSolver/triangleSolverPage.tsx
-
 import "./triangleSolverPage.css";
 
-import { solveTriangle } from "@core";
-import type { TriangleSolverInput } from "@core";
+import { solveTriangle, TriangleSolverInput } from "@core";
 
 import { NumberField } from "@ui/components/NumberField";
 import {
@@ -11,17 +8,14 @@ import {
   ResetButton,
 } from "@ui/components/Button/Button";
 
-import {
-  emptyField,
-
-} from "@app/state/field";
+import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
 import { applySolveResult } from "@app/solver/applySolveResult";
+import { parseNumberFields } from "@app/solver/parseNumberFields";
 
-
-import { toNumber } from "@utils/number";
 import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
+import { useFieldUpdater } from "@app/hooks";
 
 import {
   SplitPage,
@@ -30,11 +24,9 @@ import {
 } from "@ui/components/Layout";
 
 import { FieldValidationError } from "@core/errors";
-import { Ref} from "react";
-
+import type { Ref } from "react";
 
 import type { TriangleFields } from "./triangleTypes";
-import { useFieldUpdater } from "@app/hooks";
 
 // --------------------------------------------------
 // TYPES
@@ -42,13 +34,7 @@ import { useFieldUpdater } from "@app/hooks";
 
 type FieldKeys = keyof TriangleFields;
 
-const TRIANGLE_KEYS: FieldKeys[] = [
-  "a",
-  "b",
-  "c",
-  "alpha",
-  "beta",
-];
+
 
 // --------------------------------------------------
 // COMPONENT
@@ -77,16 +63,14 @@ export function TriangleSolver() {
     clearAllFieldErrors,
   } = useFieldErrors<FieldKeys>();
 
+  const [error, setError] =
+    usePersistentState<string | null>("triangle:error", null);
+
   const updateField = useFieldUpdater<TriangleFields>({
     setFields,
     clearError: () => setError(null),
     clearFieldError,
   });
-
-  const [error, setError] =
-    usePersistentState<string | null>("triangle:error", null);
-
-
 
   // --------------------------------------------------
   // RESET
@@ -99,71 +83,46 @@ export function TriangleSolver() {
     setError(null);
   }
 
-
   // --------------------------------------------------
-  // FELTOPPDATERING
-  // --------------------------------------------------
-
-
-
-  // --------------------------------------------------
-  // BEREGNING (CORE)
+  // BEREGNING
   // --------------------------------------------------
   function handleSolve() {
-    setError(null);
-    clearAllFieldErrors();
+  setError(null);
+  clearAllFieldErrors();
 
-    const input: TriangleSolverInput = {};
-    const errors: Partial<Record<FieldKeys, string>> = {};
+  const fieldMap: {
+  [K in keyof TriangleSolverInput]: { value: string }
+} = {
+  a: fields.a,
+  b: fields.b,
+  c: fields.c,
+  alpha: fields.alpha,
+  beta: fields.beta,
+};
 
-    // --------------------------------------------------
-    // Bygg core-input + valider brukerinput
-    // --------------------------------------------------
-    for (const key of TRIANGLE_KEYS) {
-      const raw = fields[key].value;
-      if (raw === "") continue;
+const { input, errors } =
+  parseNumberFields<TriangleSolverInput>(fieldMap);
 
-      const parsed = toNumber(raw);
+if (Object.keys(errors).length > 0) {
+  setFieldErrors(errors);
+  return;
+}
 
-      if (!Number.isFinite(parsed)) {
-        errors[key] = "Ugyldig tallverdi";
-        continue;
-      }
+  try {
+    const result = solveTriangle(input);
 
-      if (parsed <= 0) {
-        errors[key] = "Verdien må være > 0";
-        continue;
-      }
-
-      input[key] = parsed;
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
+    setFields(prev =>
+      applySolveResult(prev, result)
+    );
+  } catch (e) {
+    if (e instanceof FieldValidationError) {
+      setFieldErrors(e.fieldErrors);
       return;
     }
 
-    // --------------------------------------------------
-    // Core-solve
-    // --------------------------------------------------
-    try {
-      const res = solveTriangle(input);
-
-      setFields(prev =>
-        applySolveResult(prev, res)
-      );
-
-    } catch (e) {
-      if (e instanceof FieldValidationError) {
-        setFieldErrors(e.fieldErrors);
-        return;
-      }
-
-      setError(e instanceof Error ? e.message : "Ukjent feil");
-    }
-
+    setError(e instanceof Error ? e.message : "Ukjent feil");
   }
-
+}
 
 
   // --------------------------------------------------
@@ -183,14 +142,9 @@ export function TriangleSolver() {
           field={fields[key]}
           unit={unit}
           error={fieldErrors[key]}
-
           autoFocus={autoFocus}
           inputRef={inputRef}
-          onChange={next => {
-            updateField(key, next);
-
-          }}
-
+          onChange={next => updateField(key, next)}
         />
       </div>
     );
@@ -209,13 +163,8 @@ export function TriangleSolver() {
           {renderInput("alpha", "Vinkel α", "°")}
           {renderInput("beta", "Vinkel β", "°")}
 
-          
-
           <div className="button-row">
-            <CalculateButton
-              onClick={handleSolve}
-              
-            />
+            <CalculateButton onClick={handleSolve} />
             <ResetButton onClick={handleReset} />
           </div>
 
