@@ -30,12 +30,9 @@ import {
 } from "@ui/components/Layout";
 
 import { FieldValidationError } from "@core/errors";
-import { Ref, useState } from "react";
+import { Ref} from "react";
 
-import { getTriangleAvailability } from "./getTriangleAvailability";
 
-import { getSolveStatus } from "./triangleSolveStatus";
-import { getTriangleFieldUI } from "./triangleFieldUI";
 import type { TriangleFields } from "./triangleTypes";
 import { useFieldUpdater } from "@app/hooks";
 
@@ -89,10 +86,6 @@ export function TriangleSolver() {
   const [error, setError] =
     usePersistentState<string | null>("triangle:error", null);
 
-  type TriangleUIMode = "input" | "result";
-
-  const [uiMode, setUiMode] =
-    useState<TriangleUIMode>("input");
 
 
   // --------------------------------------------------
@@ -104,27 +97,8 @@ export function TriangleSolver() {
     resetPage();
     clearAllFieldErrors();
     setError(null);
-    setUiMode("input");
   }
 
-  // --------------------------------------------------
-  // AVAILABILITY (UI)
-  // --------------------------------------------------
-  const availability = getTriangleAvailability(fields);
-
-  // --------------------------------------------------
-  // SOLVE STATUS (UI)
-  // --------------------------------------------------
-  const solveStatus = getSolveStatus(availability);
-
-  // --------------------------------------------------
-  // FIELD UI
-  // --------------------------------------------------
-  const fieldUI = getTriangleFieldUI(
-    fields,
-    availability,
-    { hasResult: uiMode === "result" }
-  );
 
   // --------------------------------------------------
   // FELTOPPDATERING
@@ -178,7 +152,7 @@ export function TriangleSolver() {
       setFields(prev =>
         applySolveResult(prev, res)
       );
-      setUiMode("result");
+
     } catch (e) {
       if (e instanceof FieldValidationError) {
         setFieldErrors(e.fieldErrors);
@@ -209,13 +183,12 @@ export function TriangleSolver() {
           field={fields[key]}
           unit={unit}
           error={fieldErrors[key]}
-          enabled={fieldUI[key].enabled}
-          lockedReason={fieldUI[key].lockedReason}
+
           autoFocus={autoFocus}
           inputRef={inputRef}
           onChange={next => {
             updateField(key, next);
-            setUiMode("input");
+
           }}
 
         />
@@ -236,24 +209,12 @@ export function TriangleSolver() {
           {renderInput("alpha", "Vinkel α", "°")}
           {renderInput("beta", "Vinkel β", "°")}
 
-          <div className="solve-status">
-            <div className={solveStatus.geometryReady ? "ok" : "missing"}>
-              {solveStatus.geometryReady
-                ? "✓ Geometri: OK"
-                : "✗ Geometri: oppgi minst én side"}
-            </div>
-
-            <div className={solveStatus.angleReady ? "ok" : "missing"}>
-              {solveStatus.angleReady
-                ? "✓ Vinkler: OK"
-                : "✗ Vinkler: oppgi α eller β eller to sider"}
-            </div>
-          </div>
+          
 
           <div className="button-row">
             <CalculateButton
               onClick={handleSolve}
-              disabled={!solveStatus.canSolve}
+              
             />
             <ResetButton onClick={handleReset} />
           </div>

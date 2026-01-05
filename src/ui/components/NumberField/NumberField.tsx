@@ -15,13 +15,9 @@ type Props = {
   tooltip?: string;
   error?: string;
 
-  disabled?: boolean;        // ekte disabled (f.eks. globalt)
+  disabled?: boolean;        // ekte disabled
   autoFocus?: boolean;
   inputRef?: Ref<HTMLInputElement>;
-
-  enabled?: boolean;         // UI-policy locking
-  lockedReason?: string;
-  onUnlock?: () => void;
 };
 
 export function NumberField({
@@ -36,23 +32,10 @@ export function NumberField({
   disabled = false,
   autoFocus,
   inputRef,
-  enabled = true,
-  lockedReason,
-  onUnlock,
 }: Props) {
-  const isLocked = enabled === false;
-
-  function handleUnlock() {
-    if (isLocked && onUnlock) onUnlock();
-  }
-
   return (
-    <div
-      className={["number-field", isLocked ? "locked" : ""].join(" ")}
-      title={isLocked ? lockedReason : undefined}
-      onDoubleClick={handleUnlock}
-    >
-      <label className={["nf-label", isLocked ? "locked" : ""].join(" ")}>
+    <div className="number-field">
+      <label className="nf-label">
         {label}
         {tooltip && (
           <span className="nf-tooltip-icon" title={tooltip} aria-label={tooltip}>
@@ -68,17 +51,11 @@ export function NumberField({
           value={field.value}
           autoFocus={autoFocus}
           ref={inputRef}
-
-          // ✅ IKKE disable ved UI-lås (ellers får du ikke dblclick)
           disabled={disabled}
-          readOnly={isLocked}
-
           onValue={(val) => onChange({ ...field, value: val })}
-
           className={[
             "nf-input",
             field.source,
-            isLocked ? "locked" : "",
             disabled ? "disabled" : "",
             error ? "has-error" : "",
           ].join(" ")}

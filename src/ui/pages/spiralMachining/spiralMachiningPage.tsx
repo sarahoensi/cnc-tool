@@ -20,7 +20,6 @@ import { applySolveResult } from "@app/solver/applySolveResult";
 import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./spiralTypes";
-import { getSpiralFieldUI } from "./spiralFieldUI";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 
 /* ---------------------------------------------------------
@@ -179,10 +178,6 @@ export function SpiralMachining() {
     }
   }
 
-  /* ---------------- FIELD UI (VEILEDNING) ---------------- */
-
-  const fieldUI = getSpiralFieldUI(fields, { driver });
-
   /* ---------------- INPUT RENDER ---------------- */
 
   function renderInput(
@@ -198,8 +193,6 @@ export function SpiralMachining() {
         field={fields[key]}
         unit={unit}
         error={fieldErrors[key]}
-        enabled={fieldUI[key].enabled}
-        lockedReason={fieldUI[key].lockedReason}
         autoFocus={autoFocus}
         inputRef={inputRef}
         onChange={next => {

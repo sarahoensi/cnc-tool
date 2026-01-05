@@ -37,11 +37,9 @@ import {
   FeedDriver,
 } from "./cuttingTypes";
 
-import { getCuttingFieldUI } from "./cuttingFieldUI";
-import { getCuttingAvailability } from "./getCuttingAvailability";
+
 
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-import { getSolveStatus } from "./cuttingSolveStatus";
 
 type FieldKeys = keyof CuttingFields;
 
@@ -76,10 +74,7 @@ export function CuttingData() {
   const speedDriver = useDriverOverride<SpeedDriver>();
   const feedDriver = useDriverOverride<FeedDriver>();
 
-  // -------------------------------------------------------
-  // AVAILABILITY (UI-sannhet)
-  // -------------------------------------------------------
-  const availability = getCuttingAvailability(fields);
+
 
   // -------------------------------------------------------
   // RESULTAT / FEIL
@@ -163,23 +158,7 @@ export function CuttingData() {
 }
 
 
-  // -------------------------------------------------------
-  // UI-STATE PER FELT
-  // -------------------------------------------------------
-  const fieldUI = getCuttingFieldUI(
-    fields,
-    availability,
-    {
-      speedDriver: speedDriver.driver,
-      feedDriver: feedDriver.driver,
-      hasResult: !!result,
-    }
-  );
 
-  // -------------------------------------------------------
-  // Solve status
-  // -------------------------------------------------------
-  const solveStatus = getSolveStatus(availability);
 
 
   // -------------------------------------------------------
@@ -203,8 +182,7 @@ export function CuttingData() {
           tooltip={tooltip}
           autoFocus={autoFocus}
           inputRef={inputRef}
-          enabled={fieldUI[key].enabled}
-          lockedReason={fieldUI[key].lockedReason}
+
           onChange={next => {
             updateField(key, next);
 
@@ -243,23 +221,11 @@ export function CuttingData() {
           {renderInput("fz", "Matning per tann fz", "mm/tann")}
 
 
-          <div className="solve-status">
-            <div className={solveStatus.speedReady ? "ok" : "missing"}>
-              {solveStatus.speedReady
-                ? "✓ Spindel: OK"
-                : "✗ Spindel: oppgi D og enten Vc eller n"}
-            </div>
-
-            <div className={solveStatus.feedReady ? "ok" : "missing"}>
-              {solveStatus.feedReady
-                ? "✓ Mating: OK"
-                : "✗ Mating: oppgi z og enten F eller fz"}
-            </div>
-          </div>
+        
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} 
-            disabled={!solveStatus.canSolve} />
+            />
             <ResetButton onClick={handleReset} />
           </div>
 
