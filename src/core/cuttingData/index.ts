@@ -1,3 +1,8 @@
+// src/core/cuttingData/index.ts
 
-export * from "./logic"
-export * from "./types"
+export type {
+  CuttingDataInput,
+  CuttingDataSolution,
+} from "./types";
+
+export { solveCuttingData } from "./solve/solveCuttingData";
