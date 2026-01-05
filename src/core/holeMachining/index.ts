@@ -1,4 +1,21 @@
+// src/core/holeMachining/index.ts
 
-export * from "./execution";
-export * from "./logic";
-export * from "./types";
+export type {
+  HolePlan,
+  HoleExecutionState,
+  HoleLogEntry,
+  NextTargetInfo,
+  HolePlanFromNInput,
+  HolePlanFromAeInput,
+  HolePlanFromNoStartInput,
+} from "./types";
+
+// ---------- Planlegging ----------
+export { createHolePlan } from "./plan/createHolePlan";
+
+// ---------- Utførelse ----------
+export {
+  startExecution,
+  computeNextTarget,
+  registerMeasurement,
+} from "./execution";
