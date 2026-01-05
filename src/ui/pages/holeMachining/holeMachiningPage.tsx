@@ -27,6 +27,7 @@ import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
 import { toNumber } from "@utils/number";
+import { holeTooltips } from "./holeTooltips";
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -176,6 +177,7 @@ export function HoleMachining() {
     key: keyof typeof fields,
     label: string,
     unit?: string,
+    tooltip?:string,
     autoFocus?: boolean,
     inputRef?: Ref<HTMLInputElement>
   ) {
@@ -184,6 +186,7 @@ export function HoleMachining() {
         label={label}
         field={fields[key]}
         unit={unit}
+        tooltip={tooltip}
         error={fieldErrors[key]}
         autoFocus={autoFocus}
         inputRef={inputRef}
@@ -203,12 +206,13 @@ export function HoleMachining() {
             "D_start",
             "Start Ø",
             "mm",
+            holeTooltips.D_start,
             true,
             firstFieldRef
           )}
-          {renderInput("D_target", "Target Ø", "mm")}
-          {renderInput("N", "Antall kutt")}
-          {renderInput("ae", "Radialt inngrep", "mm")}
+          {renderInput("D_target", "Target Ø", "mm", holeTooltips.D_target)}
+          {renderInput("N", "Antall kutt","", holeTooltips.N)}
+          {renderInput("ae", "Radialt inngrep", "mm", holeTooltips.ae)}
 
           <div className="button-row">
             <CalculateButton onClick={buildPlan} />

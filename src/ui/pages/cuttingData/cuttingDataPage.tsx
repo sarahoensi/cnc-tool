@@ -36,6 +36,8 @@ import {
   FeedDriver,
 } from "./cuttingTypes";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
+import { cuttingTooltips } from "./cuttingTooltips";
+
 
 type FieldKeys = keyof CuttingFields;
 
@@ -213,15 +215,15 @@ export function CuttingData() {
     <SplitPage
       left={
         <InputPanel title="Skjæredata">
-          {renderInput("D", "Verktøydiameter D", "mm")}
-          {renderInput("z", "Antall tenner z")}
-          {renderInput("Vc", "Skjærehastighet Vc", "m/min")}
-          {renderInput("n", "Omdreininger n", "rpm")}
-          {renderInput("F", "Matning F", "mm/min")}
+          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
+          {renderInput("z", "Antall tenner z","", cuttingTooltips.z)}
+          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc)}
+          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n)}
+          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F)}
           {renderInput(
             "fz",
             "Matning per tann fz",
-            "mm/tann"
+            "mm/tann", cuttingTooltips.fz
           )}
 
           <div className="button-row">

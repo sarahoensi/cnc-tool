@@ -23,6 +23,8 @@ import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./spiralTypes";
 
+import { helixTooltips } from "./spiralTooltips";
+
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
 
@@ -144,6 +146,7 @@ export function SpiralMachining() {
     key: keyof SpiralFields,
     label: string,
     unit?: string,
+    tooltip?: string,
     autoFocus?: boolean,
     inputRef?: React.Ref<HTMLInputElement>
   ) {
@@ -152,6 +155,7 @@ export function SpiralMachining() {
         label={label}
         field={fields[key]}
         unit={unit}
+        tooltip={tooltip}
         error={fieldErrors[key]}
         autoFocus={autoFocus}
         inputRef={inputRef}
@@ -193,10 +197,10 @@ export function SpiralMachining() {
             </div>
           </div>
 
-          {renderInput("diameter", "Diameter", "mm", true, firstFieldRef)}
-          {renderInput("toolDiameter", "Verktøydiameter", "mm")}
-          {renderInput("pitch", "Pitch", "mm/rev")}
-          {renderInput("angle", "Vinkel", "°")}
+          {renderInput("diameter", "Diameter", "mm", helixTooltips.diameter ,true, firstFieldRef)}
+          {renderInput("toolDiameter", "Verktøydiameter", "mm", helixTooltips.toolDiameter)}
+          {renderInput("pitch", "Pitch", "mm/rev", helixTooltips.pitch)}
+          {renderInput("angle", "Vinkel", "°", helixTooltips.angle)}
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
