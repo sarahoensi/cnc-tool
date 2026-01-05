@@ -8,7 +8,6 @@ export * from "./form/useFieldErrors";
 
 export * from "./driver/useDriverOverride";
 export * from "./driver/useDriverInvariant";
-export * from "./driver/useMutuallyExclusiveFields";
 
 export * from "./domain/useHoleMachiningSection";
 
