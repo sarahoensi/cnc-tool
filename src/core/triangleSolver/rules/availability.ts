@@ -1,5 +1,4 @@
-// src/core/triangleSolver/availability.ts
-
+// src/core/triangleSolver/rules/availability.ts
 import type { TriangleSolverInput } from "../types";
 
 function isPos(x: unknown): x is number {

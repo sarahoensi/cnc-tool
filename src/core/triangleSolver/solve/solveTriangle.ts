@@ -1,3 +1,5 @@
+// src/core/triangleSolver/solve/solveTriangle.ts
+
 import type {
   TriangleSolverInput,
   TriangleSolverSolution,
@@ -5,7 +7,7 @@ import type {
 
 import { validateTriangleInput } from "../rules/validateTriangleInput";
 import { getTriangleAvailability } from "../rules/availability";
-import { sinDeg, atanDeg } from "../../utils/math";
+import { sinDeg, atanDeg } from "@utils/math";
 
 function isPos(x: unknown): x is number {
   return typeof x === "number" && Number.isFinite(x) && x > 0;
@@ -14,31 +16,85 @@ function isPos(x: unknown): x is number {
 export function solveTriangle(
   input: TriangleSolverInput
 ): TriangleSolverSolution {
+  // --------------------------------------------------
+  // 0. Absolutt krav: input må være gyldig og entydig
+  // --------------------------------------------------
   validateTriangleInput(input);
 
+  // availability beskriver kun hva som var GITT
   const availability = getTriangleAvailability(input);
+  const { has } = availability;
 
-  let { a, b, c, alpha, beta } = input;
+  // Arbeidskopi – her fyller vi ut løsningen
+  let a = input.a;
+  let b = input.b;
+  let c = input.c;
+  let alpha = input.alpha;
+  let beta = input.beta;
 
-  if (!availability.has.c && availability.canDerive.c) {
-    c = Math.sqrt(a! * a! + b! * b!);
+  // --------------------------------------------------
+  // 1. Hypotenus
+  // --------------------------------------------------
+  if (!has.c && isPos(a) && isPos(b)) {
+    c = Math.sqrt(a * a + b * b);
   }
 
-  if (!availability.has.alpha && availability.canDerive.alpha) {
-    alpha = atanDeg(a! / b!);
+  // --------------------------------------------------
+  // 2. Vinkel α
+  // --------------------------------------------------
+  if (!has.alpha) {
+    if (isPos(a) && isPos(b)) {
+      alpha = atanDeg(a / b);
+    } else if (isPos(a) && isPos(c)) {
+      alpha = Math.asin(a / c) * (180 / Math.PI);
+    } else if (isPos(b) && isPos(c)) {
+      alpha = Math.acos(b / c) * (180 / Math.PI);
+    }
   }
 
-  if (!availability.has.beta && isPos(alpha)) {
-    beta = 90 - alpha;
+  // --------------------------------------------------
+  // 3. Vinkel β
+  // --------------------------------------------------
+  if (!has.beta) {
+    if (isPos(alpha)) {
+      beta = 90 - alpha;
+    }
   }
 
-  if (!availability.has.a && availability.canDerive.a) {
-    a = c! * sinDeg(alpha!);
+  // --------------------------------------------------
+  // 4. Katet a
+  // --------------------------------------------------
+  if (!has.a) {
+    if (isPos(c) && isPos(alpha)) {
+      a = c * sinDeg(alpha);
+    } else if (isPos(b) && isPos(beta)) {
+      a = b * Math.tan(beta * Math.PI / 180);
+    }
   }
 
-  if (!availability.has.b && availability.canDerive.b) {
-    b = c! * sinDeg(beta!);
+  // --------------------------------------------------
+  // 5. Katet b
+  // --------------------------------------------------
+  if (!has.b) {
+    if (isPos(c) && isPos(beta)) {
+      b = c * sinDeg(beta);
+    } else if (isPos(a) && isPos(alpha)) {
+      b = a / Math.tan(alpha * Math.PI / 180);
+    }
   }
 
-  return { a: a!, b: b!, c: c!, alpha: alpha!, beta: beta! };
+  // --------------------------------------------------
+  // 6. Sikkerhet: ingen NaN / undefined
+  // --------------------------------------------------
+  const result = { a, b, c, alpha, beta };
+
+  for (const [key, value] of Object.entries(result)) {
+    if (!Number.isFinite(value)) {
+      throw new Error(
+        `Intern feil: ${key} kunne ikke beregnes`
+      );
+    }
+  }
+
+  return result as TriangleSolverSolution;
 }
