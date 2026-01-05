@@ -4,16 +4,25 @@ import {
   RegisterButton,
   UpdateButton,
 } from "@ui/components/Button/Button";
-import { computeNextTarget } from "@core";
-import type { HolePlan } from "@core/holeMachining";
-import type { HoleExecutionState } from "@core";
+
+import type {
+  HolePlan,
+  HoleExecutionState,
+  NextTargetInfo,
+} from "@core/holeMachining";
+
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
 type Props = {
   plan: HolePlan;
   state: HoleExecutionState;
+  nextTarget: NextTargetInfo | null;
+
   measurements: Record<number, string>;
-  setMeasurements: React.Dispatch<React.SetStateAction<Record<number, string>>>;
+  setMeasurements: React.Dispatch<
+    React.SetStateAction<Record<number, string>>
+  >;
+
   onSubmit(step: number): void;
   onUpdate(step: number, value: string): void;
 };
@@ -21,33 +30,24 @@ type Props = {
 export function HoleExecutionTable({
   plan,
   state,
+  nextTarget,
   measurements,
   setMeasurements,
   onSubmit,
   onUpdate,
 }: Props) {
   const [editingStep, setEditingStep] = useState<number | null>(null);
-  const [pendingValue, setPendingValue] = useState<string>("");
+  const [pendingValue, setPendingValue] = useState("");
 
-  // IMPORTANT:
-  // Denne ref-en skal KUN sitte på "current step"-inputen (registrering).
-  // Ikke på edit-inputen. Ellers mister du fokus-target når edit-input unmountes.
-  const { ref: currentMeasurementRef, focus: focusCurrentMeasurement } =
+  const { ref: currentRef, focus } =
     useAutoFocusOnVisibility<HTMLInputElement>();
 
   const isEditing = editingStep !== null;
 
-  // Autofokus:
-  // - når state.step endres (normal flyt)
-  // - når edit-modus avsluttes (OK/Avbryt), fordi state.step ofte IKKE endres ved oppdatering
   useEffect(() => {
     if (state.finished) return;
-
-    // Vent til DOM er oppdatert etter at editingStep er blitt null
-    requestAnimationFrame(() => {
-      focusCurrentMeasurement();
-    });
-  }, [state.step, state.finished, isEditing, focusCurrentMeasurement]);
+    requestAnimationFrame(() => focus());
+  }, [state.step, state.finished, isEditing, focus]);
 
   return (
     <table className="step-table">
@@ -65,33 +65,23 @@ export function HoleExecutionTable({
         {Array.from({ length: plan.N }, (_, i) => i + 1).map(step => {
           const log = state.log.find(l => l.step === step);
 
-          const isCurrent = !state.finished && state.step + 1 === step;
+          const isCurrent =
+            !state.finished && state.step + 1 === step;
 
-          // Kun siste utførte steg kan redigeres
           const canEdit = Boolean(log) && step === state.step;
-
-          const next = computeNextTarget(state);
-
-          let deltaD: number | null = null;
-          let aeVal: number | null = null;
-
-          if (log) {
-            deltaD = log.deltaD;
-            aeVal = log.ae;
-          } else if (isCurrent && next) {
-            deltaD = next.deltaD;
-            aeVal = next.ae;
-          }
-
           const rowIsEditing = editingStep === step;
+
+          const deltaD =
+            log?.deltaD ?? (isCurrent ? nextTarget?.deltaD : null);
+          const ae =
+            log?.ae ?? (isCurrent ? nextTarget?.ae : null);
 
           return (
             <tr key={step}>
               <td>{step}</td>
               <td>{deltaD != null ? deltaD.toFixed(4) : ""}</td>
-              <td>{aeVal != null ? aeVal.toFixed(4) : ""}</td>
+              <td>{ae != null ? ae.toFixed(4) : ""}</td>
 
-              {/* Målt Ø */}
               <td>
                 {log ? (
                   canEdit && rowIsEditing ? (
@@ -99,15 +89,15 @@ export function HoleExecutionTable({
                       className="measure-input edit-field"
                       value={pendingValue}
                       autoFocus
-                      onChange={e => setPendingValue(e.target.value)}
+                      onChange={e =>
+                        setPendingValue(e.target.value)
+                      }
                       onKeyDown={e => {
                         if (e.key === "Enter") {
-                          e.preventDefault();
                           onUpdate(step, pendingValue);
                           setEditingStep(null);
                         }
                         if (e.key === "Escape") {
-                          e.preventDefault();
                           setEditingStep(null);
                         }
                       }}
@@ -119,8 +109,7 @@ export function HoleExecutionTable({
                   )
                 ) : (
                   <input
-                    // Ref skal kun sitte på current input, ikke edit input
-                    ref={isCurrent ? currentMeasurementRef : undefined}
+                    ref={isCurrent ? currentRef : undefined}
                     className="measure-input"
                     value={measurements[step] ?? ""}
                     onChange={e =>
@@ -129,14 +118,12 @@ export function HoleExecutionTable({
                         [step]: e.target.value,
                       }))
                     }
-                    disabled={!isCurrent || isEditing} // lås registrering mens du redigerer
+                    disabled={!isCurrent || isEditing}
                   />
                 )}
               </td>
 
-              {/* Handlinger */}
               <td>
-                {/* Når vi redigerer: vis Register (som OK) + Avbryt */}
                 {canEdit && rowIsEditing && (
                   <>
                     <RegisterButton
@@ -147,26 +134,22 @@ export function HoleExecutionTable({
                       }}
                     />
                     <CancelButton
-                      onClick={() => {
-                        setEditingStep(null);
-                      }}
+                      onClick={() => setEditingStep(null)}
                     />
                   </>
                 )}
 
-                {/* Oppdater kun på siste utførte steg, og kun når vi ikke er i edit */}
                 {canEdit && !rowIsEditing && !isEditing && (
                   <UpdateButton
                     onClick={() => {
                       setEditingStep(step);
-                      setPendingValue(log!.measured.toString());
+                      setPendingValue(
+                        log!.measured.toString()
+                      );
                     }}
                   />
                 )}
 
-                {/* Kun ÉN synlig Registrer av gangen:
-                    - kun current step
-                    - og ikke mens vi er i edit */}
                 {isCurrent && !log && !isEditing && (
                   <RegisterButton
                     disabled={!measurements[step]}
