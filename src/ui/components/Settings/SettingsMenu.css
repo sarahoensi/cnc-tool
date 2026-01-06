@@ -1,10 +1,11 @@
+/* Root container */
 .settings-menu {
   position: absolute;
   top: 56px;
   right: 20px;
 
-  min-width: 160px;
-  padding: 8px;
+  min-width: 180px;
+  padding: 4px;
 
   background: var(--surface-default);
   border: 1px solid var(--border-default);
@@ -14,24 +15,91 @@
   z-index: 1000;
 }
 
-.settings-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 4px 8px;
-  margin-bottom: 4px;
+/* Chrome-style layout: main column + flyout */
+.chrome-root {
+  position: relative; 
+  display: flex;
 }
 
-.settings-menu button {
+/* Hovedkolonne */
+.menu-column {
+  min-width: 180px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Meny-item */
+.menu-item {
   width: 100%;
   padding: 8px 10px;
-  border: none;
   border-radius: 6px;
+
+  box-sizing: border-box;
+
   background: transparent;
-  text-align: left;
+  border: none;
+
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  color: var(--text-default);
+  font-size: 0.9rem;
 }
 
-.settings-menu button:hover {
+.menu-item:hover {
+  background: var(--input-bg-empty);
+}
+
+/* Chevron (>) */
+.chevron {
+  opacity: 0.5;
+  margin-left: 8px;
+}
+
+/* Flyout-panel (submenu) */
+.submenu-flyout {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 2px);   
+  margin-right: 0;
+
+
+  min-width: 200px;
+  padding: 8px;
+
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  pointer-events: auto;
+}
+
+/* Knapper inni submenu (ThemeSettings etc) */
+.submenu-flyout button {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+
+  background: transparent;
+  border: none;
+  text-align: left;
+
+  cursor: pointer;
+  color: var(--text-default);
+
+  box-sizing: border-box;
+}
+
+.submenu-flyout button:hover {
   background: var(--input-bg-empty);
 }

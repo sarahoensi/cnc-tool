@@ -6,6 +6,11 @@ import { SettingsMenu } from "@ui/components/Settings/SettingsMenu";
 export function TopBar() {
   const [open, setOpen] = useState(false);
 
+  function handleToggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    setOpen(prev => !prev);
+  }
+
   return (
     <div className="topbar">
       <div className="topbar-title">CNC Tool</div>
@@ -14,9 +19,13 @@ export function TopBar() {
         <SettingsButton
           aria-label="Innstillinger"
           title="Innstillinger"
-          onClick={() => setOpen(v => !v)}
+          onClick={handleToggle}
         />
-        {open && <SettingsMenu onClose={() => setOpen(false)} />}
+        {open && (
+          <div className="settings-layer">
+            <SettingsMenu onClose={() => setOpen(false)} />
+          </div>
+        )}
       </div>
     </div>
   );
