@@ -27,6 +27,7 @@ import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { helixTooltips } from "./spiralTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
+import { useClearMachineFieldsOnChange } from "@app/hooks/ui/useClearMachineFieldsOnChange";
 
 
 export function SpiralMachining() {
@@ -102,6 +103,12 @@ export function SpiralMachining() {
     setError(null);
     focusFirstField();
   }
+
+  useClearMachineFieldsOnChange(mode, setFields, {
+  clearResult: () => setResult(null),
+  clearErrors: clearAllFieldErrors,
+});
+
 
   /* ---------------- SOLVE ---------------- */
 
