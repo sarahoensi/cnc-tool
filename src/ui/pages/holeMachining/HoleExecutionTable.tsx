@@ -17,6 +17,9 @@ import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { holeExecutionTooltips } from "./holeTooltips";
 
 
+import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
+import { formatNumber } from "@utils/format";
+
 type Props = {
   plan: HolePlan;
   state: HoleExecutionState;
@@ -48,6 +51,9 @@ export function HoleExecutionTable({
 
   const isEditing = editingStep !== null;
 
+  const decimals = getDecimals();
+
+
   useEffect(() => {
     if (state.finished) return;
     requestAnimationFrame(() => focus());
@@ -56,38 +62,38 @@ export function HoleExecutionTable({
   return (
     <table className="step-table">
       <thead>
-  <tr>
-    <th>
-      <LabelWithTooltip
-        label="Steg"
-        tooltip={holeExecutionTooltips.step}
-      />
-    </th>
+        <tr>
+          <th>
+            <LabelWithTooltip
+              label="Steg"
+              tooltip={holeExecutionTooltips.step}
+            />
+          </th>
 
-    <th>
-      <LabelWithTooltip
-        label="ΔD (mm)"
-        tooltip={holeExecutionTooltips.deltaD}
-      />
-    </th>
+          <th>
+            <LabelWithTooltip
+              label="ΔD (mm)"
+              tooltip={holeExecutionTooltips.deltaD}
+            />
+          </th>
 
-    <th>
-      <LabelWithTooltip
-        label="ae (mm)"
-        tooltip={holeExecutionTooltips.ae}
-      />
-    </th>
+          <th>
+            <LabelWithTooltip
+              label="ae (mm)"
+              tooltip={holeExecutionTooltips.ae}
+            />
+          </th>
 
-    <th>
-      <LabelWithTooltip
-        label="Målt Ø"
-        tooltip={holeExecutionTooltips.measured}
-      />
-    </th>
+          <th>
+            <LabelWithTooltip
+              label="Målt Ø"
+              tooltip={holeExecutionTooltips.measured}
+            />
+          </th>
 
-    <th></th>
-  </tr>
-</thead>
+          <th></th>
+        </tr>
+      </thead>
 
 
       <tbody>
@@ -108,8 +114,8 @@ export function HoleExecutionTable({
           return (
             <tr key={step}>
               <td>{step}</td>
-              <td>{deltaD != null ? deltaD.toFixed(4) : ""}</td>
-              <td>{ae != null ? ae.toFixed(4) : ""}</td>
+              <td>{deltaD != null ? formatNumber(deltaD, decimals) : ""}</td>
+              <td>{ae != null ? formatNumber(ae, decimals) : ""}</td>
 
               <td>
                 {log ? (
@@ -133,7 +139,7 @@ export function HoleExecutionTable({
                     />
                   ) : (
                     <span className="readonly-value">
-                      {log.measured.toFixed(4)}
+                      {formatNumber(log.measured, decimals)}
                     </span>
                   )
                 ) : (

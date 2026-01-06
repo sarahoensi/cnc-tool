@@ -19,6 +19,9 @@ import { useFieldUpdater } from "@app/hooks";
 
 import { triangleTooltips } from "./triangleTooltips";
 
+import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
+import { formatNumber } from "@utils/format";
+
 
 import {
   SplitPage,
@@ -114,8 +117,12 @@ if (Object.keys(errors).length > 0) {
   try {
     const result = solveTriangle(input);
 
+    const decimals = getDecimals();
+
     setFields(prev =>
-      applySolveResult(prev, result)
+      applySolveResult(prev, result, {
+        format: (value) => formatNumber(value, decimals),
+      })
     );
   } catch (e) {
     if (e instanceof FieldValidationError) {

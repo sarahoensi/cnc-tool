@@ -15,7 +15,7 @@ export function toNumber(value: string | number): number {
 /**
  * Formater tall til ønsket antall desimaler, default 3.
  */
-export function formatNumber(value: number, decimals = 3): string {
+export function formatNumber(value: number, decimals: number): string {
   if (!Number.isFinite(value)) return "";
   return value.toFixed(decimals);
 }

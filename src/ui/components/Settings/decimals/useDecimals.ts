@@ -1,0 +1,19 @@
+export type Decimals = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+const DECIMALS_KEY = "ui.decimals";
+const DEFAULT_DECIMALS: Decimals = 3;
+
+export function setDecimals(decimals: Decimals) {
+  localStorage.setItem(DECIMALS_KEY, String(decimals));
+}
+
+export function getDecimals(): Decimals {
+  const raw = localStorage.getItem(DECIMALS_KEY);
+  const value = Number(raw);
+
+  if (Number.isInteger(value) && value >= 0 && value <= 6) {
+    return value as Decimals;
+  }
+
+  return DEFAULT_DECIMALS; // ← 3
+}

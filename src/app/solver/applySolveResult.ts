@@ -2,15 +2,7 @@ import { machineField } from "@app/state/field";
 import type { FieldState } from "@app/state/field";
 import { canOverwriteWithMachine } from "@app/state/field";
 
-/**
- * Applies numeric solve results to FieldState records.
- *
- * Contract:
- * - Only fields that are allowed to be overwritten will be updated
- * - Actual user input (source === "user" && value !== "") is never overwritten
- * - Empty or machine fields may be filled with computed values
- * - Formatting is handled here to keep solvers UI-agnostic
- */
+
 export function applySolveResult<
   F extends Record<string, FieldState>
 >(
@@ -22,9 +14,8 @@ export function applySolveResult<
 ): F {
   const next: F = { ...prev };
 
-  const format =
-    options?.format ??
-    ((value: number) => value.toFixed(4));
+  const format = options?.format ?? ((value: number) => String(value));
+
 
   for (const key of Object.keys(result) as (keyof F)[]) {
     const computed = result[key];

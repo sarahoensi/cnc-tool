@@ -38,6 +38,9 @@ import {
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 import { cuttingTooltips } from "./cuttingTooltips";
 
+import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
+import { formatNumber } from "@utils/format";
+
 
 type FieldKeys = keyof CuttingFields;
 
@@ -147,9 +150,15 @@ export function CuttingData() {
       speedDriver.clearDriver();
       feedDriver.clearDriver();
 
-      setFields(prev =>
-        applySolveResult(prev, res)
-      );
+      
+    const decimals = getDecimals();
+
+    setFields(prev =>
+      applySolveResult(prev, res, {
+        format: (value) => formatNumber(value, decimals),
+      })
+    );
+    
     } catch (e) {
       if (e instanceof FieldValidationError) {
         setFieldErrors(e.fieldErrors);

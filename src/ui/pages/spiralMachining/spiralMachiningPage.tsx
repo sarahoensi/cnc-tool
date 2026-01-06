@@ -26,6 +26,9 @@ import type { SpiralFields } from "./spiralTypes";
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { helixTooltips } from "./spiralTooltips";
 
+import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
+import { formatNumber } from "@utils/format";
+
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
 
@@ -120,12 +123,14 @@ export function SpiralMachining() {
 
       const res = solveHelix(input);
 
+      const decimals = getDecimals();
+
       // maskin fyller ut det som manglet
       setFields(prev =>
         applySolveResult(prev, {
           pitch: res.pitch,
           angle: res.angle,
-        })
+        }, { format: (value, key) => formatNumber(value, decimals),})
       );
 
       setResult(res);
