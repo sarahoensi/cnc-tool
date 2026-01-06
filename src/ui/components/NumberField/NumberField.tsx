@@ -1,7 +1,7 @@
 // src/ui/components/NumberField.tsx
 import "./NumberField.css";
 import NumberInput from "./NumberInput";
-import TooltipIcon from "@assets/tooltip-icon.svg";
+import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import type { FieldState } from "@app/state";
 import type { Ref } from "react";
 
@@ -36,12 +36,10 @@ export function NumberField({
   return (
     <div className="number-field">
       <label className="nf-label">
-        {label}
-        {tooltip && (
-          <span className="nf-tooltip-icon" title={tooltip} aria-label={tooltip}>
-            <img src={TooltipIcon} alt="info" />
-          </span>
-        )}
+        <LabelWithTooltip
+          label={label}
+          tooltip={tooltip}
+        />
       </label>
 
       <div className="nf-input-wrapper">

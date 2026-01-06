@@ -1,0 +1,29 @@
+.label-with-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Tooltip icon */
+.nf-tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+
+  cursor: pointer;
+  vertical-align: middle;
+  flex: 0 0 auto;
+
+  position: relative;
+}
+
+/* Force the image/SVG to actually be 14x14 */
+.nf-tooltip-icon img {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
