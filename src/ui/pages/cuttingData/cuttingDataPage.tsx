@@ -23,7 +23,6 @@ import {
 
 import { usePersistentState } from "@app/state";
 import { emptyField } from "@app/state/field/field";
-import { applySolveResult } from "@app/solver/applySolveResult";
 import { toNumber } from "@utils/number";
 
 import { usePageReset } from "@app/hooks/ui/usePageReset";
@@ -37,6 +36,10 @@ import {
 } from "./cuttingTypes";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 import { cuttingTooltips } from "./cuttingTooltips";
+
+import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
+
+
 
 
 type FieldKeys = keyof CuttingFields;
@@ -67,6 +70,10 @@ export function CuttingData() {
     clearFieldError,
     clearAllFieldErrors,
   } = useFieldErrors<FieldKeys>();
+
+  const { applyFormattedResult } =
+    useReformatOnDecimalsChange<CuttingFields>(setFields);
+
 
   // --------------------------------------------------
   // DRIVER (UI-INTENSJON, IKKE VALIDERING)
@@ -147,9 +154,10 @@ export function CuttingData() {
       speedDriver.clearDriver();
       feedDriver.clearDriver();
 
-      setFields(prev =>
-        applySolveResult(prev, res)
-      );
+
+      applyFormattedResult(res);
+
+
     } catch (e) {
       if (e instanceof FieldValidationError) {
         setFieldErrors(e.fieldErrors);
@@ -216,7 +224,7 @@ export function CuttingData() {
       left={
         <InputPanel title="Skjæredata">
           {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
-          {renderInput("z", "Antall tenner z","", cuttingTooltips.z)}
+          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z)}
           {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc)}
           {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n)}
           {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F)}

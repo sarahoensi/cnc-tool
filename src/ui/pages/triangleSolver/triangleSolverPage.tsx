@@ -20,6 +20,9 @@ import { useFieldUpdater } from "@app/hooks";
 import { triangleTooltips } from "./triangleTooltips";
 
 
+import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
+
+
 import {
   SplitPage,
   InputPanel,
@@ -75,6 +78,10 @@ export function TriangleSolver() {
     clearFieldError,
   });
 
+  const { applyFormattedResult } =
+  useReformatOnDecimalsChange<TriangleFields>(setFields);
+
+
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
@@ -114,9 +121,9 @@ if (Object.keys(errors).length > 0) {
   try {
     const result = solveTriangle(input);
 
-    setFields(prev =>
-      applySolveResult(prev, result)
-    );
+applyFormattedResult(result);
+
+
   } catch (e) {
     if (e instanceof FieldValidationError) {
       setFieldErrors(e.fieldErrors);
@@ -126,7 +133,6 @@ if (Object.keys(errors).length > 0) {
     setError(e instanceof Error ? e.message : "Ukjent feil");
   }
 }
-
 
   // --------------------------------------------------
   // INPUT-RENDER

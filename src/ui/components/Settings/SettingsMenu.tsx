@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./SettingsMenu.css";
 import { ThemeSettings } from "./theme/ThemeSettings";
+import { DecimalSettings } from "./decimals/DecimalSettings";
 
 const SETTINGS_MENU = [
   {
@@ -8,6 +9,13 @@ const SETTINGS_MENU = [
     label: "🎨 Tema",
     component: ThemeSettings,
   },
+
+  {
+  key: "decimals",
+  label: "🔢 Desimaler",
+  component: DecimalSettings,
+},
+
   // fremtidige:
   // { key: "language", label: "🌍 Språk", component: LanguageSettings },
 ];

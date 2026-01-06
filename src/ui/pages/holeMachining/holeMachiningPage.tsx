@@ -29,6 +29,7 @@ import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./holeTooltips";
 
+
 /* --------------------------------------------------
  * UI-policy helper
  * -------------------------------------------------- */
