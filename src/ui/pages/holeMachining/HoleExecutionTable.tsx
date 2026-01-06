@@ -17,8 +17,9 @@ import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { holeExecutionTooltips } from "./holeTooltips";
 
 
-import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
 import { formatNumber } from "@utils/format";
+
+import { useDecimalsValue } from "@app/hooks/ui/useDecimalsValue";
 
 type Props = {
   plan: HolePlan;
@@ -51,7 +52,7 @@ export function HoleExecutionTable({
 
   const isEditing = editingStep !== null;
 
-  const decimals = getDecimals();
+  const decimals = useDecimalsValue();
 
 
   useEffect(() => {

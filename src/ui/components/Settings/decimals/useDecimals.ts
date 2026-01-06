@@ -5,7 +5,9 @@ const DEFAULT_DECIMALS: Decimals = 3;
 
 export function setDecimals(decimals: Decimals) {
   localStorage.setItem(DECIMALS_KEY, String(decimals));
+  window.dispatchEvent(new Event("decimals-changed"));
 }
+
 
 export function getDecimals(): Decimals {
   const raw = localStorage.getItem(DECIMALS_KEY);

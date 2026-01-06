@@ -19,8 +19,8 @@ import { useFieldUpdater } from "@app/hooks";
 
 import { triangleTooltips } from "./triangleTooltips";
 
-import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
-import { formatNumber } from "@utils/format";
+
+import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 
 
 import {
@@ -78,6 +78,10 @@ export function TriangleSolver() {
     clearFieldError,
   });
 
+  const { applyFormattedResult } =
+  useReformatOnDecimalsChange<TriangleFields>(setFields);
+
+
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
@@ -117,13 +121,9 @@ if (Object.keys(errors).length > 0) {
   try {
     const result = solveTriangle(input);
 
-    const decimals = getDecimals();
+applyFormattedResult(result);
 
-    setFields(prev =>
-      applySolveResult(prev, result, {
-        format: (value) => formatNumber(value, decimals),
-      })
-    );
+
   } catch (e) {
     if (e instanceof FieldValidationError) {
       setFieldErrors(e.fieldErrors);
@@ -133,7 +133,6 @@ if (Object.keys(errors).length > 0) {
     setError(e instanceof Error ? e.message : "Ukjent feil");
   }
 }
-
 
   // --------------------------------------------------
   // INPUT-RENDER

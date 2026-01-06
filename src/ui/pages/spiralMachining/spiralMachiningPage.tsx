@@ -18,7 +18,7 @@ import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
-import { applySolveResult } from "@app/solver/applySolveResult";
+
 import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./spiralTypes";
@@ -26,8 +26,8 @@ import type { SpiralFields } from "./spiralTypes";
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { helixTooltips } from "./spiralTooltips";
 
-import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
-import { formatNumber } from "@utils/format";
+import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
+
 
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
@@ -82,6 +82,10 @@ export function SpiralMachining() {
     clearFieldError,
   });
 
+  const { applyFormattedResult } =
+    useReformatOnDecimalsChange<SpiralFields>(setFields);
+
+
   const {
     ref: firstFieldRef,
     focus: focusFirstField,
@@ -123,17 +127,13 @@ export function SpiralMachining() {
 
       const res = solveHelix(input);
 
-      const decimals = getDecimals();
-
-      // maskin fyller ut det som manglet
-      setFields(prev =>
-        applySolveResult(prev, {
-          pitch: res.pitch,
-          angle: res.angle,
-        }, { format: (value, key) => formatNumber(value, decimals),})
-      );
+      applyFormattedResult({
+        pitch: res.pitch,
+        angle: res.angle,
+      });
 
       setResult(res);
+
     } catch (e) {
       if (e instanceof FieldValidationError) {
         setFieldErrors(e.fieldErrors);
