@@ -10,7 +10,6 @@ import {
 
 import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
-import { applySolveResult } from "@app/solver/applySolveResult";
 import { parseNumberFields } from "@app/solver/parseNumberFields";
 
 import { usePageReset } from "@app/hooks/ui/usePageReset";
