@@ -18,6 +18,9 @@ type Props = {
   disabled?: boolean;        // ekte disabled
   autoFocus?: boolean;
   inputRef?: Ref<HTMLInputElement>;
+
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 
 export function NumberField({
@@ -32,6 +35,8 @@ export function NumberField({
   disabled = false,
   autoFocus,
   inputRef,
+  onFocus,
+  onBlur,
 }: Props) {
   return (
     <div className="number-field">
@@ -50,6 +55,8 @@ export function NumberField({
           autoFocus={autoFocus}
           ref={inputRef}
           disabled={disabled}
+          onFocus={onFocus}
+          onBlur={onBlur}
           onValue={(val) => onChange({ ...field, value: val })}
           className={[
             "nf-input",

@@ -1,0 +1,22 @@
+/* src/ui/pages/triangleSolver/components/TriangleDiagram.css */
+
+.triangle-diagram {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.triangle-diagram line,
+.triangle-diagram path {
+  stroke: var(--color-text-primary, #222);
+  stroke-width: 2;
+  fill: none;
+  transition: stroke 0.15s ease, stroke-width 0.15s ease;
+  cursor: pointer;
+}
+
+.triangle-diagram .active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 4;
+}

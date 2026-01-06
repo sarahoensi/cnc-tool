@@ -18,8 +18,9 @@ import { useFieldUpdater } from "@app/hooks";
 
 import { triangleTooltips } from "./triangleTooltips";
 
-
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
+import { ActiveTrianglePart } from "./triangleTypes";
+import { useState } from "react";
 
 
 import {
@@ -32,6 +33,8 @@ import { FieldValidationError } from "@core/errors";
 import type { Ref } from "react";
 
 import type { TriangleFields } from "./triangleTypes";
+import { TriangleDiagram } from "./triangleDiagram";
+
 
 // --------------------------------------------------
 // TYPES
@@ -79,6 +82,8 @@ export function TriangleSolver() {
 
   const { applyFormattedResult } =
   useReformatOnDecimalsChange<TriangleFields>(setFields);
+
+  const [activePart, setActivePart] = useState<ActiveTrianglePart>(null);
 
 
   // --------------------------------------------------
@@ -154,6 +159,8 @@ applyFormattedResult(result);
           error={fieldErrors[key]}
           autoFocus={autoFocus}
           inputRef={inputRef}
+          onFocus={() => setActivePart(key)}
+          onBlur={() => setActivePart(null)}
           onChange={next => updateField(key, next)}
         />
       </div>
@@ -182,10 +189,14 @@ applyFormattedResult(result);
         </InputPanel>
       }
       right={
-        <SidePanel title="Resultat" children={undefined}>
-          {/* kan bygges senere */}
-        </SidePanel>
-      }
+  <SidePanel title="Geometri">
+    <TriangleDiagram
+      activePart={activePart}
+      setActivePart={setActivePart}
+    />
+  </SidePanel>
+}
+
     />
   );
 }
