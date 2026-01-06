@@ -13,6 +13,10 @@ import type {
 
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
+import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
+import { holeExecutionTooltips } from "./holeTooltips";
+
+
 type Props = {
   plan: HolePlan;
   state: HoleExecutionState;
@@ -52,14 +56,39 @@ export function HoleExecutionTable({
   return (
     <table className="step-table">
       <thead>
-        <tr>
-          <th>Steg</th>
-          <th>ΔD (mm)</th>
-          <th>ae (mm)</th>
-          <th>Målt Ø</th>
-          <th></th>
-        </tr>
-      </thead>
+  <tr>
+    <th>
+      <LabelWithTooltip
+        label="Steg"
+        tooltip={holeExecutionTooltips.step}
+      />
+    </th>
+
+    <th>
+      <LabelWithTooltip
+        label="ΔD (mm)"
+        tooltip={holeExecutionTooltips.deltaD}
+      />
+    </th>
+
+    <th>
+      <LabelWithTooltip
+        label="ae (mm)"
+        tooltip={holeExecutionTooltips.ae}
+      />
+    </th>
+
+    <th>
+      <LabelWithTooltip
+        label="Målt Ø"
+        tooltip={holeExecutionTooltips.measured}
+      />
+    </th>
+
+    <th></th>
+  </tr>
+</thead>
+
 
       <tbody>
         {Array.from({ length: plan.N }, (_, i) => i + 1).map(step => {
