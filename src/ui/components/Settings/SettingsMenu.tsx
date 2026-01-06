@@ -1,47 +1,65 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./SettingsMenu.css";
+import { ThemeSettings } from "./theme/ThemeSettings";
 
-type Theme = "default" | "pink" | "forest" | "system";
+const SETTINGS_MENU = [
+  {
+    key: "theme",
+    label: "🎨 Tema",
+    component: ThemeSettings,
+  },
+  // fremtidige:
+  // { key: "language", label: "🌍 Språk", component: LanguageSettings },
+];
 
 interface SettingsMenuProps {
   onClose: () => void;
 }
 
-const THEME_KEY = "ui.theme";
-
 export function SettingsMenu({ onClose }: SettingsMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  function setTheme(theme: Theme) {
-    // 🔑 Én sannhet
-    localStorage.setItem(THEME_KEY, theme);
-
-    document.documentElement.dataset.theme =
-      theme === "system" ? "default" : theme;
-
-    onClose();
-  }
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
+      const target = e.target as Node;
+
+    if (!ref.current) return;
+
+    // hvis klikket er inni settings → ignorer
+    if (ref.current.contains(target)) return;
+
+    onClose();
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [onClose]);
 
-  return (
-    <div ref={ref} className="settings-menu">
-      <div className="settings-title">Tema</div>
+  const activeItem = SETTINGS_MENU.find(item => item.key === activeKey);
 
-      <button onClick={() => setTheme("default")}>🌤 Standard</button>
-      <button onClick={() => setTheme("pink")}>🌸 Rosa</button>
-      <button onClick={() => setTheme("forest")}>🌲 Forest</button>
-      <button onClick={() => setTheme("system")}>🖥 System</button>
+  return (
+    <div ref={ref} className="settings-menu chrome-root" onMouseLeave={() => setActiveKey(null)}>
+      {/* HOVEDKOLONNE */}
+      <div className="menu-column">
+        {SETTINGS_MENU.map(item => (
+          <div
+            key={item.key}
+            className="menu-item"
+            onMouseEnter={() => setActiveKey(item.key)}
+          >
+            {item.label}
+            <span className="chevron">›</span>
+          </div>
+        ))}
+      </div>
+
+      {/* FLYOUT */}
+      {activeItem && (
+        <div className="submenu-flyout">
+          <activeItem.component />
+        </div>
+      )}
     </div>
   );
 }

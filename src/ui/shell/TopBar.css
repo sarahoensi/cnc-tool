@@ -20,3 +20,14 @@
   align-items: center;
   gap: 8px;
 }
+
+.settings-layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.settings-layer > * {
+  pointer-events: auto;
+}
