@@ -23,6 +23,7 @@ import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./spiralTypes";
 
+import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { helixTooltips } from "./spiralTooltips";
 
 export function SpiralMachining() {
@@ -84,7 +85,7 @@ export function SpiralMachining() {
   } = useAutoFocusOnVisibility<HTMLInputElement>();
 
   /* ---------------- RESET ---------------- */
-//TODO: Ikke bytte mode ved reset
+  //TODO: Ikke bytte mode ved reset
   const resetPage = usePageReset("spiral:");
 
   function handleReset() {
@@ -176,7 +177,12 @@ export function SpiralMachining() {
           </p>
 
           <div className="number-field">
-            <label className="nf-label">Modus</label>
+            <label className="nf-label">
+              <LabelWithTooltip
+                label="Modus"
+                tooltip={helixTooltips.mode}
+              />
+            </label>
             <div className="nf-radio-group">
               <label>
                 <input
@@ -184,7 +190,10 @@ export function SpiralMachining() {
                   checked={mode === "inner"}
                   onChange={() => setMode("inner")}
                 />
-                Inner
+                <LabelWithTooltip
+                  label="Inner"
+                  tooltip={helixTooltips.inner}
+                />
               </label>
               <label>
                 <input
@@ -192,12 +201,15 @@ export function SpiralMachining() {
                   checked={mode === "outer"}
                   onChange={() => setMode("outer")}
                 />
-                Outer
+                <LabelWithTooltip
+                  label="Outer"
+                  tooltip={helixTooltips.outer}
+                />
               </label>
             </div>
           </div>
 
-          {renderInput("diameter", "Diameter", "mm", helixTooltips.diameter ,true, firstFieldRef)}
+          {renderInput("diameter", "Diameter", "mm", helixTooltips.diameter, true, firstFieldRef)}
           {renderInput("toolDiameter", "Verktøydiameter", "mm", helixTooltips.toolDiameter)}
           {renderInput("pitch", "Pitch", "mm/rev", helixTooltips.pitch)}
           {renderInput("angle", "Vinkel", "°", helixTooltips.angle)}
