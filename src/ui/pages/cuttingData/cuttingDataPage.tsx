@@ -28,6 +28,8 @@ import { toNumber } from "@utils/number";
 import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
+import { useDriverInvariant } from "@app/hooks/driver/useDriverInvariant";
+
 
 import type { CuttingFields } from "./cuttingTypes";
 import {
@@ -82,6 +84,33 @@ export function CuttingData() {
     useDriverOverride<SpeedDriver>();
   const feedDriver =
     useDriverOverride<FeedDriver>();
+
+
+  const isSpeedLocked = (key: "Vc" | "n") =>
+    speedDriver.driver !== null && speedDriver.driver !== key;
+
+  const isFeedLocked = (key: "F" | "fz") =>
+    feedDriver.driver !== null && feedDriver.driver !== key;
+
+  useDriverInvariant<CuttingFields, SpeedDriver>({
+    driver: speedDriver.driver,
+    setFields,
+    mapping: {
+      Vc: ["n"],
+      n: ["Vc"],
+    },
+  });
+
+  useDriverInvariant<CuttingFields, FeedDriver>({
+    driver: feedDriver.driver,
+    setFields,
+    mapping: {
+      F: ["fz"],
+      fz: ["F"],
+    },
+  });
+
+
 
   // --------------------------------------------------
   // RESULTAT / FEIL
@@ -181,7 +210,8 @@ export function CuttingData() {
     unit?: string,
     tooltip?: string,
     autoFocus?: boolean,
-    inputRef?: Ref<HTMLInputElement>
+    inputRef?: Ref<HTMLInputElement>,
+    disabled?: boolean
   ) {
     return (
       <div className="field">
@@ -193,24 +223,31 @@ export function CuttingData() {
           tooltip={tooltip}
           autoFocus={autoFocus}
           inputRef={inputRef}
+          disabled={disabled}
           onChange={next => {
+            if (disabled) return;
+
             updateField(key, next);
 
-            // Driver settes kun av brukerinput
             if (key === "Vc" || key === "n") {
-              next.value === ""
-                ? speedDriver.clearDriver()
-                : speedDriver.setDriver(key);
+              if (next.value === "") {
+                speedDriver.clearDriver();
+              } else {
+                speedDriver.setDriver(key);
+              }
             }
 
             if (key === "F" || key === "fz") {
-              next.value === ""
-                ? feedDriver.clearDriver()
-                : feedDriver.setDriver(key);
+              if (next.value === "") {
+                feedDriver.clearDriver();
+              } else {
+                feedDriver.setDriver(key);
+              }
             }
 
             setResult(null);
           }}
+
         />
       </div>
     );
@@ -225,14 +262,12 @@ export function CuttingData() {
         <InputPanel title="Skjæredata">
           {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
           {renderInput("z", "Antall tenner z", "", cuttingTooltips.z)}
-          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc)}
-          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n)}
-          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F)}
-          {renderInput(
-            "fz",
-            "Matning per tann fz",
-            "mm/tann", cuttingTooltips.fz
-          )}
+          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false, undefined, isSpeedLocked("Vc"))}
+          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n, false, undefined, isSpeedLocked("n"))}
+
+          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F, false, undefined, isFeedLocked("F"))}
+          {renderInput("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false, undefined, isFeedLocked("fz"))}
+
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />

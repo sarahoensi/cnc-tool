@@ -78,7 +78,7 @@ export function TriangleSolver() {
   });
 
   const { applyFormattedResult } =
-  useReformatOnDecimalsChange<TriangleFields>(setFields);
+    useReformatOnDecimalsChange<TriangleFields>(setFields);
 
 
   // --------------------------------------------------
@@ -96,42 +96,42 @@ export function TriangleSolver() {
   // BEREGNING
   // --------------------------------------------------
   function handleSolve() {
-  setError(null);
-  clearAllFieldErrors();
+    setError(null);
+    clearAllFieldErrors();
 
-  const fieldMap: {
-  [K in keyof TriangleSolverInput]: { value: string }
-} = {
-  a: fields.a,
-  b: fields.b,
-  c: fields.c,
-  alpha: fields.alpha,
-  beta: fields.beta,
-};
+    const fieldMap: {
+      [K in keyof TriangleSolverInput]: { value: string }
+    } = {
+      a: fields.a,
+      b: fields.b,
+      c: fields.c,
+      alpha: fields.alpha,
+      beta: fields.beta,
+    };
 
-const { input, errors } =
-  parseNumberFields<TriangleSolverInput>(fieldMap);
+    const { input, errors } =
+      parseNumberFields<TriangleSolverInput>(fieldMap);
 
-if (Object.keys(errors).length > 0) {
-  setFieldErrors(errors);
-  return;
-}
-
-  try {
-    const result = solveTriangle(input);
-
-applyFormattedResult(result);
-
-
-  } catch (e) {
-    if (e instanceof FieldValidationError) {
-      setFieldErrors(e.fieldErrors);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
-    setError(e instanceof Error ? e.message : "Ukjent feil");
+    try {
+      const result = solveTriangle(input);
+
+      applyFormattedResult(result);
+
+
+    } catch (e) {
+      if (e instanceof FieldValidationError) {
+        setFieldErrors(e.fieldErrors);
+        return;
+      }
+
+      setError(e instanceof Error ? e.message : "Ukjent feil");
+    }
   }
-}
 
   // --------------------------------------------------
   // INPUT-RENDER
@@ -154,7 +154,16 @@ applyFormattedResult(result);
           error={fieldErrors[key]}
           autoFocus={autoFocus}
           inputRef={inputRef}
-          onChange={next => updateField(key, next)}
+          //onChange={next => updateField(key, next)}
+          onChange={next => {
+            console.log(
+              `[onChange] ${key}`,
+              "value:", next.value,
+              "source:", next.source
+            );
+            updateField(key, next);
+          }}
+
         />
       </div>
     );
