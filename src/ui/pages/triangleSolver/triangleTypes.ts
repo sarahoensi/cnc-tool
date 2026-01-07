@@ -9,3 +9,5 @@ export type TriangleFields = {
   alpha: FieldState;
   beta: FieldState;
 };
+
+export type ActiveTrianglePart = "a" | "b" | "c" | "alpha" | "beta" | null;

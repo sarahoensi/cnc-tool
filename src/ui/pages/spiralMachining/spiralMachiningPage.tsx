@@ -2,7 +2,7 @@
 
 import "./spiralMachiningPage.css";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { solveHelix } from "@core/helix";
 import type { HelixInput, HelixSolution, HelixMode } from "@core/helix";
 import { FieldValidationError } from "@core/errors";
@@ -28,6 +28,7 @@ import { helixTooltips } from "./spiralTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 import { useClearMachineFieldsOnChange } from "@app/hooks/ui/useClearMachineFieldsOnChange";
+import { ActiveSpiralPart, SpiralDiagramInner, SpiralDiagramOuter } from "./Diagram";
 
 
 export function SpiralMachining() {
@@ -50,6 +51,8 @@ export function SpiralMachining() {
       pitch: emptyField(),
       angle: emptyField(),
     }));
+
+    const [activePart, setActivePart] = useState<ActiveSpiralPart>(null);
 
   /* ---------------- RESULT / ERROR ---------------- */
 
@@ -173,6 +176,8 @@ export function SpiralMachining() {
         autoFocus={autoFocus}
         inputRef={inputRef}
         onChange={next => updateField(key, next)}
+        onFocus={() => setActivePart(key)}
+    onBlur={() => setActivePart(null)}
       />
     );
   }
@@ -235,24 +240,28 @@ export function SpiralMachining() {
         </InputPanel>
       }
       right={
-        <SidePanel title="Resultat">
-          {result ? (
-            <>
-              <div>
-                Effektiv diameter:{" "}
-                {result.effectiveDiameter.toFixed(4)}
-              </div>
-              <div>Pitch: {result.pitch.toFixed(4)}</div>
-              <div>
-                Vinkel: {result.angle.toFixed(4)}°
-              </div>
-            </>
-          ) : (
-            <p className="hint">
-              Ingen beregning utført ennå.
-            </p>
-          )}
-        </SidePanel>
+        <SidePanel title="Geometri">
+  {mode === "inner" && (
+    <SpiralDiagramInner
+      diameter={Number(fields.diameter.value) || undefined}
+      toolDiameter={Number(fields.toolDiameter.value) || undefined}
+      pitch={Number(fields.pitch.value) || undefined}
+      angle={Number(fields.angle.value) || undefined}
+      activePart={activePart}
+    />
+  )}
+
+  {mode === "outer" && (
+    <SpiralDiagramOuter
+      diameter={Number(fields.diameter.value) || undefined}
+      toolDiameter={Number(fields.toolDiameter.value) || undefined}
+      pitch={Number(fields.pitch.value) || undefined}
+      angle={Number(fields.angle.value) || undefined}
+      activePart={activePart}
+    />
+  )}
+</SidePanel>
+
       }
     />
   );

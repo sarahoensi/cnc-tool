@@ -1,0 +1,145 @@
+.spiral-3d {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  shape-rendering: geometricPrecision;
+}
+
+/* DEL */
+.part-top {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.part-side {
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.part-bottom {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  opacity: 0.8;
+}
+
+/* HELIX */
+.helix-path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.6;
+}
+
+/* VERKTØY */
+.tool-top {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.6;
+}
+
+.tool-side {
+  stroke: #000;
+  stroke-width: 1.6;
+}
+
+.tool-bottom {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+  opacity: 0.9;
+}
+
+/* MÅL */
+.measure-line {
+  stroke: #000;
+  stroke-width: 1;
+}
+
+/* VINKEL */
+.angle-arc {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+/* TEKST */
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #000;
+  user-select: none;
+}
+
+.label.small {
+  font-size: 10.5px;
+  font-weight: 500;
+  fill: #000;
+}
+.helix-path.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 3.5;
+}
+
+.part-top.active,
+.part-side.active,
+.part-bottom.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 3.5;
+}
+
+.tool-top.active,
+.tool-side.active,
+.tool-bottom.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 3.5;
+}
+
+.measure-line.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 2.5;
+}
+
+.angle-arc.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 2.5;
+}
+.helix-back {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 4;
+  opacity: 0.35;
+}
+
+.helix-front {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.4;
+}
+
+.helix-front.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 3.5;
+}
+.helix-back {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 4;
+  opacity: 0.35;
+}
+
+.helix-front {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.4;
+}
+
+.helix-front.active {
+  stroke: var(--color-accent, #ff3b3b);
+  stroke-width: 3.5;
+}
