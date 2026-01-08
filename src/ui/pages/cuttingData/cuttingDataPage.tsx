@@ -2,7 +2,7 @@
 
 import "./cuttingDataPage.css";
 
-import { Ref, useEffect, useRef } from "react";
+import { Ref, useRef } from "react";
 import { solveCuttingData } from "@core/cuttingData";
 import type {
   CuttingDataInput,
@@ -122,7 +122,7 @@ export function CuttingData() {
 
   const isSolvingRef = useRef(false);
 
-
+/*
  const prevSourcesRef = useRef({
   Vc: fields.Vc.source,
   n: fields.n.source,
@@ -191,6 +191,21 @@ useEffect(() => {
   fields.fz.value,
 ]);
 
+*/
+useDerivedDrivers({
+  fields,
+  isSolvingRef,
+  groups: [
+    {
+      driver: speedDriver,
+      fields: ["Vc", "n"],
+    },
+    {
+      driver: feedDriver,
+      fields: ["F", "fz"],
+    },
+  ],
+});
 
 
   // --------------------------------------------------

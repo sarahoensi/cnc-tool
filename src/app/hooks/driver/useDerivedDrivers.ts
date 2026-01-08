@@ -1,82 +1,78 @@
-// src/app/hooks/driver/useDerivedDrivers.ts
-
 import { useEffect, useRef } from "react";
-import type { FieldState } from "@app/state/field";
-import type { DriverOverride } from "@app/hooks/driver/useDriverOverride";
 
-// En gruppe er alltid to felter
-type Group = readonly [string, string];
-
-// Bygger "Vc|n" fra ["Vc", "n"]
-type GroupKey<G extends Group> = `${G[0]}|${G[1]}`;
-
-// Props er bundet til de faktiske gruppene – ikke en global union
-type Props<G extends readonly Group[]> = {
-  fields: Record<G[number][0] | G[number][1], FieldState>;
-  groups: G;
-  drivers: {
-    [I in G[number] as GroupKey<I>]: DriverOverride<I[0] | I[1]>;
-  };
-  isSolvingRef?: React.MutableRefObject<boolean>;
+type FieldLike = {
+  source: string;
+  value: string;
 };
 
-export function useDerivedDrivers<G extends readonly Group[]>({
+type DriverLike<K extends string> = {
+  setDriver: (key: K) => void;
+  clearDriver: () => void;
+};
+
+export function useDerivedDrivers<
+  F extends Record<string, FieldLike>
+>({
   fields,
-  groups,
-  drivers,
   isSolvingRef,
-}: Props<G>) {
-  type K = G[number][0] | G[number][1];
-
-  const prevSourcesRef = useRef<Record<K, FieldState["source"]>>(
-    {} as Record<K, FieldState["source"]>
-  );
-
-  // init once
-  if (Object.keys(prevSourcesRef.current).length === 0) {
-    for (const [a, b] of groups) {
-      prevSourcesRef.current[a as K] = fields[a as K].source;
-      prevSourcesRef.current[b as K] = fields[b as K].source;
-    }
-  }
+  groups,
+}: {
+  fields: F;
+  isSolvingRef: React.MutableRefObject<boolean>;
+  groups: {
+    fields: readonly [keyof F & string, keyof F & string];
+    driver: DriverLike<any>;
+  }[];
+}) {
+  const prevSourcesRef = useRef<Record<string, string> | null>(null);
 
   useEffect(() => {
-    if (isSolvingRef?.current) return;
+    if (isSolvingRef.current) return;
+
+    const keys = Object.keys(fields);
+
+    // Init prev on first run
+    if (!prevSourcesRef.current) {
+      const initial: Record<string, string> = {};
+      for (const key of keys) {
+        initial[key] = fields[key].source;
+      }
+      prevSourcesRef.current = initial;
+      return;
+    }
 
     const prev = prevSourcesRef.current;
 
-    for (const [a, b] of groups) {
-      const key = `${a}|${b}` as GroupKey<[typeof a, typeof b]>;
-      const controller = drivers[key];
-      if (!controller) continue;
+    for (const group of groups) {
+      const [a, b] = group.fields;
 
-      const aKey = a as K;
-      const bKey = b as K;
+      const prevA = prev[a];
+      const prevB = prev[b];
 
-      const aPrev = prev[aKey];
-      const bPrev = prev[bKey];
-      const aNow = fields[aKey].source;
-      const bNow = fields[bKey].source;
+      const currA = fields[a].source;
+      const currB = fields[b].source;
 
-      const aBecameUser = aPrev === "machine" && aNow === "user";
-      const bBecameUser = bPrev === "machine" && bNow === "user";
+      const aBecameUser = prevA === "machine" && currA === "user";
+      const bBecameUser = prevB === "machine" && currB === "user";
 
+      // Bevisst: ikke sett driver i samme render
       if (aBecameUser || bBecameUser) {
-        prev[aKey] = aNow;
-        prev[bKey] = bNow;
         continue;
       }
 
-      if (aNow === "user" && bNow !== "machine") {
-        controller.setDriver(aKey);
-      } else if (bNow === "user" && aNow !== "machine") {
-        controller.setDriver(bKey);
+      if (currA === "user" && currB !== "machine") {
+        group.driver.setDriver(a);
+      } else if (currB === "user" && currA !== "machine") {
+        group.driver.setDriver(b);
       } else {
-        controller.clearDriver();
+        group.driver.clearDriver();
       }
-
-      prev[aKey] = aNow;
-      prev[bKey] = bNow;
     }
-  }, [fields, groups, drivers, isSolvingRef]);
+
+    const nextPrev: Record<string, string> = {};
+    for (const key of keys) {
+      nextPrev[key] = fields[key].source;
+    }
+    prevSourcesRef.current = nextPrev;
+  }, [fields, groups, isSolvingRef]);
 }
