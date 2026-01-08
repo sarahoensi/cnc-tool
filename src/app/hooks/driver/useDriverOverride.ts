@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 
-/**
- * Generic hook for "driver field" logic.
- *
- * K = union av lovlige driver-felter (f.eks "pitch" | "angle")
- */
-export function useDriverOverride<K extends string>() {
+export type DriverOverride<K extends string> = {
+  driver: K | null;
+  setDriver: (value: K | null) => void;
+  clearDriver: () => void;
+  isDriver: (key: K) => boolean;
+};
+
+export function useDriverOverride<K extends string>(): DriverOverride<K> {
   const [driver, setDriver] = useState<K | null>(null);
 
   return {

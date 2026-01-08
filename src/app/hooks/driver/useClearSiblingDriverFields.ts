@@ -1,14 +1,10 @@
 import { useEffect, useRef } from "react";
-import { emptyField, type FieldState } from "@app/state/field";
+import type { FieldState } from "@app/state/field";
+import { emptyField } from "@app/state/field/field";
+
 
 type DriverGroup<K extends string> = {
-  driver: K | null;
   fields: readonly K[];
-};
-
-type Options = {
-  clearResult?: () => void;
-  clearErrors?: () => void;
 };
 
 export function useClearSiblingDriverFields<
@@ -16,40 +12,49 @@ export function useClearSiblingDriverFields<
   K extends keyof F & string
 >(
   groups: readonly DriverGroup<K>[],
-  setFields: React.Dispatch<React.SetStateAction<F>>,
-  options?: Options
+  fields: F,
+  setFields: React.Dispatch<React.SetStateAction<F>>
 ) {
-  const prevDrivers = useRef<Record<string, string | null>>({});
+  const prevFieldsRef = useRef<F | null>(null);
 
   useEffect(() => {
-    setFields(prev => {
-      let next = prev;
+    const prev = prevFieldsRef.current;
+    prevFieldsRef.current = fields;
+
+    if (!prev) return;
+
+    setFields(current => {
+      let next = current;
       let changed = false;
 
       for (const group of groups) {
-        const prevDriver = prevDrivers.current[group.fields.join(",")] ?? null;
-        const currentDriver = group.driver;
+        for (const key of group.fields) {
+          const prevField = prev[key];
+          const currField = fields[key];
 
-        // Kun reager når driver faktisk har endret seg
-        if (currentDriver && currentDriver !== prevDriver) {
-          for (const field of group.fields) {
-            if (field !== currentDriver && prev[field]?.value !== "") {
-              if (!changed) {
-                next = { ...prev };
-                changed = true;
+          // 🔥 DETTE er nøkkelregelen:
+          // kun reager når et felt går fra machine -> user
+          if (
+            prevField.source === "machine" &&
+            currField.source === "user"
+          ) {
+            for (const sibling of group.fields) {
+              if (sibling === key) continue;
+
+              if (current[sibling].value !== "") {
+                if (!changed) {
+                  next = { ...current };
+                  changed = true;
+                }
+                next[sibling] = emptyField() as F[K];
+
               }
-              next[field] = emptyField() as F[K];
             }
           }
         }
-
-        prevDrivers.current[group.fields.join(",")] = currentDriver;
       }
 
-      return next;
+      return changed ? next : current;
     });
-
-    options?.clearResult?.();
-    options?.clearErrors?.();
-  }, [groups.map(g => g.driver).join("|"), setFields]);
+  }, [fields, groups, setFields]);
 }

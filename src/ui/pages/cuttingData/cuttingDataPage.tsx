@@ -2,13 +2,16 @@
 
 import "./cuttingDataPage.css";
 
-import { Ref, useEffect, useRef} from "react";
+import { Ref, useEffect, useRef } from "react";
 import { solveCuttingData } from "@core/cuttingData";
 import type {
   CuttingDataInput,
   CuttingDataSolution,
 } from "@core/cuttingData";
 import { FieldValidationError } from "@core/errors";
+import { getCuttingDisabledMap } from "@app/policies/cutting/cuttingDisabledPolicy";
+import { useCuttingAvailability } from "@app/hooks/domain/useCuttingAvailability";
+
 
 import { NumberField } from "@ui/components/NumberField";
 import {
@@ -30,6 +33,7 @@ import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 
 import { useClearSiblingDriverFields } from "@app/hooks/driver/useClearSiblingDriverFields";
+import { useDerivedDrivers } from "@app/hooks/driver/useDerivedDrivers";
 
 
 import type { CuttingFields } from "./cuttingTypes";
@@ -41,9 +45,6 @@ import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 import { cuttingTooltips } from "./cuttingTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
-
-
-
 
 type FieldKeys = keyof CuttingFields;
 
@@ -81,54 +82,68 @@ export function CuttingData() {
   // --------------------------------------------------
   // DRIVER (UI-INTENSJON, IKKE VALIDERING)
   // --------------------------------------------------
-  const speedDriver =
-    useDriverOverride<SpeedDriver>();
-  const feedDriver =
-    useDriverOverride<FeedDriver>();
+  const speedDriver = useDriverOverride<SpeedDriver>();
+  const feedDriver = useDriverOverride<FeedDriver>();
 
-useClearSiblingDriverFields<CuttingFields, SpeedDriver>(
-  [
-    {
-      driver: speedDriver.driver,
-      fields: ["Vc", "n"],
+    // --------------------------------------------------
+  // AVAILABILITY + DISABLED
+  // --------------------------------------------------
+
+  const availability = useCuttingAvailability(fields);
+
+  const disabledMap = getCuttingDisabledMap({
+    fields,
+    availability,
+    drivers: {
+      speed: speedDriver.driver,
+      feed: feedDriver.driver,
     },
-  ],
-  setFields,
-  {
-    clearResult: () => setResult(null),
-    clearErrors: () => clearAllFieldErrors(),
-  }
-);
+  });
 
-useClearSiblingDriverFields<CuttingFields, FeedDriver>(
-  [
-    {
-      driver: feedDriver.driver,
-      fields: ["F", "fz"],
-    },
-  ],
-  setFields,
-  {
-    clearResult: () => setResult(null),
-    clearErrors: () => clearAllFieldErrors(),
-  }
-);
+  // --------------------------------------------------
+  // CLEAR SIBLING FIELDS
+  // --------------------------------------------------
+
+  useClearSiblingDriverFields<CuttingFields, "Vc" | "n">(
+    [{ fields: ["Vc", "n"] }],
+    fields,
+    setFields
+  );
+
+  useClearSiblingDriverFields<CuttingFields, "F" | "fz">(
+    [{ fields: ["F", "fz"] }],
+    fields,
+    setFields
+  );
+
+  // --------------------------------------------------
+  // DERIVED DRIVERS
+  // --------------------------------------------------
+
+  const isSolvingRef = useRef(false);
 
 
-  const isSpeedLocked = (key: "Vc" | "n") =>
-    speedDriver.driver !== null && speedDriver.driver !== key;
-
-  const isFeedLocked = (key: "F" | "fz") =>
-    feedDriver.driver !== null && feedDriver.driver !== key;
-
-const isSolvingRef = useRef(false);
-
+ const prevSourcesRef = useRef({
+  Vc: fields.Vc.source,
+  n: fields.n.source,
+  F: fields.F.source,
+  fz: fields.fz.source,
+});
 
 useEffect(() => {
   if (isSolvingRef.current) return;
 
-  // SPEED
-  if (
+  const prev = prevSourcesRef.current;
+
+  const vcBecameUser = prev.Vc === "machine" && fields.Vc.source === "user";
+  const nBecameUser  = prev.n  === "machine" && fields.n.source  === "user";
+  const fBecameUser  = prev.F  === "machine" && fields.F.source  === "user";
+  const fzBecameUser = prev.fz === "machine" && fields.fz.source === "user";
+
+  // -------- SPEED --------
+  if (vcBecameUser || nBecameUser) {
+    // bevisst: ikke sett driver i samme render
+  } else if (
     fields.Vc.source === "user" &&
     fields.n.source !== "machine"
   ) {
@@ -142,8 +157,10 @@ useEffect(() => {
     speedDriver.clearDriver();
   }
 
-  // FEED
-  if (
+  // -------- FEED --------
+  if (fBecameUser || fzBecameUser) {
+    // samme her
+  } else if (
     fields.fz.source === "user" &&
     fields.F.source !== "machine"
   ) {
@@ -156,14 +173,23 @@ useEffect(() => {
   } else {
     feedDriver.clearDriver();
   }
+
+  prevSourcesRef.current = {
+    Vc: fields.Vc.source,
+    n: fields.n.source,
+    F: fields.F.source,
+    fz: fields.fz.source,
+  };
 }, [
   fields.Vc.source,
   fields.n.source,
   fields.F.source,
   fields.fz.source,
+  fields.Vc.value,
+  fields.n.value,
+  fields.F.value,
+  fields.fz.value,
 ]);
-
-
 
 
 
@@ -254,7 +280,7 @@ useEffect(() => {
           ? e.message
           : "Ukjent feil"
       );
-    } finally{
+    } finally {
       isSolvingRef.current = false;
     }
   }
@@ -287,7 +313,7 @@ useEffect(() => {
 
             updateField(key, next);
 
-           
+
             setResult(null);
           }}
 
@@ -303,13 +329,13 @@ useEffect(() => {
     <SplitPage
       left={
         <InputPanel title="Skjæredata">
-          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
-          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z)}
-          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false, undefined, isSpeedLocked("Vc"))}
-          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n, false, undefined, isSpeedLocked("n"))}
+          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true, undefined, disabledMap.D)}
+          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z, false, undefined, disabledMap.z)}
+          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false, undefined, disabledMap.Vc)}
+          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n, false, undefined, disabledMap.n)}
+          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F, false, undefined, disabledMap.F)}
+          {renderInput("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false, undefined, disabledMap.fz)}
 
-          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F, false, undefined, isFeedLocked("F"))}
-          {renderInput("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false, undefined, isFeedLocked("fz"))}
 
 
           <div className="button-row">
