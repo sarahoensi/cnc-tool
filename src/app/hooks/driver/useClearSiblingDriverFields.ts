@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { FieldState } from "@app/state/field";
+import { emptyField, type FieldState } from "@app/state/field";
 
 type DriverGroup<K extends string> = {
   driver: K | null;
@@ -38,7 +38,7 @@ export function useClearSiblingDriverFields<
                 next = { ...prev };
                 changed = true;
               }
-              next[field] = { ...prev[field], value: "" };
+              next[field] = emptyField() as F[K];
             }
           }
         }

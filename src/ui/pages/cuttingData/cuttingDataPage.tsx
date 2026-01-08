@@ -2,7 +2,7 @@
 
 import "./cuttingDataPage.css";
 
-import { Ref } from "react";
+import { Ref, useEffect, useRef} from "react";
 import { solveCuttingData } from "@core/cuttingData";
 import type {
   CuttingDataInput,
@@ -28,7 +28,8 @@ import { toNumber } from "@utils/number";
 import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
-import { useDriverInvariant } from "@app/hooks/driver/useDriverInvariant";
+
+import { useClearSiblingDriverFields } from "@app/hooks/driver/useClearSiblingDriverFields";
 
 
 import type { CuttingFields } from "./cuttingTypes";
@@ -85,6 +86,34 @@ export function CuttingData() {
   const feedDriver =
     useDriverOverride<FeedDriver>();
 
+useClearSiblingDriverFields<CuttingFields, SpeedDriver>(
+  [
+    {
+      driver: speedDriver.driver,
+      fields: ["Vc", "n"],
+    },
+  ],
+  setFields,
+  {
+    clearResult: () => setResult(null),
+    clearErrors: () => clearAllFieldErrors(),
+  }
+);
+
+useClearSiblingDriverFields<CuttingFields, FeedDriver>(
+  [
+    {
+      driver: feedDriver.driver,
+      fields: ["F", "fz"],
+    },
+  ],
+  setFields,
+  {
+    clearResult: () => setResult(null),
+    clearErrors: () => clearAllFieldErrors(),
+  }
+);
+
 
   const isSpeedLocked = (key: "Vc" | "n") =>
     speedDriver.driver !== null && speedDriver.driver !== key;
@@ -92,23 +121,49 @@ export function CuttingData() {
   const isFeedLocked = (key: "F" | "fz") =>
     feedDriver.driver !== null && feedDriver.driver !== key;
 
-  useDriverInvariant<CuttingFields, SpeedDriver>({
-    driver: speedDriver.driver,
-    setFields,
-    mapping: {
-      Vc: ["n"],
-      n: ["Vc"],
-    },
-  });
+const isSolvingRef = useRef(false);
 
-  useDriverInvariant<CuttingFields, FeedDriver>({
-    driver: feedDriver.driver,
-    setFields,
-    mapping: {
-      F: ["fz"],
-      fz: ["F"],
-    },
-  });
+
+useEffect(() => {
+  if (isSolvingRef.current) return;
+
+  // SPEED
+  if (
+    fields.Vc.source === "user" &&
+    fields.n.source !== "machine"
+  ) {
+    speedDriver.setDriver("Vc");
+  } else if (
+    fields.n.source === "user" &&
+    fields.Vc.source !== "machine"
+  ) {
+    speedDriver.setDriver("n");
+  } else {
+    speedDriver.clearDriver();
+  }
+
+  // FEED
+  if (
+    fields.fz.source === "user" &&
+    fields.F.source !== "machine"
+  ) {
+    feedDriver.setDriver("fz");
+  } else if (
+    fields.F.source === "user" &&
+    fields.fz.source !== "machine"
+  ) {
+    feedDriver.setDriver("F");
+  } else {
+    feedDriver.clearDriver();
+  }
+}, [
+  fields.Vc.source,
+  fields.n.source,
+  fields.F.source,
+  fields.fz.source,
+]);
+
+
 
 
 
@@ -175,14 +230,15 @@ export function CuttingData() {
     }
 
     try {
+      isSolvingRef.current = true;
       const res = solveCuttingData(input);
 
       setResult(res);
 
-      // Etter solve: ingen driver låst
+      /* Etter solve: ingen driver låst
       speedDriver.clearDriver();
       feedDriver.clearDriver();
-
+*/
 
       applyFormattedResult(res);
 
@@ -198,6 +254,8 @@ export function CuttingData() {
           ? e.message
           : "Ukjent feil"
       );
+    } finally{
+      isSolvingRef.current = false;
     }
   }
 
@@ -229,22 +287,7 @@ export function CuttingData() {
 
             updateField(key, next);
 
-            if (key === "Vc" || key === "n") {
-              if (next.value === "") {
-                speedDriver.clearDriver();
-              } else {
-                speedDriver.setDriver(key);
-              }
-            }
-
-            if (key === "F" || key === "fz") {
-              if (next.value === "") {
-                feedDriver.clearDriver();
-              } else {
-                feedDriver.setDriver(key);
-              }
-            }
-
+           
             setResult(null);
           }}
 
