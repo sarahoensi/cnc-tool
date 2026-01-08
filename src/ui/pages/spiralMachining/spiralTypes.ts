@@ -7,9 +7,3 @@ export type SpiralFields = {
   pitch: FieldState;
   angle: FieldState;
 };
-
-// src/ui/fieldUI.ts (eller spiralTypes.ts)
-export type FieldUIState = {
-  enabled: boolean;
-  lockedReason?: string;
-};

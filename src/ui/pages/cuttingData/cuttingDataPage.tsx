@@ -32,8 +32,8 @@ import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 
-import { useClearSiblingDriverFields } from "@app/hooks/driver/useClearSiblingDriverFields";
-import { useDerivedDrivers } from "@app/hooks/driver/useDerivedDrivers";
+
+import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
 
 
 import type { CuttingFields } from "./cuttingTypes";
@@ -104,17 +104,6 @@ export function CuttingData() {
   // CLEAR SIBLING FIELDS
   // --------------------------------------------------
 
-  useClearSiblingDriverFields<CuttingFields, "Vc" | "n">(
-    [{ fields: ["Vc", "n"] }],
-    fields,
-    setFields
-  );
-
-  useClearSiblingDriverFields<CuttingFields, "F" | "fz">(
-    [{ fields: ["F", "fz"] }],
-    fields,
-    setFields
-  );
 
   // --------------------------------------------------
   // DERIVED DRIVERS
@@ -192,20 +181,16 @@ useEffect(() => {
 ]);
 
 */
-useDerivedDrivers({
+useDriverGroups({
   fields,
+  setFields,
   isSolvingRef,
   groups: [
-    {
-      driver: speedDriver,
-      fields: ["Vc", "n"],
-    },
-    {
-      driver: feedDriver,
-      fields: ["F", "fz"],
-    },
+    { fields: ["Vc", "n"], driver: speedDriver },
+    { fields: ["F", "fz"], driver: feedDriver },
   ],
 });
+
 
 
   // --------------------------------------------------

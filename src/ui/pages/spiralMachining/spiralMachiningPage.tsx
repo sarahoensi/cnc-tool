@@ -29,6 +29,10 @@ import { helixTooltips } from "./spiralTooltips";
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 import { useClearMachineFieldsOnChange } from "@app/hooks/ui/useClearMachineFieldsOnChange";
 
+import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
+import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
+
+
 
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
@@ -51,6 +55,13 @@ export function SpiralMachining() {
       angle: emptyField(),
     }));
 
+    /*
+     * Drivers
+     */
+    const helixDriver = useDriverOverride<"pitch" | "angle">();
+const isSolvingRef = useRef(false);
+
+
   /* ---------------- RESULT / ERROR ---------------- */
 
   const [result, setResult] =
@@ -64,6 +75,9 @@ export function SpiralMachining() {
       "spiral:error",
       null
     );
+
+   
+
 
   /* ---------------- FIELD ERRORS ---------------- */
 
@@ -109,6 +123,34 @@ export function SpiralMachining() {
   clearErrors: clearAllFieldErrors,
 });
 
+useDriverGroups({
+  fields,
+  setFields,
+  isSolvingRef,
+  groups: [
+    {
+      fields: ["pitch", "angle"],
+      driver: helixDriver,
+    },
+  ],
+});
+
+const disabledMap: Record<keyof SpiralFields, boolean> = {
+  diameter: false,
+  toolDiameter: false,
+  pitch: false,
+  angle: false,
+};
+
+if (helixDriver.driver === "pitch") {
+  disabledMap.angle = true;
+}
+
+if (helixDriver.driver === "angle") {
+  disabledMap.pitch = true;
+}
+
+
 
   /* ---------------- SOLVE ---------------- */
 
@@ -118,6 +160,8 @@ export function SpiralMachining() {
     setResult(null);
 
     try {
+      isSolvingRef.current = true;
+
       const input: HelixInput = {
         mode: modeRef.current,
         diameter: toNumber(fields.diameter.value),
@@ -150,6 +194,8 @@ export function SpiralMachining() {
       setError(
         e instanceof Error ? e.message : "Ukjent feil"
       );
+    } finally{
+      isSolvingRef.current = false;
     }
   }
 
@@ -161,8 +207,10 @@ export function SpiralMachining() {
     unit?: string,
     tooltip?: string,
     autoFocus?: boolean,
-    inputRef?: React.Ref<HTMLInputElement>
+    inputRef?: React.Ref<HTMLInputElement>,
+  
   ) {
+    const disabled = disabledMap[key];
     return (
       <NumberField
         label={label}
@@ -172,7 +220,13 @@ export function SpiralMachining() {
         error={fieldErrors[key]}
         autoFocus={autoFocus}
         inputRef={inputRef}
-        onChange={next => updateField(key, next)}
+        disabled={disabled}
+        onChange={next => {
+        if (disabled) return;
+
+        updateField(key, next);
+        setResult(null);
+      }}
       />
     );
   }
