@@ -29,6 +29,10 @@ import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./holeTooltips";
 
+import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
+import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
+import { useRef } from "react";
+
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -36,8 +40,8 @@ import { holeTooltips } from "./holeTooltips";
 function confirmDiscardExecution(): boolean {
   return window.confirm(
     "Du har en pågående utførelse.\n\n" +
-      "Dette vil slette all fremdrift.\n\n" +
-      "Vil du fortsette?"
+    "Dette vil slette all fremdrift.\n\n" +
+    "Vil du fortsette?"
   );
 }
 
@@ -54,6 +58,10 @@ export function HoleMachining() {
     error,
     setError,
   } = useHoleMachiningSection();
+
+  const planDriver = useDriverOverride<"N" | "ae">();
+  const isSolvingRef = useRef(false);
+
 
   const {
     fieldErrors,
@@ -72,6 +80,34 @@ export function HoleMachining() {
     setFields,
     clearError: () => setError(null),
   });
+
+  useDriverGroups({
+    fields,
+    setFields,
+    isSolvingRef,
+    groups: [
+      {
+        fields: ["N", "ae"],
+        driver: planDriver,
+      },
+    ],
+  });
+
+  const disabledMap: Record<keyof typeof fields, boolean> = {
+    D_start: false,
+    D_target: false,
+    N: false,
+    ae: false,
+  };
+
+  if (planDriver.driver === "N") {
+    disabledMap.ae = true;
+  }
+
+  if (planDriver.driver === "ae") {
+    disabledMap.N = true;
+  }
+
 
   /* --------------------------------------------------
    * RESET
@@ -99,6 +135,8 @@ export function HoleMachining() {
     }
 
     try {
+      isSolvingRef.current = true;
+
       const input = {
         D_start: toNumber(fields.D_start.value),
         D_target: toNumber(fields.D_target.value),
@@ -117,6 +155,8 @@ export function HoleMachining() {
         return;
       }
       setError(e instanceof Error ? e.message : "Ukjent feil");
+    } finally {
+      isSolvingRef.current = false
     }
   }
 
@@ -178,10 +218,11 @@ export function HoleMachining() {
     key: keyof typeof fields,
     label: string,
     unit?: string,
-    tooltip?:string,
+    tooltip?: string,
     autoFocus?: boolean,
     inputRef?: Ref<HTMLInputElement>
   ) {
+    const disabled = disabledMap[key];
     return (
       <NumberField
         label={label}
@@ -191,7 +232,11 @@ export function HoleMachining() {
         error={fieldErrors[key]}
         autoFocus={autoFocus}
         inputRef={inputRef}
-        onChange={next => updateField(key, next)}
+        disabled={disabled}
+        onChange={next => {
+          if (disabled) return;
+          updateField(key, next);
+        }}
       />
     );
   }
@@ -212,7 +257,7 @@ export function HoleMachining() {
             firstFieldRef
           )}
           {renderInput("D_target", "Target Ø", "mm", holeTooltips.D_target)}
-          {renderInput("N", "Antall kutt","", holeTooltips.N)}
+          {renderInput("N", "Antall kutt", "", holeTooltips.N)}
           {renderInput("ae", "Radialt inngrep", "mm", holeTooltips.ae)}
 
           <div className="button-row">
