@@ -28,23 +28,19 @@ import { usePersistentState } from "@app/state";
 import { emptyField } from "@app/state/field/field";
 import { toNumber } from "@utils/number";
 
-import { usePageReset } from "@app/hooks/ui/usePageReset";
-import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
-import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
+import { usePageReset, useReformatOnDecimalsChange } from "@app/hooks/ui";
+import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
+import { useDriverGroups, useDriverOverride } from "@app/hooks/driver";
 
 
-import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
-
-
-import type { CuttingFields } from "./types/cuttingTypes";
 import {
+  CuttingFields,
   SpeedDriver,
   FeedDriver,
 } from "./types";
-import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
+
 import { cuttingTooltips } from "./ui/cuttingTooltips";
 
-import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 
 type FieldKeys = keyof CuttingFields;
 

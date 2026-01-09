@@ -10,27 +10,29 @@ import { FieldValidationError } from "@core/errors";
 import { NumberField } from "@ui/components/NumberField";
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
+import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 
 import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
-import { usePageReset } from "@app/hooks/ui/usePageReset";
-import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
-import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
-import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
+import { 
+  usePageReset, useAutoFocusOnVisibility, useReformatOnDecimalsChange, useClearMachineFieldsOnChange 
+} from "@app/hooks/ui";
+import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
+import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
 
 import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./types/spiralTypes";
 
-import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
+
 import { helixTooltips } from "./ui/spiralTooltips";
 
-import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
-import { useClearMachineFieldsOnChange } from "@app/hooks/ui/useClearMachineFieldsOnChange";
+import {  } from "@app/hooks/ui/useReformatOnDecimalsChange";
+import {  } from "@app/hooks/ui/useClearMachineFieldsOnChange";
 
-import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
+
+
 
 
 

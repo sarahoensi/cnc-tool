@@ -28,9 +28,6 @@ import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
 import { getHoleDisabledMap } from "@ui/pages/holeMachining/policy/holeDisabledPolicy";
 import { useHoleAvailability } from "@ui/pages/holeMachining/hooks/useHoleAvailability";
 
-import type { HolePlanDriver } from "@ui/pages/holeMachining/types";
-
-
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./ui/holeTooltips";
 
