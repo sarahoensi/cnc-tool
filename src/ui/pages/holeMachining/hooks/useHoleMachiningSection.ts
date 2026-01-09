@@ -1,19 +1,16 @@
 import { usePersistentState } from "@app/state";
-import type { FieldState } from "@app/state/field/field";
 import { emptyField } from "@app/state/field/field";
 import type { HolePlan, HoleExecutionState } from "@core";
+import type { HoleMachiningFields } from "@ui/pages/holeMachining/types/holetypes";
+
 
 /**
  * Hook for å håndtere inputfelter, plan, state, målinger og reset for HoleMachining.
  */
 export function useHoleMachiningSection() {
   // Input fields
-  const [fields, setFields] = usePersistentState<{
-    D_start: FieldState;
-    D_target: FieldState;
-    N: FieldState;
-    ae: FieldState;
-  }>("hole:fields", () => ({
+  const [fields, setFields] = usePersistentState<HoleMachiningFields>(
+    "hole:fields", () => ({
     D_start: emptyField(),
     D_target: emptyField(),
     N: emptyField(),

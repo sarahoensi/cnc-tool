@@ -21,16 +21,15 @@ import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
 import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 
 import { useHoleMachiningSection } from "@ui/pages/holeMachining/hooks/useHoleMachiningSection";
-import { usePageReset } from "@app/hooks/ui/usePageReset";
-import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
-import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
-import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
+import { usePageReset, useAutoFocusOnVisibility } from "@app/hooks/ui";
+import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
+import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
 
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./ui/holeTooltips";
 
-import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
+
+
 import { useRef } from "react";
 
 

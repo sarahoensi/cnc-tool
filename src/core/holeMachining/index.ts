@@ -19,3 +19,5 @@ export {
   computeNextTarget,
   registerMeasurement,
 } from "./execution";
+
+export { getHolePlanAvailability } from "./rules/availability";
