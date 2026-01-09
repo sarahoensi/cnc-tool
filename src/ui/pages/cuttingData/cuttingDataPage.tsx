@@ -9,8 +9,8 @@ import type {
   CuttingDataSolution,
 } from "@core/cuttingData";
 import { FieldValidationError } from "@core/errors";
-import { getCuttingDisabledMap } from "@app/policies/cutting/cuttingDisabledPolicy";
-import { useCuttingAvailability } from "@app/hooks/domain/useCuttingAvailability";
+import { getCuttingDisabledMap } from "@ui/pages/cuttingData/policy/cuttingDisabledPolicy";
+import { useCuttingAvailability } from "@ui/pages/cuttingData/hooks/useCuttingAvailability";
 
 
 import { NumberField } from "@ui/components/NumberField";
@@ -36,13 +36,13 @@ import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
 
 
-import type { CuttingFields } from "./cuttingTypes";
+import type { CuttingFields } from "./types/cuttingTypes";
 import {
   SpeedDriver,
   FeedDriver,
-} from "./cuttingTypes";
+} from "./types/cuttingTypes";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-import { cuttingTooltips } from "./cuttingTooltips";
+import { cuttingTooltips } from "./ui/cuttingTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 

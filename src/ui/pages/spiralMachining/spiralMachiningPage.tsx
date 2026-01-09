@@ -21,10 +21,10 @@ import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility
 
 import { toNumber } from "@utils/number";
 
-import type { SpiralFields } from "./spiralTypes";
+import type { SpiralFields } from "./types/spiralTypes";
 
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
-import { helixTooltips } from "./spiralTooltips";
+import { helixTooltips } from "./ui/spiralTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
 import { useClearMachineFieldsOnChange } from "@app/hooks/ui/useClearMachineFieldsOnChange";

@@ -1,5 +1,5 @@
 import { getCuttingAvailability } from "@core/cuttingData/rules/availability";
-import type { CuttingFields } from "@ui/pages/cuttingData/cuttingTypes";
+import type { CuttingFields } from "@ui/pages/cuttingData/types/cuttingTypes";
 import { toNumber } from "@utils/number";
 
 /**

@@ -14,7 +14,7 @@ import type {
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
 
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
-import { holeExecutionTooltips } from "./holeTooltips";
+import { holeExecutionTooltips } from "./ui/holeTooltips";
 
 
 import { formatNumber } from "@utils/format";

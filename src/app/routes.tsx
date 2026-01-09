@@ -2,7 +2,7 @@ import { Navigate, createHashRouter, Outlet } from "react-router-dom";
 import { AppShell } from "@ui/shell/AppShell";
 
 import { CuttingData as CuttingDataPage } from "@ui/pages/cuttingData/cuttingDataPage";
-import { HoleMachining as HoleMachiningPage } from "@ui/pages/holeMachining/holeMachiningPage";
+import { HoleMachining as HoleMachiningPage } from "@ui/pages/holeMachining/page/holeMachiningPage";
 import { SpiralMachining as SpiralMachiningPage } from "@ui/pages/spiralMachining/spiralMachiningPage";
 import { TriangleSolver as TriangleSolverPage } from "@ui/pages/triangleSolver/triangleSolverPage";
 

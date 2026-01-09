@@ -32,8 +32,6 @@ export function useClearSiblingDriverFields<
           const prevField = prev[key];
           const currField = fields[key];
 
-          // 🔥 DETTE er nøkkelregelen:
-          // kun reager når et felt går fra machine -> user
           if (
             prevField.source === "machine" &&
             currField.source === "user"

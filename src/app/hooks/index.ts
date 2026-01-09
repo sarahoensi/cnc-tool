@@ -9,5 +9,5 @@ export * from "./form/useFieldErrors";
 export * from "./driver/useDriverOverride";
 export * from "./driver/useDriverInvariant";
 
-export * from "./domain/useHoleMachiningSection";
+export * from "../../ui/pages/holeMachining/hooks/useHoleMachiningSection";
 

@@ -16,7 +16,7 @@ import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks";
 
-import { triangleTooltips } from "./triangleTooltips";
+import { triangleTooltips } from "./ui/triangleTooltips";
 
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
@@ -31,7 +31,7 @@ import {
 import { FieldValidationError } from "@core/errors";
 import type { Ref } from "react";
 
-import type { TriangleFields } from "./triangleTypes";
+import type { TriangleFields } from "./types/triangleTypes";
 
 // --------------------------------------------------
 // TYPES
