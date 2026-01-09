@@ -25,13 +25,16 @@ import { usePageReset, useAutoFocusOnVisibility } from "@app/hooks/ui";
 import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
 import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
 
+import { getHoleDisabledMap } from "@ui/pages/holeMachining/policy/holeDisabledPolicy";
+import { useHoleAvailability } from "@ui/pages/holeMachining/hooks/useHoleAvailability";
+
+import type { HolePlanDriver } from "@ui/pages/holeMachining/types";
+
+
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./ui/holeTooltips";
 
-
-
 import { useRef } from "react";
-
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -91,7 +94,7 @@ export function HoleMachining() {
       },
     ],
   });
-
+/*
   const disabledMap: Record<keyof typeof fields, boolean> = {
     D_start: false,
     D_target: false,
@@ -106,7 +109,16 @@ export function HoleMachining() {
   if (planDriver.driver === "ae") {
     disabledMap.N = true;
   }
+*/
+const availability = useHoleAvailability(fields);
 
+const disabledMap = getHoleDisabledMap({
+  fields,
+  availability,
+  drivers: {
+    plan: planDriver.driver,
+  },
+});
 
   /* --------------------------------------------------
    * RESET

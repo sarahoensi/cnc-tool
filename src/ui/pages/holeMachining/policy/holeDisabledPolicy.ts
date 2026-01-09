@@ -1,27 +1,48 @@
-// src/ui/pages/holeMachining/hooks/useHoleAvailability.ts
+import type { HoleMachiningFields } from "../types";
 
-import { getHolePlanAvailability } from "@core/holeMachining/rules/availability";
-import { toNumber } from "@utils/number";
-import type { FieldState } from "@app/state/field/field";
+type Availability = {
+  has: {
+    D_start: boolean;
+    D_target: boolean;
+    N: boolean;
+    ae: boolean;
+  };
 
-/**
- * Adapter mellom UI FieldState og core availability-regler.
- *
- * Ansvar:
- * - oversette FieldState -> HolePlanInput
- * - kalle core-regel
- * - returnere domenelogikk til UI
- */
-export function useHoleAvailability(fields: {
-  D_start: FieldState;
-  D_target: FieldState;
-  N: FieldState;
-  ae: FieldState;
+  canPlanFromN: boolean;
+  canPlanFromAe: boolean;
+  canPlanFromNoStart: boolean;
+  canPlan: boolean;
+};
+
+export function getHoleDisabledMap(args: {
+  fields: HoleMachiningFields;
+  availability: Availability;
+  drivers: {
+    plan: "N" | "ae" | null;
+  };
 }) {
-  return getHolePlanAvailability({
-    D_start: toNumber(fields.D_start.value),
-    D_target: toNumber(fields.D_target.value),
-    N: toNumber(fields.N.value),
-    ae: toNumber(fields.ae.value),
-  });
+  const { fields, drivers } = args;
+
+  const disabled: Record<keyof HoleMachiningFields, boolean> = {
+    D_start: false,
+    D_target: false,
+    N: false,
+    ae: false,
+  };
+
+  // --------------------------------------------------
+  // 1. DRIVER-INTENSJON (ENESTE hard disable-regel)
+  // --------------------------------------------------
+  if (drivers.plan) {
+    const driver = drivers.plan;
+    const sibling = driver === "N" ? "ae" : "N";
+
+    // Samme regel som cutting:
+    // Aldri lås hvis sibling er machine
+    if (fields[sibling].source !== "machine") {
+      disabled[sibling] = true;
+    }
+  }
+
+  return disabled;
 }

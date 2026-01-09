@@ -40,7 +40,7 @@ import type { CuttingFields } from "./types/cuttingTypes";
 import {
   SpeedDriver,
   FeedDriver,
-} from "./types/cuttingTypes";
+} from "./types";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
 import { cuttingTooltips } from "./ui/cuttingTooltips";
 

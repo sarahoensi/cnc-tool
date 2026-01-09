@@ -1,5 +1,6 @@
-import type { CuttingFields } from "@ui/pages/cuttingData/types/cuttingTypes";
-import type { SpeedDriver, FeedDriver } from "@ui/pages/cuttingData/types/cuttingTypes";
+import type {
+  CuttingFields, SpeedDriver, FeedDriver
+} from "@ui/pages/cuttingData/types";
 
 type Availability = {
   has: {
