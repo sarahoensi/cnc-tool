@@ -2,13 +2,16 @@
 
 import "./cuttingDataPage.css";
 
-import { Ref } from "react";
+import { Ref, useRef } from "react";
 import { solveCuttingData } from "@core/cuttingData";
 import type {
   CuttingDataInput,
   CuttingDataSolution,
 } from "@core/cuttingData";
 import { FieldValidationError } from "@core/errors";
+import { getCuttingDisabledMap } from "@ui/pages/cuttingData/policy/cuttingDisabledPolicy";
+import { useCuttingAvailability } from "@ui/pages/cuttingData/hooks/useCuttingAvailability";
+
 
 import { NumberField } from "@ui/components/NumberField";
 import {
@@ -29,18 +32,19 @@ import { usePageReset } from "@app/hooks/ui/usePageReset";
 import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
 import { useFieldUpdater } from "@app/hooks/form/useFieldUpdater";
 
-import type { CuttingFields } from "./cuttingTypes";
+
+import { useDriverGroups } from "@app/hooks/driver/useDriverGroups";
+
+
+import type { CuttingFields } from "./types/cuttingTypes";
 import {
   SpeedDriver,
   FeedDriver,
-} from "./cuttingTypes";
+} from "./types";
 import { useDriverOverride } from "@app/hooks/driver/useDriverOverride";
-import { cuttingTooltips } from "./cuttingTooltips";
+import { cuttingTooltips } from "./ui/cuttingTooltips";
 
 import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
-
-
-
 
 type FieldKeys = keyof CuttingFields;
 
@@ -78,10 +82,116 @@ export function CuttingData() {
   // --------------------------------------------------
   // DRIVER (UI-INTENSJON, IKKE VALIDERING)
   // --------------------------------------------------
-  const speedDriver =
-    useDriverOverride<SpeedDriver>();
-  const feedDriver =
-    useDriverOverride<FeedDriver>();
+  const speedDriver = useDriverOverride<SpeedDriver>();
+  const feedDriver = useDriverOverride<FeedDriver>();
+
+    // --------------------------------------------------
+  // AVAILABILITY + DISABLED
+  // --------------------------------------------------
+
+  const availability = useCuttingAvailability(fields);
+
+  const disabledMap = getCuttingDisabledMap({
+    fields,
+    availability,
+    drivers: {
+      speed: speedDriver.driver,
+      feed: feedDriver.driver,
+    },
+  });
+
+  // --------------------------------------------------
+  // CLEAR SIBLING FIELDS
+  // --------------------------------------------------
+
+
+  // --------------------------------------------------
+  // DERIVED DRIVERS
+  // --------------------------------------------------
+
+  const isSolvingRef = useRef(false);
+
+/*
+ const prevSourcesRef = useRef({
+  Vc: fields.Vc.source,
+  n: fields.n.source,
+  F: fields.F.source,
+  fz: fields.fz.source,
+});
+
+useEffect(() => {
+  if (isSolvingRef.current) return;
+
+  const prev = prevSourcesRef.current;
+
+  const vcBecameUser = prev.Vc === "machine" && fields.Vc.source === "user";
+  const nBecameUser  = prev.n  === "machine" && fields.n.source  === "user";
+  const fBecameUser  = prev.F  === "machine" && fields.F.source  === "user";
+  const fzBecameUser = prev.fz === "machine" && fields.fz.source === "user";
+
+  // -------- SPEED --------
+  if (vcBecameUser || nBecameUser) {
+    // bevisst: ikke sett driver i samme render
+  } else if (
+    fields.Vc.source === "user" &&
+    fields.n.source !== "machine"
+  ) {
+    speedDriver.setDriver("Vc");
+  } else if (
+    fields.n.source === "user" &&
+    fields.Vc.source !== "machine"
+  ) {
+    speedDriver.setDriver("n");
+  } else {
+    speedDriver.clearDriver();
+  }
+
+  // -------- FEED --------
+  if (fBecameUser || fzBecameUser) {
+    // samme her
+  } else if (
+    fields.fz.source === "user" &&
+    fields.F.source !== "machine"
+  ) {
+    feedDriver.setDriver("fz");
+  } else if (
+    fields.F.source === "user" &&
+    fields.fz.source !== "machine"
+  ) {
+    feedDriver.setDriver("F");
+  } else {
+    feedDriver.clearDriver();
+  }
+
+  prevSourcesRef.current = {
+    Vc: fields.Vc.source,
+    n: fields.n.source,
+    F: fields.F.source,
+    fz: fields.fz.source,
+  };
+}, [
+  fields.Vc.source,
+  fields.n.source,
+  fields.F.source,
+  fields.fz.source,
+  fields.Vc.value,
+  fields.n.value,
+  fields.F.value,
+  fields.fz.value,
+]);
+
+*/
+useDriverGroups({
+  fields,
+  setFields,
+  isSolvingRef,
+  groups: [
+    { fields: ["Vc", "n"], driver: speedDriver },
+    { fields: ["F", "fz"], driver: feedDriver },
+  ],
+});
+
+
 
   // --------------------------------------------------
   // RESULTAT / FEIL
@@ -146,14 +256,15 @@ export function CuttingData() {
     }
 
     try {
+      isSolvingRef.current = true;
       const res = solveCuttingData(input);
 
       setResult(res);
 
-      // Etter solve: ingen driver låst
+      /* Etter solve: ingen driver låst
       speedDriver.clearDriver();
       feedDriver.clearDriver();
-
+*/
 
       applyFormattedResult(res);
 
@@ -169,6 +280,8 @@ export function CuttingData() {
           ? e.message
           : "Ukjent feil"
       );
+    } finally {
+      isSolvingRef.current = false;
     }
   }
 
@@ -181,7 +294,8 @@ export function CuttingData() {
     unit?: string,
     tooltip?: string,
     autoFocus?: boolean,
-    inputRef?: Ref<HTMLInputElement>
+    inputRef?: Ref<HTMLInputElement>,
+    disabled?: boolean
   ) {
     return (
       <div className="field">
@@ -193,24 +307,16 @@ export function CuttingData() {
           tooltip={tooltip}
           autoFocus={autoFocus}
           inputRef={inputRef}
+          disabled={disabled}
           onChange={next => {
+            if (disabled) return;
+
             updateField(key, next);
 
-            // Driver settes kun av brukerinput
-            if (key === "Vc" || key === "n") {
-              next.value === ""
-                ? speedDriver.clearDriver()
-                : speedDriver.setDriver(key);
-            }
-
-            if (key === "F" || key === "fz") {
-              next.value === ""
-                ? feedDriver.clearDriver()
-                : feedDriver.setDriver(key);
-            }
 
             setResult(null);
           }}
+
         />
       </div>
     );
@@ -223,16 +329,14 @@ export function CuttingData() {
     <SplitPage
       left={
         <InputPanel title="Skjæredata">
-          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
-          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z)}
-          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc)}
-          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n)}
-          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F)}
-          {renderInput(
-            "fz",
-            "Matning per tann fz",
-            "mm/tann", cuttingTooltips.fz
-          )}
+          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true, undefined, disabledMap.D)}
+          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z, false, undefined, disabledMap.z)}
+          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false, undefined, disabledMap.Vc)}
+          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n, false, undefined, disabledMap.n)}
+          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F, false, undefined, disabledMap.F)}
+          {renderInput("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false, undefined, disabledMap.fz)}
+
+
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />

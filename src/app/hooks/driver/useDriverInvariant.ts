@@ -1,6 +1,4 @@
-// src/app/hooks/driver/useDriverInvariant.ts
-
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { emptyField } from "@app/state/field/field";
 import type { FieldState } from "@app/state/field/field";
 
@@ -16,17 +14,25 @@ export function useDriverInvariant<
   setFields: React.Dispatch<React.SetStateAction<F>>;
   mapping: Record<D, readonly D[]>;
 }) {
+  const prevDriver = useRef<D | null>(null);
+
   useEffect(() => {
-    if (!driver) return;
+    if (!driver || driver === prevDriver.current) return;
+
+    prevDriver.current = driver;
 
     setFields(prev => {
+      let changed = false;
       const next = { ...prev };
 
       for (const other of mapping[driver] ?? []) {
-        next[other] = emptyField() as F[D];
+        if (prev[other]?.value !== "") {
+          next[other] = emptyField() as F[D];
+          changed = true;
+        }
       }
 
-      return next;
+      return changed ? next : prev;
     });
   }, [driver, setFields, mapping]);
 }
