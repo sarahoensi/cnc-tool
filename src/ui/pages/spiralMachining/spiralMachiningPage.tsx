@@ -25,15 +25,10 @@ import { toNumber } from "@utils/number";
 
 import type { SpiralFields } from "./types/spiralTypes";
 
-
 import { helixTooltips } from "./ui/spiralTooltips";
 
-import {  } from "@app/hooks/ui/useReformatOnDecimalsChange";
-import {  } from "@app/hooks/ui/useClearMachineFieldsOnChange";
-
-
-
-
+import { getSpiralDisabledMap } from "./policy/spiralDisabledPolicy";
+import type { HelixDriver } from "./types/spiralTypes";
 
 
 export function SpiralMachining() {
@@ -60,8 +55,22 @@ export function SpiralMachining() {
     /*
      * Drivers
      */
-    const helixDriver = useDriverOverride<"pitch" | "angle">();
+    const helixDriver = useDriverOverride<HelixDriver>();
 const isSolvingRef = useRef(false);
+
+useDriverGroups({
+    fields,
+    setFields,
+    isSolvingRef,
+    groups: [
+      { fields: ["pitch", "angle"], driver: helixDriver },
+    ],
+  });
+
+  const disabledMap = getSpiralDisabledMap({
+    fields,
+    driver: helixDriver.driver,
+  });
 
 
   /* ---------------- RESULT / ERROR ---------------- */
@@ -124,35 +133,6 @@ const isSolvingRef = useRef(false);
   clearResult: () => setResult(null),
   clearErrors: clearAllFieldErrors,
 });
-
-useDriverGroups({
-  fields,
-  setFields,
-  isSolvingRef,
-  groups: [
-    {
-      fields: ["pitch", "angle"],
-      driver: helixDriver,
-    },
-  ],
-});
-
-const disabledMap: Record<keyof SpiralFields, boolean> = {
-  diameter: false,
-  toolDiameter: false,
-  pitch: false,
-  angle: false,
-};
-
-if (helixDriver.driver === "pitch") {
-  disabledMap.angle = true;
-}
-
-if (helixDriver.driver === "angle") {
-  disabledMap.pitch = true;
-}
-
-
 
   /* ---------------- SOLVE ---------------- */
 

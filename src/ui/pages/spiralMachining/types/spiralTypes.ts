@@ -7,3 +7,5 @@ export type SpiralFields = {
   pitch: FieldState;
   angle: FieldState;
 };
+
+export type HelixDriver = "pitch" | "angle";

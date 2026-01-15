@@ -1,35 +1,31 @@
 import "./triangleSolverPage.css";
 
+import type { Ref } from "react";
+
 import { solveTriangle, TriangleSolverInput } from "@core";
+import { FieldValidationError } from "@core/errors";
 
 import { NumberField } from "@ui/components/NumberField";
 import {
   CalculateButton,
   ResetButton,
 } from "@ui/components/Button/Button";
-
-import { emptyField } from "@app/state/field";
-import { usePersistentState } from "@app/state";
-import { parseNumberFields } from "@app/solver/parseNumberFields";
-
-import { usePageReset } from "@app/hooks/ui/usePageReset";
-import { useFieldErrors } from "@app/hooks/form/useFieldErrors";
-import { useFieldUpdater } from "@app/hooks";
-
-import { triangleTooltips } from "./ui/triangleTooltips";
-
-
-import { useReformatOnDecimalsChange } from "@app/hooks/ui/useReformatOnDecimalsChange";
-
-
 import {
   SplitPage,
   InputPanel,
   SidePanel,
 } from "@ui/components/Layout";
 
-import { FieldValidationError } from "@core/errors";
-import type { Ref } from "react";
+import { emptyField } from "@app/state/field";
+import { usePersistentState } from "@app/state";
+import { parseNumberFields } from "@app/solver/parseNumberFields";
+
+import { usePageReset } from "@app/hooks/ui";
+import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
+import { useReformatOnDecimalsChange } from "@app/hooks/ui";
+
+import { triangleTooltips } from "./ui/triangleTooltips";
+
 
 import type { TriangleFields } from "./types/triangleTypes";
 
