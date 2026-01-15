@@ -28,6 +28,9 @@ import { triangleTooltips } from "./ui/triangleTooltips";
 
 
 import type { TriangleFields } from "./types/triangleTypes";
+import { getTriangleDisabledMap } from "./policy/triangleDisabledPolicy";
+import { useConstraintGroups } from "@app/hooks/constraints/useConstraintGroups";
+
 
 // --------------------------------------------------
 // TYPES
@@ -75,6 +78,28 @@ export function TriangleSolver() {
 
   const { applyFormattedResult } =
     useReformatOnDecimalsChange<TriangleFields>(setFields);
+
+
+  // --------------------------------------------------
+  // CONSTRAINT SETUP
+  // --------------------------------------------------
+
+
+const validSets: (keyof TriangleFields)[][] = [
+  ["a", "b"],
+  ["a", "alpha"],
+  ["b", "beta"],
+  ["c", "alpha"],
+  ["c", "beta"],
+];
+
+useConstraintGroups({
+  fields,
+  setFields,
+  validSets,
+});
+
+const disabledMap = getTriangleDisabledMap(fields, validSets);
 
 
   // --------------------------------------------------
@@ -140,6 +165,7 @@ export function TriangleSolver() {
     autoFocus?: boolean,
     inputRef?: Ref<HTMLInputElement>
   ) {
+    const disabled = disabledMap[key];
     return (
       <div className="field">
         <NumberField
@@ -151,12 +177,9 @@ export function TriangleSolver() {
           autoFocus={autoFocus}
           inputRef={inputRef}
           //onChange={next => updateField(key, next)}
+          disabled={disabled}
           onChange={next => {
-            console.log(
-              `[onChange] ${key}`,
-              "value:", next.value,
-              "source:", next.source
-            );
+            if (disabled) return;
             updateField(key, next);
           }}
 

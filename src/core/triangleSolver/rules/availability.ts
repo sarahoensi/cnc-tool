@@ -17,7 +17,7 @@ export function getTriangleAvailability(input: TriangleSolverInput) {
   const canDerive = {
     a: (has.c && has.alpha) || (has.b && has.beta),
     b: (has.c && has.beta) || (has.a && has.alpha),
-    c: has.a && has.b,
+    c: (has.a && has.b), //||(has.a && has.alpha) || (has.b && has.beta),
     alpha: has.a && has.b || has.a && has.c || has.b && has.c,
     beta: has.alpha,
   };
