@@ -46,6 +46,8 @@ export function HoleExecutionTable({
 }: Props) {
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [pendingValue, setPendingValue] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState<number | null>(null);
+
 
   const { ref: currentRef, focus } =
     useAutoFocusOnVisibility<HTMLInputElement>();
@@ -59,6 +61,31 @@ export function HoleExecutionTable({
     if (state.finished) return;
     requestAnimationFrame(() => focus());
   }, [state.step, state.finished, isEditing, focus]);
+
+  function getMinAllowedDiameter(step: number): number {
+    const previous = state.log
+      .filter(l => l.step < step)
+      .sort((a, b) => b.step - a.step)[0];
+
+    return previous ? previous.measured : state.D_start;
+  }
+
+  function validateMeasurement(step: number, value: string): string | null {
+    if (!value.trim()) return "Målt Ø mangler";
+
+    const num = Number(value.replace(",", "."));
+    if (isNaN(num)) return "Ugyldig tall";
+
+    const min = getMinAllowedDiameter(step);
+
+    if (num < min) {
+      return `Må være ≥ ${formatNumber(min, decimals)} mm`;
+    }
+
+    return null;
+  }
+
+
 
   return (
     <table className="step-table">
@@ -162,13 +189,25 @@ export function HoleExecutionTable({
               <td>
                 {canEdit && rowIsEditing && (
                   <>
-                    <RegisterButton
-                      disabled={!pendingValue}
-                      onClick={() => {
-                        onUpdate(step, pendingValue);
-                        setEditingStep(null);
-                      }}
-                    />
+                    {(() => {
+                      const error = validateMeasurement(step, pendingValue);
+
+                      return (
+                        <>
+                          <RegisterButton
+                            disabled={!pendingValue || Boolean(error)}
+                            onClick={() => {
+                              onUpdate(step, pendingValue);
+                              setEditingStep(null);
+                            }}
+                          />
+                          {error && (
+                            <div className="measure-error">{error}</div>
+                          )}
+                        </>
+                      );
+                    })()}
+
                     <CancelButton
                       onClick={() => setEditingStep(null)}
                     />
@@ -186,12 +225,40 @@ export function HoleExecutionTable({
                   />
                 )}
 
-                {isCurrent && !log && !isEditing && (
-                  <RegisterButton
-                    disabled={!measurements[step]}
-                    onClick={() => onSubmit(step)}
-                  />
-                )}
+                {isCurrent && !log && !isEditing && (() => {
+                  const error = validateMeasurement(step, measurements[step] ?? "");
+
+                  return (
+                    <>
+                      {(() => {
+                        const value = measurements[step] ?? "";
+                        const error = validateMeasurement(step, value);
+                        const showError = submitAttempted === step && Boolean(error);
+
+                        return (
+                          <>
+                            <RegisterButton
+                              onClick={() => {
+                                setSubmitAttempted(step);
+
+                                if (!error) {
+                                  onSubmit(step);
+                                  setSubmitAttempted(null);
+                                }
+                              }}
+                            />
+
+                            {showError && (
+                              <div className="measure-error">{error}</div>
+                            )}
+                          </>
+                        );
+                      })()}
+
+                    </>
+                  );
+                })()}
+
               </td>
             </tr>
           );

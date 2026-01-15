@@ -91,22 +91,7 @@ export function HoleMachining() {
       },
     ],
   });
-/*
-  const disabledMap: Record<keyof typeof fields, boolean> = {
-    D_start: false,
-    D_target: false,
-    N: false,
-    ae: false,
-  };
 
-  if (planDriver.driver === "N") {
-    disabledMap.ae = true;
-  }
-
-  if (planDriver.driver === "ae") {
-    disabledMap.N = true;
-  }
-*/
 const availability = useHoleAvailability(fields);
 
 const disabledMap = getHoleDisabledMap({
