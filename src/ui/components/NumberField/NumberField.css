@@ -32,8 +32,11 @@
 }
 
 .nf-input.machine {
-  background: var(--input-bg-machine);
-  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: var(--text-strong);
+  cursor: pointer;
+  padding-left: 0;
 }
 
 .nf-input.empty {
