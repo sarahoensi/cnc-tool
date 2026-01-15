@@ -1,4 +1,3 @@
-import type { FieldState } from "@app/state/field";
 import type { TriangleFields } from "../types/triangleTypes";
 
 type TriangleKey = keyof TriangleFields;
