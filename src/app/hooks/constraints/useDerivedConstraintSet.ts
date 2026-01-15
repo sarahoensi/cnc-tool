@@ -16,6 +16,10 @@ export function useDerivedConstraintSet<
   const [activeSet, setActiveSet] = useState<readonly K[] | null>(null);
 
   useEffect(() => {
+    if (!fields) {
+      setActiveSet(null);
+      return;
+    }
     const filled = (Object.keys(fields) as K[])
       .filter(k => fields[k].source === "user");
 

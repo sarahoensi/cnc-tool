@@ -1,5 +1,3 @@
-// src/app/hooks/constraint/useClearInvalidConstraintFields.ts
-
 import { useEffect, useRef } from "react";
 import type { FieldState } from "@app/state/field";
 import { emptyField } from "@app/state/field/field";
@@ -19,13 +17,15 @@ export function useClearInvalidConstraintFields<
   const prevFieldsRef = useRef<F | null>(null);
 
   useEffect(() => {
+    if (!fields) return; // 🔴 VIKTIG GUARD
+
     const prev = prevFieldsRef.current;
     prevFieldsRef.current = fields;
 
     if (!prev) return;
 
     const filled = (Object.keys(fields) as K[])
-      .filter(k => fields[k].source === "user");
+      .filter(k => fields[k]?.source === "user");
 
     if (filled.length <= 1) return;
 
@@ -41,12 +41,14 @@ export function useClearInvalidConstraintFields<
     }
 
     setFields(current => {
+      if (!current) return current;
+
       let changed = false;
       let next = current;
 
       for (const key of Object.keys(current) as K[]) {
         if (
-          current[key].source === "user" &&
+          current[key]?.source === "user" &&
           !allowed.has(key)
         ) {
           if (!changed) {
