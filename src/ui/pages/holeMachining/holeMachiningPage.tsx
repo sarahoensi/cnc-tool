@@ -23,7 +23,7 @@ import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 import { useHoleMachiningSection } from "@ui/pages/holeMachining/hooks/useHoleMachiningSection";
 import { usePageReset, useAutoFocusOnVisibility } from "@app/hooks/ui";
 import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
-import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
+import { useDriverOverride, useDriverGroups } from "@app/hooks/domain/driver";
 
 import { getHoleDisabledMap } from "@ui/pages/holeMachining/policy/holeDisabledPolicy";
 import { useHoleAvailability } from "@ui/pages/holeMachining/hooks/useHoleAvailability";
@@ -32,6 +32,8 @@ import { toNumber } from "@utils/number";
 import { holeTooltips } from "./ui/holeTooltips";
 
 import { useRef } from "react";
+import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -92,15 +94,15 @@ export function HoleMachining() {
     ],
   });
 
-const availability = useHoleAvailability(fields);
+  const availability = useHoleAvailability(fields);
 
-const disabledMap = getHoleDisabledMap({
-  fields,
-  availability,
-  drivers: {
-    plan: planDriver.driver,
-  },
-});
+  const disabledMap = getHoleDisabledMap({
+    fields,
+    availability,
+    drivers: {
+      plan: planDriver.driver,
+    },
+  });
 
   /* --------------------------------------------------
    * RESET
@@ -204,6 +206,11 @@ const disabledMap = getHoleDisabledMap({
   const nextTarget =
     state ? computeNextTarget(state) : null;
 
+  const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
+    onSubmit: buildPlan,
+  });
+ 
+
   /* --------------------------------------------------
    * INPUT-RENDER
    * -------------------------------------------------- */
@@ -224,8 +231,9 @@ const disabledMap = getHoleDisabledMap({
         tooltip={tooltip}
         error={fieldErrors[key]}
         autoFocus={autoFocus}
-        inputRef={inputRef}
         disabled={disabled}
+        inputRef={inputRef}
+        onKeyDown={onEnterKeyDown}
         onChange={next => {
           if (disabled) return;
           updateField(key, next);

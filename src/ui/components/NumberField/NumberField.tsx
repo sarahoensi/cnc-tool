@@ -18,6 +18,7 @@ type Props = {
   disabled?: boolean;        // ekte disabled
   autoFocus?: boolean;
   inputRef?: Ref<HTMLInputElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 };
 
 export function NumberField({
@@ -32,6 +33,7 @@ export function NumberField({
   disabled = false,
   autoFocus,
   inputRef,
+  onKeyDown
 }: Props) {
   return (
     <div className="number-field">
@@ -57,6 +59,7 @@ export function NumberField({
             disabled ? "disabled" : "",
             error ? "has-error" : "",
           ].join(" ")}
+          onKeyDown={onKeyDown}
         />
 
         {unit && <span className="nf-unit">{unit}</span>}

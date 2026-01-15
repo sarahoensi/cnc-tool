@@ -11,7 +11,7 @@ import type {
   NextTargetInfo,
 } from "@core/holeMachining";
 
-import { useAutoFocusOnVisibility } from "@app/hooks/ui/useAutoFocusOnVisibility";
+import { useAutoFocusOnVisibility } from "@app/hooks/ui/focus/useAutoFocusOnVisibility";
 
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { holeExecutionTooltips } from "./holeTooltips";
@@ -19,7 +19,10 @@ import { holeExecutionTooltips } from "./holeTooltips";
 
 import { formatNumber } from "@utils/format";
 
-import { useDecimalsValue } from "@app/hooks/ui/useDecimalsValue";
+import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
+
+import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+
 
 type Props = {
   plan: HolePlan;
@@ -44,18 +47,22 @@ export function HoleExecutionTable({
   onSubmit,
   onUpdate,
 }: Props) {
+
+
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [pendingValue, setPendingValue] = useState("");
   const [submitAttempted, setSubmitAttempted] = useState<number | null>(null);
-
-
+  
   const { ref: currentRef, focus } =
     useAutoFocusOnVisibility<HTMLInputElement>();
+
+
 
   const isEditing = editingStep !== null;
 
   const decimals = useDecimalsValue();
 
+  
 
   useEffect(() => {
     if (state.finished) return;
@@ -85,6 +92,17 @@ export function HoleExecutionTable({
     return null;
   }
 
+  function handleEnter(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    action: () => void
+  ) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      action();
+    }
+  }
+
+  
 
 
   return (
@@ -156,13 +174,18 @@ export function HoleExecutionTable({
                         setPendingValue(e.target.value)
                       }
                       onKeyDown={e => {
-                        if (e.key === "Enter") {
-                          onUpdate(step, pendingValue);
-                          setEditingStep(null);
-                        }
                         if (e.key === "Escape") {
                           setEditingStep(null);
+                          return;
                         }
+
+                        handleEnter(e, () => {
+                          const error = validateMeasurement(step, pendingValue);
+                          if (!error) {
+                            onUpdate(step, pendingValue);
+                            setEditingStep(null);
+                          }
+                        });
                       }}
                     />
                   ) : (

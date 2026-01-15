@@ -29,8 +29,10 @@ import { triangleTooltips } from "./ui/triangleTooltips";
 
 import type { TriangleFields } from "./types/triangleTypes";
 import { getTriangleDisabledMap } from "./policy/triangleDisabledPolicy";
-import { useConstraintGroups } from "@app/hooks/constraints/useConstraintGroups";
+import { useConstraintGroups } from "@app/hooks/domain/constraints/useConstraintGroups";
 
+import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
+import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
 
 // --------------------------------------------------
 // TYPES
@@ -85,22 +87,21 @@ export function TriangleSolver() {
   // --------------------------------------------------
 
 
-const validSets: (keyof TriangleFields)[][] = [
-  ["a", "b"],
-  ["a", "alpha"],
-  ["b", "beta"],
-  ["c", "alpha"],
-  ["c", "beta"],
-];
+  const validSets: (keyof TriangleFields)[][] = [
+    ["a", "b"],
+    ["a", "alpha"],
+    ["b", "beta"],
+    ["c", "alpha"],
+    ["c", "beta"],
+  ];
 
-useConstraintGroups({
-  fields,
-  setFields,
-  validSets,
-});
+  useConstraintGroups({
+    fields,
+    setFields,
+    validSets,
+  });
 
-const disabledMap = getTriangleDisabledMap(fields, validSets);
-
+  const disabledMap = getTriangleDisabledMap(fields, validSets);
 
   // --------------------------------------------------
   // RESET
@@ -112,7 +113,9 @@ const disabledMap = getTriangleDisabledMap(fields, validSets);
     clearAllFieldErrors();
     setError(null);
   }
-
+const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
+      onSubmit: handleSolve,
+    });
   // --------------------------------------------------
   // BEREGNING
   // --------------------------------------------------
@@ -155,6 +158,15 @@ const disabledMap = getTriangleDisabledMap(fields, validSets);
   }
 
   // --------------------------------------------------
+  // KEYBOARD SHORTCUTS
+  // --------------------------------------------------
+ 
+  useKeyboardShortcuts({
+    Escape: () => handleReset(),
+    "Ctrl+Enter": () => handleSolve(),
+  });
+
+  // --------------------------------------------------
   // INPUT-RENDER
   // --------------------------------------------------
   function renderInput(
@@ -166,6 +178,7 @@ const disabledMap = getTriangleDisabledMap(fields, validSets);
     inputRef?: Ref<HTMLInputElement>
   ) {
     const disabled = disabledMap[key];
+
     return (
       <div className="field">
         <NumberField
@@ -175,9 +188,12 @@ const disabledMap = getTriangleDisabledMap(fields, validSets);
           tooltip={tooltip}
           error={fieldErrors[key]}
           autoFocus={autoFocus}
-          inputRef={inputRef}
-          //onChange={next => updateField(key, next)}
           disabled={disabled}
+          //inputRef={register}
+          //onChange={next => updateField(key, next)}
+
+           inputRef={inputRef}
+          onKeyDown={onEnterKeyDown}
           onChange={next => {
             if (disabled) return;
             updateField(key, next);

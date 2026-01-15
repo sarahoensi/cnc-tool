@@ -15,11 +15,11 @@ import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
 
-import { 
-  usePageReset, useAutoFocusOnVisibility, useReformatOnDecimalsChange, useClearMachineFieldsOnChange 
+import {
+  usePageReset, useAutoFocusOnVisibility, useReformatOnDecimalsChange, useClearMachineFieldsOnChange
 } from "@app/hooks/ui";
 import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
-import { useDriverOverride, useDriverGroups } from "@app/hooks/driver";
+import { useDriverOverride, useDriverGroups } from "@app/hooks/domain/driver";
 
 import { toNumber } from "@utils/number";
 
@@ -29,6 +29,9 @@ import { helixTooltips } from "./ui/spiralTooltips";
 
 import { getSpiralDisabledMap } from "./policy/spiralDisabledPolicy";
 import type { HelixDriver } from "./types/spiralTypes";
+
+import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
 
 
 export function SpiralMachining() {
@@ -52,13 +55,13 @@ export function SpiralMachining() {
       angle: emptyField(),
     }));
 
-    /*
-     * Drivers
-     */
-    const helixDriver = useDriverOverride<HelixDriver>();
-const isSolvingRef = useRef(false);
+  /*
+   * Drivers
+   */
+  const helixDriver = useDriverOverride<HelixDriver>();
+  const isSolvingRef = useRef(false);
 
-useDriverGroups({
+  useDriverGroups({
     fields,
     setFields,
     isSolvingRef,
@@ -87,7 +90,7 @@ useDriverGroups({
       null
     );
 
-   
+
 
 
   /* ---------------- FIELD ERRORS ---------------- */
@@ -130,9 +133,9 @@ useDriverGroups({
   }
 
   useClearMachineFieldsOnChange(mode, setFields, {
-  clearResult: () => setResult(null),
-  clearErrors: clearAllFieldErrors,
-});
+    clearResult: () => setResult(null),
+    clearErrors: clearAllFieldErrors,
+  });
 
   /* ---------------- SOLVE ---------------- */
 
@@ -176,11 +179,18 @@ useDriverGroups({
       setError(
         e instanceof Error ? e.message : "Ukjent feil"
       );
-    } finally{
+    } finally {
       isSolvingRef.current = false;
     }
   }
+  const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
+    onSubmit: handleSolve,
+  });
 
+  useKeyboardShortcuts({
+      Escape: () => handleReset(),
+      "Ctrl+Enter": () => handleSolve(),
+    });
   /* ---------------- INPUT ---------------- */
 
   function renderInput(
@@ -190,7 +200,7 @@ useDriverGroups({
     tooltip?: string,
     autoFocus?: boolean,
     inputRef?: React.Ref<HTMLInputElement>,
-  
+
   ) {
     const disabled = disabledMap[key];
     return (
@@ -201,17 +211,20 @@ useDriverGroups({
         tooltip={tooltip}
         error={fieldErrors[key]}
         autoFocus={autoFocus}
-        inputRef={inputRef}
         disabled={disabled}
+        inputRef={inputRef}
+        onKeyDown={onEnterKeyDown}
         onChange={next => {
-        if (disabled) return;
+          if (disabled) return;
 
-        updateField(key, next);
-        setResult(null);
-      }}
+          updateField(key, next);
+          setResult(null);
+        }}
       />
     );
   }
+
+
 
   /* ---------------- RENDER ---------------- */
 

@@ -30,7 +30,7 @@ import { toNumber } from "@utils/number";
 
 import { usePageReset, useReformatOnDecimalsChange } from "@app/hooks/ui";
 import { useFieldErrors, useFieldUpdater } from "@app/hooks/form";
-import { useDriverGroups, useDriverOverride } from "@app/hooks/driver";
+import { useDriverGroups, useDriverOverride } from "@app/hooks/domain/driver";
 
 
 import {
@@ -40,6 +40,8 @@ import {
 } from "./types";
 
 import { cuttingTooltips } from "./ui/cuttingTooltips";
+import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
 
 
 type FieldKeys = keyof CuttingFields;
@@ -280,6 +282,14 @@ useDriverGroups({
       isSolvingRef.current = false;
     }
   }
+  const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
+      onSubmit: handleSolve,
+    });
+
+    useKeyboardShortcuts({
+        Escape: () => handleReset(),
+        "Ctrl+Enter": () => handleSolve(),
+      });
 
   // --------------------------------------------------
   // INPUT-RENDER
@@ -304,12 +314,10 @@ useDriverGroups({
           autoFocus={autoFocus}
           inputRef={inputRef}
           disabled={disabled}
+          onKeyDown={onEnterKeyDown}
           onChange={next => {
             if (disabled) return;
-
             updateField(key, next);
-
-
             setResult(null);
           }}
 

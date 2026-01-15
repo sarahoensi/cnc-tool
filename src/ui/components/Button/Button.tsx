@@ -1,6 +1,6 @@
 // src/ui/components/Button/Button.tsx
 
-import React from "react";
+import React, { forwardRef } from "react";
 import "./Button.css";
 import SettingsIcon from "@assets/settings-icon.svg";
 
@@ -9,76 +9,103 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: "small" | "medium" | "large" | "icon";
 };
 
-export function Button({
-  variant = "primary",
-  size = "medium",
-  className = "",
-  children,
-  ...rest
-}: ButtonProps) {
-  const classes = `app-button ${variant} ${size} ${className}`;
-  return (
-    <button className={classes} {...rest}>
-      {children}
-    </button>
-  );
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      variant = "primary",
+      size = "medium",
+      className = "",
+      children,
+      ...rest
+    },
+    ref
+  ) {
+    const classes = `app-button ${variant} ${size} ${className}`;
+    return (
+      <button ref={ref} className={classes} {...rest}>
+        {children}
+      </button>
+    );
+  }
+);
 
 /* -------------------------------------------------- */
-/* PRESET BUTTONS (Calculate / Reset / etc.)          */
+/* PRESET BUTTONS                                     */
 /* -------------------------------------------------- */
 
-export function CalculateButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const CalculateButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function CalculateButton(props, ref) {
   return (
-    <Button variant="primary" size="large" {...props}>
+    <Button ref={ref} variant="primary" size="large" {...props}>
       Beregn
     </Button>
   );
-}
+});
 
-export function ResetButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const ResetButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function ResetButton(props, ref) {
   return (
-    <Button variant="danger" size="medium" {...props}>
+    <Button ref={ref} variant="danger" size="medium" {...props}>
       Nullstill
     </Button>
   );
-}
+});
 
-export function RegisterButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const RegisterButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function RegisterButton(props, ref) {
   return (
-    <Button variant="primary" size="small" {...props}>
+    <Button ref={ref} variant="primary" size="small" {...props}>
       Registrer
     </Button>
   );
-}
+});
 
-export function UpdateButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const UpdateButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function UpdateButton(props, ref) {
   return (
-    <Button variant="secondary" size="small" {...props}>
+    <Button ref={ref} variant="secondary" size="small" {...props}>
       Oppdater
     </Button>
   );
-}
+});
 
-export function SettingsButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const SettingsButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function SettingsButton(props, ref) {
   return (
-    <Button variant="icon" size="icon" {...props}>
+    <Button ref={ref} variant="icon" size="icon" {...props}>
       <img src={SettingsIcon} alt="settings" className="icon-img" />
     </Button>
-  );}
+  );
+});
 
-  export function OkButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const OkButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function OkButton(props, ref) {
   return (
-    <Button variant="primary" size="small" {...props}>
+    <Button ref={ref} variant="primary" size="small" {...props}>
       OK
     </Button>
   );
-}
+});
 
-export function CancelButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export const CancelButton = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function CancelButton(props, ref) {
   return (
-    <Button variant="secondary" size="small" {...props}>
+    <Button ref={ref} variant="secondary" size="small" {...props}>
       Avbryt
     </Button>
   );
-}
+});
