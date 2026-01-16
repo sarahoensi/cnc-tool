@@ -1,8 +1,16 @@
+// src/ui/pages/shared/workflow/solving/applySolveResult.ts
+
 import { machineField } from "@app/state/field";
 import type { FieldState } from "@app/state/field";
 import { canOverwriteWithMachine } from "@app/state/field";
 
-
+/**
+ * Applies solver result values to FieldState records.
+ *
+ * - Only overwrites fields that allow machine overwrite
+ * - Supports explicit result → field mapping
+ * - Supports reformatting (e.g. on decimal change)
+ */
 export function applySolveResult<
   F extends Record<string, FieldState>
 >(
@@ -13,19 +21,16 @@ export function applySolveResult<
   }
 ): F {
   const next: F = { ...prev };
-
-  const format = options?.format ?? ((value: number) => String(value));
-
+  const format = options?.format ?? ((v) => String(v));
 
   for (const key of Object.keys(result) as (keyof F)[]) {
-    const computed = result[key];
-    if (typeof computed !== "number") continue;
+    const value = result[key];
+    if (typeof value !== "number") continue;
 
-    const prevField = prev[key];
-    if (!canOverwriteWithMachine(prevField)) continue;
+    if (!canOverwriteWithMachine(prev[key])) continue;
 
     next[key] = machineField(
-      format(computed, key)
+      format(value, key)
     ) as F[keyof F];
   }
 

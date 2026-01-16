@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 import { getDecimals } from "@ui/components/Settings/decimals/useDecimals";
 import { formatNumber } from "@utils/format";
-import { applySolveResult } from "@ui/pages/shared/workflow/solving";
+import { applySolveResult } from "../solving/applySolveResult";
+import { FieldState } from "@app/state";
 
-type SetFieldsFn<F> = React.Dispatch<React.SetStateAction<F>>;
 
 export function useReformatOnDecimalsChange<
-  F extends Record<string, any>
+  F extends Record<string, FieldState>
 >(
-  setFields: SetFieldsFn<F>
+  setFields: React.Dispatch<React.SetStateAction<F>>
 ) {
   const lastResultRef =
     useRef<Partial<Record<keyof F, number>> | null>(null);
@@ -17,12 +17,11 @@ export function useReformatOnDecimalsChange<
     result: Partial<Record<keyof F, number>>
   ) {
     lastResultRef.current = result;
-
     const decimals = getDecimals();
 
     setFields(prev =>
       applySolveResult(prev, result, {
-        format: (value) => formatNumber(value, decimals),
+        format: (v) => formatNumber(v, decimals),
       })
     );
   }
@@ -36,23 +35,15 @@ export function useReformatOnDecimalsChange<
 
       setFields(prev =>
         applySolveResult(prev, result, {
-          format: (value) => formatNumber(value, decimals),
+          format: (v) => formatNumber(v, decimals),
         })
       );
     }
 
-    window.addEventListener(
-      "decimals-changed",
-      handleDecimalsChanged
-    );
+    window.addEventListener("decimals-changed", handleDecimalsChanged);
     return () =>
-      window.removeEventListener(
-        "decimals-changed",
-        handleDecimalsChanged
-      );
+      window.removeEventListener("decimals-changed", handleDecimalsChanged);
   }, [setFields]);
 
-  return {
-    applyFormattedResult,
-  };
+  return { applyFormattedResult };
 }

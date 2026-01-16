@@ -2,8 +2,6 @@
 
 import "./cuttingDataPage.css";
 
-import { useRef } from "react";
-import { NumberField } from "@ui/components/NumberField";
 import {
   CalculateButton,
   ResetButton,
@@ -14,21 +12,21 @@ import {
   SidePanel,
 } from "@ui/components/Layout";
 
-import { usePageReset, useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
+import { usePageReset, useReformatOnDecimalsChange} from "@ui/pages/shared/workflow";
 import { useFieldErrors} from "@ui/pages/shared/workflow";
-
-
-import type { CuttingFields } from "./state/cuttingFields";
-
-import { cuttingTooltips } from "./ui/cuttingTooltips";
+import type { CuttingFields } from "./state/cuttingFields";import { cuttingTooltips } from "./ui/cuttingTooltips";
 import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
 import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
-import { useCuttingFieldsState, useCuttingResultState, useCuttingErrorState } from "./state";
+import { useCuttingFieldsState } from "./state";
 import { useSpeedFeedDrivers } from "./domain/drivers/useSpeedFeedDrivers";
-import { useSolveCuttingData } from "./workflow/useSolveCuttingData";
 import { getCuttingDisabledMap, useCuttingAvailability } from "./domain/policy";
-import { useCuttingReset } from "./workflow/useCuttingReset";
-import { useCuttingFieldUpdate } from "./workflow/useCuttingFieldUpdate";
+import { useFieldUpdater } from "@ui/pages/shared/workflow";
+import { usePersistentState } from "@app/state";
+import { CuttingDataInput, CuttingDataSolution, solveCuttingData } from "@core/cuttingData";
+import { useClearDrivers } from "@ui/pages/shared/domain/driver";
+import { toNumber } from "@utils/number";
+import { FieldValidationError } from "@core/errors";
+import {useFormFieldRenderer} from "@ui/pages/shared/workflow";
 
 
 type FieldKeys = keyof CuttingFields;
@@ -49,13 +47,9 @@ export function CuttingData() {
     clearAllFieldErrors,
   } = useFieldErrors<FieldKeys>();
 
-  const { applyFormattedResult } =
-    useReformatOnDecimalsChange<CuttingFields>(setFields);
-
   // --------------------------------------------------
   // DRIVER (UI-INTENSJON, IKKE VALIDERING)
   // --------------------------------------------------
-  const isSolvingRef = useRef(false);
 
   const { speedDriver, feedDriver } = useSpeedFeedDrivers(
     fields,
@@ -65,29 +59,35 @@ export function CuttingData() {
   // --------------------------------------------------
   // RESULTAT / FEIL
   // --------------------------------------------------
-  const [result, setResult, resetResult] = useCuttingResultState();
-  const [error, setError, resetError] = useCuttingErrorState();
+const [result, setResult] = usePersistentState<CuttingDataSolution | null>(
+  "cutting:result",
+  null
+);
 
+const [error, setError] = usePersistentState<string | null>(
+  "cutting:error",
+  null
+);
 
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
   const resetPage = usePageReset("cutting:");
+  const clearDrivers = useClearDrivers(speedDriver, feedDriver);
 
-  const reset = useCuttingReset({
-    resetPage,
-    resetFields,
-    resetResult,
-    resetError,
-    clearAllFieldErrors,
-    speedDriver,
-    feedDriver,
-  });
+  const reset = () => {
+  resetPage();
+  resetFields();
+  clearAllFieldErrors();
+  setResult(null);
+  setError(null);
+  clearDrivers();
+};
 
   // --------------------------------------------------
   // FELTOPPDATERING
   // --------------------------------------------------
-  const updateField = useCuttingFieldUpdate({
+const updateField = useFieldUpdater({
   setFields,
   clearFieldError,
   clearError: () => {
@@ -96,9 +96,7 @@ export function CuttingData() {
   },
 });
 
-
   const availability = useCuttingAvailability(fields);
-
   const disabledMap = getCuttingDisabledMap({
     fields,
     availability,
@@ -108,21 +106,45 @@ export function CuttingData() {
     },
   });
 
-
   // --------------------------------------------------
   // BEREGNING
   // --------------------------------------------------
+const { applyFormattedResult } =
+  useReformatOnDecimalsChange<CuttingFields>(setFields);
 
-  const { handleSolve } = useSolveCuttingData({
-    fields,
-    clearAllFieldErrors,
-    setFieldErrors,
-    setError,
-    setResult,
-    applyFormattedResult,
-    isSolvingRef,
-  });
+  
+function handleSolve() {
+  clearAllFieldErrors();
+  setError(null);
+  setResult(null);
 
+  const input: CuttingDataInput = {};
+
+  for (const key of Object.keys(fields) as FieldKeys[]) {
+    const raw = fields[key].value;
+    if (raw === "") continue;
+
+    const parsed = toNumber(raw);
+    if (Number.isFinite(parsed)) {
+      input[key] = parsed;
+    }
+  }
+
+  try {
+    const res = solveCuttingData(input);
+
+    applyFormattedResult(res);
+    setResult(res);
+
+  } catch (e) {
+    if (e instanceof FieldValidationError) {
+      setFieldErrors(e.fieldErrors);
+      return;
+    }
+
+    setError(e instanceof Error ? e.message : "Ukjent feil");
+  }
+}
 
   const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
     onSubmit: handleSolve,
@@ -136,37 +158,16 @@ export function CuttingData() {
   // --------------------------------------------------
   // INPUT-RENDER
   // --------------------------------------------------
-  function renderInput(
-    key: FieldKeys,
-    label: string,
-    unit?: string,
-    tooltip?: string,
-    autoFocus?: boolean,
-
-  ) {
-    const disabled = disabledMap[key];
-    return (
-
-      <div className="field">
-        <NumberField
-          label={label}
-          field={fields[key]}
-          error={fieldErrors[key]}
-          unit={unit}
-          tooltip={tooltip}
-          autoFocus={autoFocus}
-          disabled={disabled}
-          onKeyDown={onEnterKeyDown}
-          onChange={next => {
-            if (disabled) return;
-            updateField(key, next);
-            setResult(null);
-          }}
-
-        />
-      </div>
-    );
-  }
+  const renderField = useFormFieldRenderer<CuttingFields>({
+  fields,
+  fieldErrors,
+  disabledMap,
+  updateField,
+  onKeyDown: onEnterKeyDown,
+  onAfterChange: () => {
+    setResult(null);
+  },
+});
 
   // --------------------------------------------------
   // RENDER
@@ -175,14 +176,12 @@ export function CuttingData() {
     <SplitPage
       left={
         <InputPanel title="Skjæredata">
-          {renderInput("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
-          {renderInput("z", "Antall tenner z", "", cuttingTooltips.z, false)}
-          {renderInput("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false)}
-          {renderInput("n", "Omdreininger n", "rpm", cuttingTooltips.n, false)}
-          {renderInput("F", "Matning F", "mm/min", cuttingTooltips.F, false)}
-          {renderInput("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false)}
-
-
+          {renderField("D", "Verktøydiameter D", "mm", cuttingTooltips.D, true)}
+          {renderField("z", "Antall tenner z", "", cuttingTooltips.z, false)}
+          {renderField("Vc", "Skjærehastighet Vc", "m/min", cuttingTooltips.Vc, false)}
+          {renderField("n", "Omdreininger n", "rpm", cuttingTooltips.n, false)}
+          {renderField("F", "Matning F", "mm/min", cuttingTooltips.F, false)}
+          {renderField("fz", "Matning per tann fz", "mm/tann", cuttingTooltips.fz, false)}
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
