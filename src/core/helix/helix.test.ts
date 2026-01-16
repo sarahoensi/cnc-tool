@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { solveHelix } from "./logic";
+import { solveHelix } from "./solve/solveHelix";
 
 describe("helix solver", () => {
   test("beregner helix-vinkel fra pitch og diameter (indre)", () => {

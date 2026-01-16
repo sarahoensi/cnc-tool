@@ -1,6 +1,6 @@
 // src/core/cuttingData/cuttingData.test.ts
 import { describe, it, expect } from "vitest";
-import { solveCuttingData } from "./logic";
+import { solveCuttingData } from "./solve/solveCuttingData";
 
 describe("cuttingData solver", () => {
   it("løser n fra Vc og D", () => {

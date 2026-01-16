@@ -3,7 +3,6 @@ import "./NumberField.css";
 import NumberInput from "./NumberInput";
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import type { FieldState } from "@app/state";
-import type { Ref } from "react";
 
 type Props = {
   label: string;
@@ -17,7 +16,6 @@ type Props = {
 
   disabled?: boolean;        // ekte disabled
   autoFocus?: boolean;
-  inputRef?: Ref<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 };
 
@@ -32,7 +30,6 @@ export function NumberField({
   error,
   disabled = false,
   autoFocus,
-  inputRef,
   onKeyDown
 }: Props) {
   return (
@@ -50,7 +47,6 @@ export function NumberField({
           step={step}
           value={field.value}
           autoFocus={autoFocus}
-          ref={inputRef}
           disabled={disabled}
           onValue={(val) => onChange({ ...field, value: val })}
           className={[

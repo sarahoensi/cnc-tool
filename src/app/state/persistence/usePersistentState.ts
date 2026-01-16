@@ -29,7 +29,6 @@ export function usePersistentState<T>(
     [initial]
   );
 
-  // 🔒 Aldri initialiser UI-preferanser her
   if (key.startsWith(UI_PREFIX)) {
     throw new Error(
       `usePersistentState must not be used for UI keys (${key}). ` +

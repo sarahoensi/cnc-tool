@@ -1,6 +1,6 @@
 // src/core/triangleSolver/triangleSolver.test.ts
 import { describe, it, expect } from "vitest";
-import { solveTriangle } from "./logic";
+import { solveTriangle } from "./solve/solveTriangle";
 
 describe("CNC Right Triangle Solver", () => {
   // Hjelper for å sammenligne med toleranse
