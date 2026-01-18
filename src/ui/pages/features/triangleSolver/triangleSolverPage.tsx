@@ -32,15 +32,11 @@ import { useTriangleKeyboard } from "./workflow/useTriangleKeyboard";
 import { triangleFieldConfig } from "./ui/triangleFieldConfig";
 import { useTriangleSolve } from "./workflow/useTriangleSolve";
 
-
-
 // --------------------------------------------------
 // TYPES
 // --------------------------------------------------
 
 type FieldKeys = keyof TriangleFields;
-
-
 
 // --------------------------------------------------
 // COMPONENT
@@ -52,7 +48,6 @@ export function TriangleSolver() {
   // --------------------------------------------------
   const [fields, setFields, resetFields] =
   useTriangleFieldsState();
-
 
   // --------------------------------------------------
   // FEIL

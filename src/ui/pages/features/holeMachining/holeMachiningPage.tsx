@@ -1,36 +1,35 @@
 import "./holeMachiningPage.css";
 
-import {
-  createHolePlan,
-  startExecution,
-  registerMeasurement,
-  computeNextTarget,
-} from "@core/holeMachining";
 
-import { FieldValidationError } from "@core/errors";
-
-import { NumberField } from "@ui/components/NumberField";
-import {
-  CalculateButton,
-  ResetButton,
-} from "@ui/components/Button/Button";
+import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
 
 import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 
-import { useHoleMachiningSection } from "@ui/pages/features/holeMachining/hooks/useHoleMachiningSection";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui";
-import { useFieldErrors, useFieldUpdater } from "@ui/pages/shared/workflow/fields";
-import { useDriverOverride, useDriverGroups } from "@ui/pages/shared/domain/driver";
+import { usePageReset } from "@ui/pages/shared/workflow";
+import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
-import { getHoleDisabledMap } from "@ui/pages/features/holeMachining/policy/holeDisabledPolicy";
-import { useHoleAvailability } from "@ui/pages/features/holeMachining/hooks/useHoleAvailability";
+import { useHoleFieldsState } from "./model/useHoleFieldsState";
+import { useHoleExecution } from "./workflow/useHoleExecution";
+import { useHolePlanSolve } from "./workflow/useHolePlanSolve";
+import { useHoleReset } from "./workflow/useHoleReset";
 
-import { toNumber } from "@utils/number";
-import { holeTooltips } from "./ui/holeTooltips";
+import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
+import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
+import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
+
+import { holeFieldConfig } from "./ui/holeFieldConfig";
 
 import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
-import { usePageReset } from "@ui/pages/shared/workflow";
+import { usePersistentState } from "@app/state";
+import { useHoleExecutionState } from "./model/useHoleExecutionState";
+import { HoleFields } from "./model/holeFields";
+
+import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
+import { useHoleKeyboard } from "./workflow/useHolePlanKeyboard";
+
+
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -44,49 +43,51 @@ function confirmDiscardExecution(): boolean {
 }
 
 export function HoleMachining() {
-  const {
-    fields,
-    setFields,
-    plan,
-    setPlan,
-    state,
-    setState,
-    measurements,
-    setMeasurements,
-    error,
-    setError,
-  } = useHoleMachiningSection();
-
-  const planDriver = useDriverOverride<"N" | "ae">();
-
+  const [fields, setFields, resetFields] =
+  useHoleFieldsState();
 
   const {
-    fieldErrors,
-    setFieldErrors,
-    clearAllFieldErrors,
-  } = useFieldErrors<keyof typeof fields>();
+  plan,
+  state,
+  measurements,
+  setMeasurements,
+  setPlan,
+  setState,
+} = useHoleExecutionState(); // kun state
 
-  const {
-    focus: focusFirstField,
-  } = useAutoFocusOnVisibility<HTMLInputElement>();
+const [error, setError] =
+  usePersistentState<string | null>("hole:error", null);
 
-  const resetPage = usePageReset("hole:");
+const { planDriver } =
+  useHoleDrivers(fields, setFields);  
+
+const {
+  submitMeasurement,
+  updateMeasurement,
+  nextTarget,
+} = useHoleExecution({
+  state,
+  setState,
+  measurements,
+  setError,
+});
+
+
+const {
+  fieldErrors,
+  setFieldErrors,
+  clearAllFieldErrors,
+} = useFieldErrors<keyof typeof fields>();
+
+
+  //const resetPage = usePageReset("hole:");
 
   const updateField = useFieldUpdater({
     setFields,
     clearError: () => setError(null),
   });
 
-  useDriverGroups({
-    fields,
-    setFields,
-    groups: [
-      {
-        fields: ["N", "ae"],
-        driver: planDriver,
-      },
-    ],
-  });
+
 
   const availability = useHoleAvailability(fields);
 
@@ -98,138 +99,67 @@ export function HoleMachining() {
     },
   });
 
+  const { handleSolve } = useHolePlanSolve({
+  fields,
+  clearAllFieldErrors,
+  setFieldErrors,
+  setPlan,
+  setState,
+  setMeasurements,
+  setError,
+});
+
+
   /* --------------------------------------------------
    * RESET
    * -------------------------------------------------- */
-  function handleReset() {
-    if (state && state.log.length > 0) {
-      if (!confirmDiscardExecution()) return;
-    }
+  const resetPage = usePageReset("hole:");
+const { focus: focusFirstField } =
+  useAutoFocusOnVisibility<HTMLInputElement>();
 
-    resetPage();
-    clearAllFieldErrors();
-    setError(null);
-    focusFirstField();
+const { reset } = useHoleReset({
+  resetPage,
+  resetFields,
+  clearAllFieldErrors,
+  setPlan,
+  setState,
+  setMeasurements,
+  setError,
+  focusFirstField,
+});
+
+function handleReset() {
+  if (state && state.log.length > 0) {
+    if (!confirmDiscardExecution()) return;
   }
+
+  reset();
+}
+
+
 
   /* --------------------------------------------------
-   * PLANLEGGING
+   * SHORTCUT
    * -------------------------------------------------- */
-  function buildPlan() {
-    setError(null);
-    clearAllFieldErrors();
-
-    if (state && state.log.length > 0) {
-      if (!confirmDiscardExecution()) return;
-    }
-
-    try {
-
-      const input = {
-        D_start: toNumber(fields.D_start.value),
-        D_target: toNumber(fields.D_target.value),
-        N: toNumber(fields.N.value),
-        ae: toNumber(fields.ae.value),
-      };
-
-      const plan = createHolePlan(input);
-
-      setPlan(plan);
-      setState(startExecution(plan));
-      setMeasurements({});
-    } catch (e) {
-      if (e instanceof FieldValidationError) {
-        setFieldErrors(e.fieldErrors);
-        return;
-      }
-      setError(e instanceof Error ? e.message : "Ukjent feil");
-    } 
-  }
-
-  /* --------------------------------------------------
-   * UTFØRELSE
-   * -------------------------------------------------- */
-  function submitMeasurement(step: number) {
-    if (!state) return;
-
-    const raw = measurements[step];
-    if (!raw) return;
-
-    try {
-      const updated = registerMeasurement(
-        state,
-        toNumber(raw)
-      );
-      setState(updated);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Ukjent feil");
-    }
-  }
-
-  function updateMeasurement(step: number, value: string) {
-    if (!state) return;
-
-    try {
-      const trimmed = state.log.filter(l => l.step < step);
-
-      const rewound = {
-        ...state,
-        log: trimmed,
-        step: step - 1,
-        lastDiameter:
-          trimmed.length > 0
-            ? trimmed[trimmed.length - 1].measured
-            : state.D_start,
-        finished: false,
-      };
-
-      const updated = registerMeasurement(
-        rewound,
-        toNumber(value)
-      );
-
-      setState(updated);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Ukjent feil");
-    }
-  }
-
-  const nextTarget =
-    state ? computeNextTarget(state) : null;
-
-  const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
-    onSubmit: buildPlan,
+  const { onEnterKeyDown, shortcuts } =
+  useHoleKeyboard({
+    onSolve: handleSolve,
+    onReset: handleReset,
   });
- 
+
+useKeyboardShortcuts(shortcuts);
 
   /* --------------------------------------------------
    * INPUT-RENDER
    * -------------------------------------------------- */
-  function renderInput(
-    key: keyof typeof fields,
-    label: string,
-    unit?: string,
-    tooltip?: string,
-    autoFocus?: boolean,
-  ) {
-    const disabled = disabledMap[key];
-    return (
-      <NumberField
-        label={label}
-        field={fields[key]}
-        unit={unit}
-        tooltip={tooltip}
-        error={fieldErrors[key]}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        onKeyDown={onEnterKeyDown}
-        onChange={next => {
-          if (disabled) return;
-          updateField(key, next);
-        }}
-      />
-    );
-  }
+  const renderField = useFormFieldRenderer<HoleFields>({
+      fields,
+      fieldErrors,
+      disabledMap,
+      updateField,
+      onKeyDown: onEnterKeyDown,
+      
+    });
 
   /* --------------------------------------------------
    * RENDER
@@ -238,19 +168,18 @@ export function HoleMachining() {
     <SplitPage
       left={
         <InputPanel title="Fres Ø – Planlegging">
-          {renderInput(
-            "D_start",
-            "Start Ø",
-            "mm",
-            holeTooltips.D_start,
-            true,
+          {holeFieldConfig.map(f =>
+            renderField(
+              f.key,
+              f.label,
+              f.unit,
+              f.tooltip,
+              f.autoFocus
+            )
           )}
-          {renderInput("D_target", "Target Ø", "mm", holeTooltips.D_target)}
-          {renderInput("N", "Antall kutt", "", holeTooltips.N)}
-          {renderInput("ae", "Radialt inngrep", "mm", holeTooltips.ae)}
 
           <div className="button-row">
-            <CalculateButton onClick={buildPlan} />
+            <CalculateButton onClick={handleSolve} />
             <ResetButton onClick={handleReset} />
           </div>
 

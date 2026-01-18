@@ -1,4 +1,4 @@
-import type { HoleMachiningFields } from "../types";
+import type { HoleFields } from "../../model/holeFields";
 
 type Availability = {
   has: {
@@ -15,7 +15,7 @@ type Availability = {
 };
 
 export function getHoleDisabledMap(args: {
-  fields: HoleMachiningFields;
+  fields: HoleFields;
   availability: Availability;
   drivers: {
     plan: "N" | "ae" | null;
@@ -23,7 +23,7 @@ export function getHoleDisabledMap(args: {
 }) {
   const { fields, drivers } = args;
 
-  const disabled: Record<keyof HoleMachiningFields, boolean> = {
+  const disabled: Record<keyof HoleFields, boolean> = {
     D_start: false,
     D_target: false,
     N: false,

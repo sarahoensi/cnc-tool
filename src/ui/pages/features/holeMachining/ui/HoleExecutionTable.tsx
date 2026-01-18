@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   CancelButton,
   RegisterButton,
@@ -20,8 +20,11 @@ import { holeExecutionTooltips } from "./holeTooltips";
 import { formatNumber } from "@utils/format";
 
 import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
+import { useHoleExecutionKeyboard } from "../workflow/useHoleExecutionKeyboard";
+import { useHoleMeasurementValidation } from "../domain/measurement/useHoleMeasurementValidation";
+import { useHoleExecutionEditing } from "../workflow/useHoleExecutionEditing";
 
-import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+
 
 
 type Props = {
@@ -48,61 +51,52 @@ export function HoleExecutionTable({
   onUpdate,
 }: Props) {
 
-
-  const [editingStep, setEditingStep] = useState<number | null>(null);
-  const [pendingValue, setPendingValue] = useState("");
-  const [submitAttempted, setSubmitAttempted] = useState<number | null>(null);
-  
-  const { ref: currentRef, focus } =
-    useAutoFocusOnVisibility<HTMLInputElement>();
-
-
-
-  const isEditing = editingStep !== null;
-
   const decimals = useDecimalsValue();
 
-  
+  const {
+    editingStep,
+    pendingValue,
+    submitAttempted,
+    isEditing,
+    startEdit,
+    cancelEdit,
+    setPendingValue,
+    markSubmitAttempt,
+    clearSubmitAttempt,
+  } = useHoleExecutionEditing();
+
+  const { validate } = useHoleMeasurementValidation(state, decimals);
+
+  const { ref: currentRef, focus } =
+    useAutoFocusOnVisibility<HTMLInputElement>();
 
   useEffect(() => {
     if (state.finished) return;
     requestAnimationFrame(() => focus());
   }, [state.step, state.finished, isEditing, focus]);
 
-  function getMinAllowedDiameter(step: number): number {
-    const previous = state.log
-      .filter(l => l.step < step)
-      .sort((a, b) => b.step - a.step)[0];
 
-    return previous ? previous.measured : state.D_start;
-  }
+  const { onKeyDownEdit, onKeyDownNew } =
+  useHoleExecutionKeyboard({
+    onEditSubmit: () => {
+      if (editingStep !== null) {
+        onUpdate(editingStep, pendingValue);
+        cancelEdit();
+      }
+    },
+    onNewSubmit: () => {
+      const value = measurements[state.step + 1] ?? "";
+      const error = validate(state.step + 1, value);
 
-  function validateMeasurement(step: number, value: string): string | null {
-    if (!value.trim()) return "Målt Ø mangler";
-
-    const num = Number(value.replace(",", "."));
-    if (isNaN(num)) return "Ugyldig tall";
-
-    const min = getMinAllowedDiameter(step);
-
-    if (num < min) {
-      return `Må være ≥ ${formatNumber(min, decimals)} mm`;
-    }
-
-    return null;
-  }
-
-  function handleEnter(
-    e: React.KeyboardEvent<HTMLInputElement>,
-    action: () => void
-  ) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      action();
-    }
-  }
-
-  
+      if (!error) {
+        onSubmit(state.step + 1);
+        clearSubmitAttempt();
+      } else {
+        markSubmitAttempt(state.step + 1);
+      }
+    },
+    onCancelEdit: cancelEdit,
+  });
 
 
   return (
@@ -173,20 +167,7 @@ export function HoleExecutionTable({
                       onChange={e =>
                         setPendingValue(e.target.value)
                       }
-                      onKeyDown={e => {
-                        if (e.key === "Escape") {
-                          setEditingStep(null);
-                          return;
-                        }
-
-                        handleEnter(e, () => {
-                          const error = validateMeasurement(step, pendingValue);
-                          if (!error) {
-                            onUpdate(step, pendingValue);
-                            setEditingStep(null);
-                          }
-                        });
-                      }}
+                      onKeyDown={onKeyDownEdit}
                     />
                   ) : (
                     <span className="readonly-value">
@@ -204,6 +185,7 @@ export function HoleExecutionTable({
                         [step]: e.target.value,
                       }))
                     }
+                    onKeyDown={onKeyDownNew}
                     disabled={!isCurrent || isEditing}
                   />
                 )}
@@ -213,7 +195,7 @@ export function HoleExecutionTable({
                 {canEdit && rowIsEditing && (
                   <>
                     {(() => {
-                      const error = validateMeasurement(step, pendingValue);
+                      const error = validate(step, pendingValue);
 
                       return (
                         <>
@@ -221,7 +203,7 @@ export function HoleExecutionTable({
                             disabled={!pendingValue || Boolean(error)}
                             onClick={() => {
                               onUpdate(step, pendingValue);
-                              setEditingStep(null);
+                              cancelEdit();
                             }}
                           />
                           {error && (
@@ -232,7 +214,7 @@ export function HoleExecutionTable({
                     })()}
 
                     <CancelButton
-                      onClick={() => setEditingStep(null)}
+                      onClick={cancelEdit}
                     />
                   </>
                 )}
@@ -240,33 +222,31 @@ export function HoleExecutionTable({
                 {canEdit && !rowIsEditing && !isEditing && (
                   <UpdateButton
                     onClick={() => {
-                      setEditingStep(step);
-                      setPendingValue(
-                        log!.measured.toString()
-                      );
+                      startEdit(step, log!.measured.toString());
+
                     }}
                   />
                 )}
 
                 {isCurrent && !log && !isEditing && (() => {
-                  const error = validateMeasurement(step, measurements[step] ?? "");
+
 
                   return (
                     <>
                       {(() => {
                         const value = measurements[step] ?? "";
-                        const error = validateMeasurement(step, value);
+                        const error = validate(step, value);
                         const showError = submitAttempted === step && Boolean(error);
 
                         return (
                           <>
                             <RegisterButton
                               onClick={() => {
-                                setSubmitAttempted(step);
+                                markSubmitAttempt(step);
 
                                 if (!error) {
                                   onSubmit(step);
-                                  setSubmitAttempted(null);
+                                  clearSubmitAttempt();
                                 }
                               }}
                             />
