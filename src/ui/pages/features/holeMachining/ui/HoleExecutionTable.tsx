@@ -16,16 +16,12 @@ import { useAutoFocusOnVisibility } from "@app/hooks/ui/focus/useAutoFocusOnVisi
 import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 import { holeExecutionTooltips } from "./holeTooltips";
 
-
 import { formatNumber } from "@utils/format";
 
 import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
 import { useHoleExecutionKeyboard } from "../workflow/useHoleExecutionKeyboard";
 import { useHoleMeasurementValidation } from "../domain/measurement/useHoleMeasurementValidation";
 import { useHoleExecutionEditing } from "../workflow/useHoleExecutionEditing";
-
-
-
 
 type Props = {
   plan: HolePlan;
