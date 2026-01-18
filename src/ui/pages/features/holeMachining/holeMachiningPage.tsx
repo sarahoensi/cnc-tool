@@ -21,7 +21,6 @@ import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
 
 import { holeFieldConfig } from "./ui/holeFieldConfig";
 
-import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";
 import { HoleFields } from "./model/holeFields";
