@@ -1,6 +1,6 @@
 import type {
   CuttingFields
-} from "../../state/cuttingFields";
+} from "../../model/cuttingFields";
 import type { SpeedDriver, FeedDriver } from "../drivers/types";
 
 type Availability = {

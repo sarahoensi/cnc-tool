@@ -3,7 +3,7 @@
 import { useDriverOverride, useDriverGroups } from "@ui/pages/shared/domain/driver";
 
 
-import type { CuttingFields } from "../../state/cuttingFields";
+import type { CuttingFields } from "../../model/cuttingFields";
 import type { SpeedDriver, FeedDriver } from "./types";
 
 export function useSpeedFeedDrivers(

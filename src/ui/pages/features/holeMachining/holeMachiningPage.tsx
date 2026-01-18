@@ -18,13 +18,13 @@ import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
 
 import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 
-import { useHoleMachiningSection } from "@ui/pages/pages/holeMachining/hooks/useHoleMachiningSection";
+import { useHoleMachiningSection } from "@ui/pages/features/holeMachining/hooks/useHoleMachiningSection";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui";
 import { useFieldErrors, useFieldUpdater } from "@ui/pages/shared/workflow/fields";
 import { useDriverOverride, useDriverGroups } from "@ui/pages/shared/domain/driver";
 
-import { getHoleDisabledMap } from "@ui/pages/pages/holeMachining/policy/holeDisabledPolicy";
-import { useHoleAvailability } from "@ui/pages/pages/holeMachining/hooks/useHoleAvailability";
+import { getHoleDisabledMap } from "@ui/pages/features/holeMachining/policy/holeDisabledPolicy";
+import { useHoleAvailability } from "@ui/pages/features/holeMachining/hooks/useHoleAvailability";
 
 import { toNumber } from "@utils/number";
 import { holeTooltips } from "./ui/holeTooltips";

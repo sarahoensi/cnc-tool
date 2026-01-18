@@ -1,7 +1,7 @@
 import { usePersistentState } from "@app/state";
 import { emptyField } from "@app/state/field/field";
 import type { HolePlan, HoleExecutionState } from "@core";
-import type { HoleMachiningFields } from "@ui/pages/pages/holeMachining/types/holetypes";
+import type { HoleMachiningFields } from "@ui/pages/features/holeMachining/types/holetypes";
 
 
 /**

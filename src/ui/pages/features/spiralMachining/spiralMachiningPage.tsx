@@ -90,9 +90,6 @@ export function SpiralMachining() {
       null
     );
 
-
-
-
   /* ---------------- FIELD ERRORS ---------------- */
 
   const {
