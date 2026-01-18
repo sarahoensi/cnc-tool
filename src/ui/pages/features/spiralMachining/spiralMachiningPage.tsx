@@ -2,73 +2,57 @@
 
 import "./spiralMachiningPage.css";
 
-import { useEffect, useRef } from "react";
-import { solveHelix } from "@core/helix";
-import type { HelixInput, HelixSolution, HelixMode } from "@core/helix";
-import { FieldValidationError } from "@core/errors";
+import type { HelixSolution } from "@core/helix";
 
-import { NumberField } from "@ui/components/NumberField";
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
-import { LabelWithTooltip } from "@ui/components/LabelWithTooltip";
 
-import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
 
 import {
-   useAutoFocusOnVisibility
+  useAutoFocusOnVisibility
 } from "@app/hooks/ui";
 
-import { useFieldErrors, useFieldUpdater, usePageReset, useClearMachineFieldsOnChange,  useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
-import { useDriverOverride, useDriverGroups } from "@ui/pages/shared/domain/driver";
+import { useFieldErrors, useFieldUpdater, usePageReset, useClearMachineFieldsOnChange, useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
+import { useSpiralSolve } from "./workflow/useSpiralSolve";
 
-import { toNumber } from "@utils/number";
 
-import type { SpiralFields } from "./types/spiralTypes";
+import { getSpiralDisabledMap } from "./domain/policy/spiralDisabledPolicy";
 
-import { helixTooltips } from "./ui/spiralTooltips";
 
-import { getSpiralDisabledMap } from "./policy/spiralDisabledPolicy";
-import type { HelixDriver } from "./types/spiralTypes";
+import { useSpiralDrivers } from "./domain/driver/useSpiralDrivers";
 
-import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
-import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
+import {
+  useSpiralFieldsState,
+  type SpiralFields,
+  useSpiralModeState
+} from "./model";
+import { useSpiralKeyboard } from "./workflow/useSpiralKeyboard";
+import { useSpiralReset } from "./workflow/useSpiralReset";
+
+import { spiralFieldConfig } from "./ui/spiralFieldConfig";
+import { useFormFieldRenderer } from "@ui/pages/shared/workflow";
+import { SpiralModeSelector } from "./ui/SpiralModeSelector";
+
+
 
 
 export function SpiralMachining() {
   /* ---------------- MODE ---------------- */
 
-  const [mode, setMode] =
-    usePersistentState<HelixMode>("spiral:mode", "inner");
-
-  const modeRef = useRef(mode);
-  useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-
+  const { mode, setMode, modeRef } = useSpiralModeState();
   /* ---------------- FIELDS ---------------- */
 
-  const [fields, setFields] =
-    usePersistentState<SpiralFields>("spiral:fields", () => ({
-      diameter: emptyField(),
-      toolDiameter: emptyField(),
-      pitch: emptyField(),
-      angle: emptyField(),
-    }));
+  const [fields, setFields, resetFields] =
+    useSpiralFieldsState();
+
+
+
 
   /*
    * Drivers
    */
-  const helixDriver = useDriverOverride<HelixDriver>();
-  const isSolvingRef = useRef(false);
-
-  useDriverGroups({
-    fields,
-    setFields,
-    groups: [
-      { fields: ["pitch", "angle"], driver: helixDriver },
-    ],
-  });
+  const { helixDriver } = useSpiralDrivers(fields, setFields);
 
   const disabledMap = getSpiralDisabledMap({
     fields,
@@ -120,13 +104,14 @@ export function SpiralMachining() {
   //TODO: Ikke bytte mode ved reset
   const resetPage = usePageReset("spiral:");
 
-  function handleReset() {
-    resetPage();
-    clearAllFieldErrors();
-    setResult(null);
-    setError(null);
-    focusFirstField();
-  }
+  const { reset } = useSpiralReset({
+    resetPage,
+    resetFields,
+    clearAllFieldErrors,
+    setResult,
+    setError,
+    focusFirstField,
+  });
 
   useClearMachineFieldsOnChange(mode, setFields, {
     clearResult: () => setResult(null),
@@ -135,88 +120,36 @@ export function SpiralMachining() {
 
   /* ---------------- SOLVE ---------------- */
 
-  function handleSolve() {
-    setError(null);
-    clearAllFieldErrors();
-    setResult(null);
-
-    try {
-      isSolvingRef.current = true;
-
-      const input: HelixInput = {
-        mode: modeRef.current,
-        diameter: toNumber(fields.diameter.value),
-        toolDiameter: toNumber(fields.toolDiameter.value),
-        pitch:
-          fields.pitch.value !== ""
-            ? toNumber(fields.pitch.value)
-            : undefined,
-        angle:
-          fields.angle.value !== ""
-            ? toNumber(fields.angle.value)
-            : undefined,
-      };
-
-      const res = solveHelix(input);
-
-      applyFormattedResult({
-        pitch: res.pitch,
-        angle: res.angle,
-      });
-
-      setResult(res);
-
-    } catch (e) {
-      if (e instanceof FieldValidationError) {
-        setFieldErrors(e.fieldErrors);
-        return;
-      }
-
-      setError(
-        e instanceof Error ? e.message : "Ukjent feil"
-      );
-    } finally {
-      isSolvingRef.current = false;
-    }
-  }
-  const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
-    onSubmit: handleSolve,
+  const { handleSolve } = useSpiralSolve({
+    fields,
+    modeRef,
+    clearAllFieldErrors,
+    setFieldErrors,
+    setError,
+    setResult,
+    applyFormattedResult,
   });
 
-  useKeyboardShortcuts({
-      Escape: () => handleReset(),
-      "Ctrl+Enter": () => handleSolve(),
-    });
+
+  const { onEnterKeyDown } = useSpiralKeyboard({
+    onSolve: handleSolve,
+    onReset: reset,
+  });
+
   /* ---------------- INPUT ---------------- */
 
-  function renderInput(
-    key: keyof SpiralFields,
-    label: string,
-    unit?: string,
-    tooltip?: string,
-    autoFocus?: boolean,
+  const renderField =
+    useFormFieldRenderer<SpiralFields>({
+      fields,
+      fieldErrors,
+      disabledMap,
+      updateField,
+      onKeyDown: onEnterKeyDown,
+      onAfterChange: () => {
+        setResult(null);
+      },
+    });
 
-  ) {
-    const disabled = disabledMap[key];
-    return (
-      <NumberField
-        label={label}
-        field={fields[key]}
-        unit={unit}
-        tooltip={tooltip}
-        error={fieldErrors[key]}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        onKeyDown={onEnterKeyDown}
-        onChange={next => {
-          if (disabled) return;
-
-          updateField(key, next);
-          setResult(null);
-        }}
-      />
-    );
-  }
 
 
 
@@ -231,47 +164,26 @@ export function SpiralMachining() {
             verktøydiameter og enten pitch eller vinkel.
           </p>
 
-          <div className="number-field">
-            <label className="nf-label">
-              <LabelWithTooltip
-                label="Modus"
-                tooltip={helixTooltips.mode}
-              />
-            </label>
-            <div className="nf-radio-group">
-              <label>
-                <input
-                  type="radio"
-                  checked={mode === "inner"}
-                  onChange={() => setMode("inner")}
-                />
-                <LabelWithTooltip
-                  label="Inner"
-                  tooltip={helixTooltips.inner}
-                />
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  checked={mode === "outer"}
-                  onChange={() => setMode("outer")}
-                />
-                <LabelWithTooltip
-                  label="Outer"
-                  tooltip={helixTooltips.outer}
-                />
-              </label>
-            </div>
-          </div>
+          <SpiralModeSelector
+            mode={mode}
+            setMode={setMode}
+          />
 
-          {renderInput("diameter", "Diameter", "mm", helixTooltips.diameter, true)}
-          {renderInput("toolDiameter", "Verktøydiameter", "mm", helixTooltips.toolDiameter)}
-          {renderInput("pitch", "Pitch", "mm/rev", helixTooltips.pitch)}
-          {renderInput("angle", "Vinkel", "°", helixTooltips.angle)}
+
+          {spiralFieldConfig.map((f) =>
+            renderField(
+              f.key,
+              f.label,
+              f.unit,
+              f.tooltip,
+              f.autoFocus
+            )
+          )}
+
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
-            <ResetButton onClick={handleReset} />
+            <ResetButton onClick={reset} />
           </div>
 
           {error && <div className="error">{error}</div>}

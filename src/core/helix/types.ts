@@ -1,6 +1,6 @@
 export type HelixMode = "inner" | "outer";
 
-export type HelixInput = {
+export interface HelixInput {
   mode: HelixMode;
   diameter: number;       // Hulldiameter
   toolDiameter?: number; // Påkrevd ved outer
@@ -8,7 +8,7 @@ export type HelixInput = {
   angle?: number;         // grader
 };
 
-export type HelixSolution = {
+export interface HelixSolution {
   mode: HelixMode;
   diameter: number;
   toolDiameter?: number;

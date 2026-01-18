@@ -1,5 +1,6 @@
 // ui/pages/spiral/policy/spiralDisabledPolicy.ts
-import type { SpiralFields, HelixDriver } from "../types/spiralTypes";
+import type { SpiralFields } from "../../model/spiralFields";
+import type { HelixDriver } from "../driver/types";
 
 export function getSpiralDisabledMap(args: {
   fields: SpiralFields;
@@ -15,10 +16,11 @@ export function getSpiralDisabledMap(args: {
   };
 
   // --------------------------------------------------
-  // DRIVER-INTENSJON (samme mønster som cuttingData)
+  // 1. DRIVER-INTENSJON (ENESTE hard disable-regel)
   // --------------------------------------------------
   if (driver) {
-    const sibling = driver === "pitch" ? "angle" : "pitch";
+    const sibling: HelixDriver =
+      driver === "pitch" ? "angle" : "pitch";
 
     // Aldri lås hvis sibling er machine
     if (fields[sibling].source !== "machine") {
