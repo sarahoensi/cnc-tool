@@ -1,10 +1,6 @@
 import "./triangleSolverPage.css";
 
 
-import { solveTriangle, TriangleSolverInput } from "@core";
-import { FieldValidationError } from "@core/errors";
-
-import { NumberField } from "@ui/components/NumberField";
 import {
   CalculateButton,
   ResetButton,
@@ -15,23 +11,28 @@ import {
   SidePanel,
 } from "@ui/components/Layout";
 
-import { emptyField } from "@app/state/field";
 import { usePersistentState } from "@app/state";
-import { parseNumberFields } from "@ui/pages/shared/workflow/fields";
+import { useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
 import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater } from "@ui/pages/shared/workflow";
 import { useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
 
-import { triangleTooltips } from "./ui/triangleTooltips";
 
 
-import type { TriangleFields } from "./types/triangleTypes";
-import { getTriangleDisabledMap } from "./policy/triangleDisabledPolicy";
-import { useConstraintGroups } from "@ui/pages/shared/domain/constraints";
+import type { TriangleFields } from "./model/triangleFields";
+import { getTriangleDisabledMap } from "./domain/policy/triangleDisabledPolicy";
 
 import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
-import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+import { useTriangleConstraints } from "./domain/constraints/useTriangleConstraints";
+import { useTriangleFieldsState } from "./model";
+
+import { useTriangleReset } from "./workflow/useTriangleReset";
+import { useTriangleKeyboard } from "./workflow/useTriangleKeyboard";
+import { triangleFieldConfig } from "./ui/triangleFieldConfig";
+import { useTriangleSolve } from "./workflow/useTriangleSolve";
+
+
 
 // --------------------------------------------------
 // TYPES
@@ -49,14 +50,9 @@ export function TriangleSolver() {
   // --------------------------------------------------
   // FELTER
   // --------------------------------------------------
-  const [fields, setFields] =
-    usePersistentState<TriangleFields>("triangle:fields", () => ({
-      a: emptyField(),
-      b: emptyField(),
-      c: emptyField(),
-      alpha: emptyField(),
-      beta: emptyField(),
-    }));
+  const [fields, setFields, resetFields] =
+  useTriangleFieldsState();
+
 
   // --------------------------------------------------
   // FEIL
@@ -82,124 +78,64 @@ export function TriangleSolver() {
 
 
   // --------------------------------------------------
-  // CONSTRAINT SETUP
+  // CONSTRAINT 
   // --------------------------------------------------
 
 
-  const validSets: (keyof TriangleFields)[][] = [
-    ["a", "b"],
-    ["a", "alpha"],
-    ["b", "beta"],
-    ["c", "alpha"],
-    ["c", "beta"],
-  ];
+ const { constraints } =
+  useTriangleConstraints(fields, setFields);
 
-  useConstraintGroups({
-    fields,
-    setFields,
-    validSets,
-  });
+const disabledMap =
+  getTriangleDisabledMap(fields, constraints);
 
-  const disabledMap = getTriangleDisabledMap(fields, validSets);
 
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
   const resetPage = usePageReset("triangle:");
 
-  function handleReset() {
-    resetPage();
-    clearAllFieldErrors();
-    setError(null);
-  }
-const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
-      onSubmit: handleSolve,
-    });
+  const { reset } = useTriangleReset({
+  resetPage,
+  resetFields,
+  clearAllFieldErrors,
+  setError,
+});
+
+
+
   // --------------------------------------------------
   // BEREGNING
   // --------------------------------------------------
-  function handleSolve() {
-    setError(null);
-    clearAllFieldErrors();
-
-    const fieldMap: {
-      [K in keyof TriangleSolverInput]: { value: string }
-    } = {
-      a: fields.a,
-      b: fields.b,
-      c: fields.c,
-      alpha: fields.alpha,
-      beta: fields.beta,
-    };
-
-    const { input, errors } =
-      parseNumberFields<TriangleSolverInput>(fieldMap);
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
-    }
-
-    try {
-      const result = solveTriangle(input);
-
-      applyFormattedResult(result);
+  const { handleSolve } = useTriangleSolve({
+  fields,
+  clearAllFieldErrors,
+  setFieldErrors,
+  setError,
+  applyFormattedResult,
+});
 
 
-    } catch (e) {
-      if (e instanceof FieldValidationError) {
-        setFieldErrors(e.fieldErrors);
-        return;
-      }
-
-      setError(e instanceof Error ? e.message : "Ukjent feil");
-    }
-  }
-
-  // --------------------------------------------------
-  // KEYBOARD SHORTCUTS
-  // --------------------------------------------------
- 
-  useKeyboardShortcuts({
-    Escape: () => handleReset(),
-    "Ctrl+Enter": () => handleSolve(),
+const { onEnterKeyDown, shortcuts } =
+  useTriangleKeyboard({
+    onSolve: handleSolve,
+    onReset: reset,
   });
+
+useKeyboardShortcuts(shortcuts);
+
 
   // --------------------------------------------------
   // INPUT-RENDER
   // --------------------------------------------------
-  function renderInput(
-    key: FieldKeys,
-    label: string,
-    unit?: string,
-    tooltip?: string,
-    autoFocus?: boolean,
-  ) {
-    const disabled = disabledMap[key];
-
-    return (
-      <div className="field">
-        <NumberField
-          label={label}
-          field={fields[key]}
-          unit={unit}
-          tooltip={tooltip}
-          error={fieldErrors[key]}
-          autoFocus={autoFocus}
-          disabled={disabled}
-          //inputRef={register}
-          //onChange={next => updateField(key, next)}
-
-          onKeyDown={onEnterKeyDown}
-          onChange={next => {
-            if (disabled) return;
-            updateField(key, next);
-          }}
-
-        />
-      </div>
-    );
-  }
+  const renderField =
+      useFormFieldRenderer<TriangleFields>({
+        fields,
+        fieldErrors,
+        disabledMap,
+        updateField,
+        onKeyDown: onEnterKeyDown,
+        
+      });
 
   // --------------------------------------------------
   // RENDER
@@ -208,15 +144,18 @@ const { onKeyDown: onEnterKeyDown } = useEnterNavigation({
     <SplitPage
       left={
         <InputPanel title="Rettvinklet trekant">
-          {renderInput("a", "Katet a", "mm", triangleTooltips.a, true)}
-          {renderInput("b", "Katet b", "mm", triangleTooltips.b)}
-          {renderInput("c", "Hypotenus c", "mm", triangleTooltips.c)}
-          {renderInput("alpha", "Vinkel α", "°", triangleTooltips.alpha)}
-          {renderInput("beta", "Vinkel β", "°", triangleTooltips.beta)}
-
+          {triangleFieldConfig.map((f) =>
+            renderField(
+              f.key,
+              f.label,
+              f.unit,
+              f.tooltip,
+              f.autoFocus
+            )
+          )}
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
-            <ResetButton onClick={handleReset} />
+            <ResetButton onClick={reset} />
           </div>
 
           {error && <div className="error">{error}</div>}

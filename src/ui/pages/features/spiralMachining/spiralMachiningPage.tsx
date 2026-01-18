@@ -150,9 +150,6 @@ export function SpiralMachining() {
       },
     });
 
-
-
-
   /* ---------------- RENDER ---------------- */
 
   return (

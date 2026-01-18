@@ -1,7 +1,7 @@
 // src/ui/pages/triangleSolver/hooks/useTriangleAvailability.ts
 
 import { getTriangleAvailability } from "@core/triangleSolver/rules/availability";
-import type { TriangleFields } from "../types/triangleTypes";
+import type { TriangleFields } from "../../model/triangleFields";
 import { toNumber } from "@utils/number";
 
 export function useTriangleAvailability(fields: TriangleFields) {
