@@ -43,40 +43,40 @@ function confirmDiscardExecution(): boolean {
 
 export function HoleMachining() {
   const [fields, setFields, resetFields] =
-  useHoleFieldsState();
+    useHoleFieldsState();
 
   const {
-  plan,
-  state,
-  measurements,
-  setMeasurements,
-  setPlan,
-  setState,
-} = useHoleExecutionState(); // kun state
+    plan,
+    state,
+    measurements,
+    setMeasurements,
+    setPlan,
+    setState,
+  } = useHoleExecutionState(); // kun state
 
-const [error, setError] =
-  usePersistentState<string | null>("hole:error", null);
+  const [error, setError] =
+    usePersistentState<string | null>("hole:error", null);
 
-const { planDriver } =
-  useHoleDrivers(fields, setFields);  
+  const { planDriver } =
+    useHoleDrivers(fields, setFields);
 
-const {
-  submitMeasurement,
-  updateMeasurement,
-  nextTarget,
-} = useHoleExecution({
-  state,
-  setState,
-  measurements,
-  setError,
-});
+  const {
+    submitMeasurement,
+    updateMeasurement,
+    nextTarget,
+  } = useHoleExecution({
+    state,
+    setState,
+    measurements,
+    setError,
+  });
 
 
-const {
-  fieldErrors,
-  setFieldErrors,
-  clearAllFieldErrors,
-} = useFieldErrors<keyof typeof fields>();
+  const {
+    fieldErrors,
+    setFieldErrors,
+    clearAllFieldErrors,
+  } = useFieldErrors<keyof typeof fields>();
 
 
   //const resetPage = usePageReset("hole:");
@@ -99,41 +99,41 @@ const {
   });
 
   const { handleSolve } = useHolePlanSolve({
-  fields,
-  clearAllFieldErrors,
-  setFieldErrors,
-  setPlan,
-  setState,
-  setMeasurements,
-  setError,
-});
+    fields,
+    clearAllFieldErrors,
+    setFieldErrors,
+    setPlan,
+    setState,
+    setMeasurements,
+    setError,
+  });
 
 
   /* --------------------------------------------------
    * RESET
    * -------------------------------------------------- */
   const resetPage = usePageReset("hole:");
-const { focus: focusFirstField } =
-  useAutoFocusOnVisibility<HTMLInputElement>();
+  const { focus: focusFirstField } =
+    useAutoFocusOnVisibility<HTMLInputElement>();
 
-const { reset } = useHoleReset({
-  resetPage,
-  resetFields,
-  clearAllFieldErrors,
-  setPlan,
-  setState,
-  setMeasurements,
-  setError,
-  focusFirstField,
-});
+  const { reset } = useHoleReset({
+    resetPage,
+    resetFields,
+    clearAllFieldErrors,
+    setPlan,
+    setState,
+    setMeasurements,
+    setError,
+    focusFirstField,
+  });
 
-function handleReset() {
-  if (state && state.log.length > 0) {
-    if (!confirmDiscardExecution()) return;
+  function handleReset() {
+    if (state && state.log.length > 0) {
+      if (!confirmDiscardExecution()) return;
+    }
+
+    reset();
   }
-
-  reset();
-}
 
 
 
@@ -141,24 +141,24 @@ function handleReset() {
    * SHORTCUT
    * -------------------------------------------------- */
   const { onEnterKeyDown, shortcuts } =
-  useHoleKeyboard({
-    onSolve: handleSolve,
-    onReset: handleReset,
-  });
+    useHoleKeyboard({
+      onSolve: handleSolve,
+      onReset: handleReset,
+    });
 
-useKeyboardShortcuts(shortcuts);
+  useKeyboardShortcuts(shortcuts);
 
   /* --------------------------------------------------
    * INPUT-RENDER
    * -------------------------------------------------- */
   const renderField = useFormFieldRenderer<HoleFields>({
-      fields,
-      fieldErrors,
-      disabledMap,
-      updateField,
-      onKeyDown: onEnterKeyDown,
-      
-    });
+    fields,
+    fieldErrors,
+    disabledMap,
+    updateField,
+    onKeyDown: onEnterKeyDown,
+
+  });
 
   /* --------------------------------------------------
    * RENDER
