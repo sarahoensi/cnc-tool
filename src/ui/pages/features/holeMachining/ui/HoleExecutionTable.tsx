@@ -22,6 +22,10 @@ import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
 import { useHoleExecutionKeyboard } from "../workflow/useHoleExecutionKeyboard";
 import { useHoleMeasurementValidation } from "../domain/measurement/useHoleMeasurementValidation";
 import { useHoleExecutionEditing } from "../workflow/useHoleExecutionEditing";
+import { CutMode, useHoleCutMode } from "../workflow/useHoleCutMode";
+import { CutModeToggle } from "./CutModeToggle";
+
+
 
 type Props = {
   plan: HolePlan;
@@ -61,6 +65,7 @@ export function HoleExecutionTable({
     clearSubmitAttempt,
   } = useHoleExecutionEditing();
 
+  const { mode, setMode } = useHoleCutMode();
   const { validate } = useHoleMeasurementValidation(state, decimals);
 
   const { ref: currentRef, focus } =
@@ -73,26 +78,27 @@ export function HoleExecutionTable({
 
 
   const { onKeyDownEdit, onKeyDownNew } =
-  useHoleExecutionKeyboard({
-    onEditSubmit: () => {
-      if (editingStep !== null) {
-        onUpdate(editingStep, pendingValue);
-        cancelEdit();
-      }
-    },
-    onNewSubmit: () => {
-      const value = measurements[state.step + 1] ?? "";
-      const error = validate(state.step + 1, value);
+    useHoleExecutionKeyboard({
+      onEditSubmit: () => {
+        if (editingStep !== null) {
+          onUpdate(editingStep, pendingValue);
+          cancelEdit();
+        }
+      },
+      onNewSubmit: () => {
+        const step = state.step + 1;
+        const value = measurements[step] ?? "";
+        const error = validate(step, value);
 
-      if (!error) {
-        onSubmit(state.step + 1);
-        clearSubmitAttempt();
-      } else {
-        markSubmitAttempt(state.step + 1);
-      }
-    },
-    onCancelEdit: cancelEdit,
-  });
+        if (!error) {
+          onSubmit(step);
+          clearSubmitAttempt();
+        } else {
+          markSubmitAttempt(step);
+        }
+      },
+      onCancelEdit: cancelEdit,
+    });
 
 
   return (
@@ -108,21 +114,28 @@ export function HoleExecutionTable({
 
           <th>
             <LabelWithTooltip
-              label="ΔD (mm)"
-              tooltip={holeExecutionTooltips.deltaD}
+              label="Startdiameter"
+              tooltip="Forrige målte hullstørrelse"
             />
           </th>
 
           <th>
-            <LabelWithTooltip
-              label="ae (mm)"
-              tooltip={holeExecutionTooltips.ae}
-            />
+            <select
+              className="header-select"
+              value={mode}
+              onChange={e =>
+                setMode(e.target.value as CutMode)
+              }
+            >
+              <option value="deltaD">ΔD</option>
+              <option value="ae">ae</option>
+            </select>
           </th>
+
 
           <th>
             <LabelWithTooltip
-              label="Målt Ø"
+              label="Ny måling"
               tooltip={holeExecutionTooltips.measured}
             />
           </th>
@@ -147,11 +160,46 @@ export function HoleExecutionTable({
           const ae =
             log?.ae ?? (isCurrent ? nextTarget?.ae : null);
 
+          function getStartDiameter(step: number): number | null {
+            // Hvis steget allerede er utført → vis egen måling
+            const ownLog = state.log.find(l => l.step === step);
+            if (ownLog) return ownLog.measured;
+
+            // Hvis dette er neste aktive steg → bruk siste måling
+            if (!state.finished && step === state.step + 1) {
+              const last = state.log
+                .slice()
+                .sort((a, b) => b.step - a.step)[0];
+
+              return last ? last.measured : state.D_start;
+            }
+
+            // Fremtidige steg → ikke tilgjengelig
+            return null;
+          }
+          const startDiameter = getStartDiameter(step);
+
+
           return (
             <tr key={step}>
               <td>{step}</td>
-              <td>{deltaD != null ? formatNumber(deltaD, decimals) : ""}</td>
-              <td>{ae != null ? formatNumber(ae, decimals) : ""}</td>
+
+              <td>
+                {startDiameter != null
+                  ? formatNumber(startDiameter, decimals)
+                  : ""}
+              </td>
+
+              <td>
+                {mode === "deltaD" && deltaD != null && (
+                  <div>{formatNumber(deltaD, decimals)}</div>
+                )}
+
+                {mode === "ae" && ae != null && (
+                  <div>{formatNumber(ae, decimals)}</div>
+                )}
+              </td>
+
 
               <td>
                 {log ? (
