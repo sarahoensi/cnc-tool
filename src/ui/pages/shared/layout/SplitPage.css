@@ -6,6 +6,15 @@
   gap: var(--space-workspace-gap);
 }
 
+/* Named sections */
+.split-page__left {
+  /* left panel-specific styles here */
+}
+
+.split-page__right {
+  /* right panel-specific styles here */
+}
+
 @media (min-width: 769px) {
   .split-page {
     display: grid;

@@ -42,7 +42,7 @@ Rules:
   /* Panels & surfaces         */
   /* ========================= */
 
-  --space-panel-padding: 16px 20px;
+  --space-panel-padding: 1px 20px 20px 20px;
   --radius-panel: 10px;
   --radius-control: 6px;
 
