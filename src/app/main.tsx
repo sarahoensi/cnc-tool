@@ -5,14 +5,17 @@ import { router } from "./routes";
 import { AppStateProvider } from "@app/state";
 
 /* 🎨 Theme system */
-import "@ui/styles/tokens.css";
+import "@ui/styles/tokens/tokens.colors.css";
+import "@ui/styles/tokens/tokens.layout.css";
+
 import "@ui/styles/themes/theme-default.css";
 import "@ui/styles/themes/theme-pink.css";
 import "@ui/styles/themes/theme-forest.css";
 
+
 /* 🧱 Base styles */
 import "@ui/styles/base.css";
-import "@ui/styles/layout.css";
+import "@ui/styles/app-layout.css";
 
 /* ============================== */
 /* 🔑 Theme init (single source)  */

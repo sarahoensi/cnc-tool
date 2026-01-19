@@ -1,30 +1,80 @@
-/* Styles scoped to the sidebar shell */
-/* src/ui/shell/sideBar.css */
+/* src/ui/shell/SideBar.css */
+
+/* SideBar.css */
 
 .sidebar {
-  width: 120px;
+  width: var(--sidebar-width);
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar-content {
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 10px;
   gap: 8px;
 }
 
-.sidebar a {
-  width: 100%;
-  padding: 8px 6px;
-  text-align: left;
-  border: 1px solid var(--sidebar-border);
+/* Navigasjonselement */
+.nav-item {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 10px;
   border-radius: 6px;
+  border: 1px solid var(--sidebar-border);
   background: var(--sidebar-item-bg);
   text-decoration: none;
   color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.sidebar a.active {
+.nav-item:hover {
+  background: var(--sidebar-item-bg-hover);
+}
+
+.nav-item.active {
   background: var(--sidebar-item-bg-active);
   border-color: var(--sidebar-item-border-active);
   font-weight: 600;
 }
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 120px;
+  }
+
+  .nav-item {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+}
+
+/* Mobil */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  /* Klar for hamburger / overlay */
+  .sidebar.mobile-open {
+    display: flex;
+    position: fixed;
+    top: 60px; /* høyden på topbar */
+    left: 0;
+    height: calc(100vh - 60px);
+    width: 220px;
+    z-index: 100;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 90;
+}
+

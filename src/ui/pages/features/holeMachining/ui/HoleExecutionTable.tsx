@@ -23,7 +23,6 @@ import { useHoleExecutionKeyboard } from "../workflow/useHoleExecutionKeyboard";
 import { useHoleMeasurementValidation } from "../domain/measurement/useHoleMeasurementValidation";
 import { useHoleExecutionEditing } from "../workflow/useHoleExecutionEditing";
 import { CutMode, useHoleCutMode } from "../workflow/useHoleCutMode";
-import { CutModeToggle } from "./CutModeToggle";
 
 
 

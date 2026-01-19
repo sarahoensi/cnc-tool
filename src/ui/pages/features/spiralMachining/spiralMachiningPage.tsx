@@ -1,11 +1,13 @@
 // SpiralMachiningPage.tsx
 
 import "./spiralMachiningPage.css";
+import "./ui/SpiralModeSelector.css"
 
 import type { HelixSolution } from "@core/helix";
 
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
-import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
+import { InputPanel, SidePanel } from "@ui/components/PanelSections";
+import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 import { usePersistentState } from "@app/state";
 

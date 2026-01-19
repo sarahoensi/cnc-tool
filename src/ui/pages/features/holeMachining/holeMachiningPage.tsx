@@ -2,7 +2,8 @@ import "./holeMachiningPage.css";
 
 
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
-import { SplitPage, InputPanel, SidePanel } from "@ui/components/Layout";
+import { InputPanel, SidePanel } from "@ui/components/PanelSections";
+import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 

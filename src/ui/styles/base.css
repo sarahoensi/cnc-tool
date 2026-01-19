@@ -1,25 +1,16 @@
-/* ============================== */
-/* Base styles (theme-agnostic)   */
-/* ============================== */
+/* src/ui/styles/base.css */
 
-/* Felles layout-hjelpere */
+/* =============================== */
+/* Base styles (theme-agnostic)    */
+/* =============================== */
+
+/* Felles hjelpeklasser */
 .field {
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 
 .hint {
   color: var(--text-muted);
-  margin-bottom: 12px;
-  font-size: 0.95rem;
-}
-
-/* Resultbokser osv */
-.result,
-.plan,
-.log {
-  margin-top: 16px;
-  padding: 12px;
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  background: var(--surface-default);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 }

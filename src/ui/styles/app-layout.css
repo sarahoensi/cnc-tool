@@ -1,0 +1,59 @@
+/* src/ui/styles/app-layout.css */
+
+/* =============================== */
+/* App root                        */
+/* =============================== */
+
+.app-root {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* =============================== */
+/* App shell                       */
+/* =============================== */
+
+.app-shell {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mobile first: stack */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+}
+
+/* =============================== */
+/* Main area (right of sidebar)    */
+/* =============================== */
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* =============================== */
+/* Scroll container                */
+/* =============================== */
+
+.app-body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-page-padding);
+}
+
+/* =============================== */
+/* Utility (optional, but useful)  */
+/* =============================== */
+
+/* Prevent content from breaking layout */
+.app-main > *,
+.app-body > * {
+  min-width: 0;
+}

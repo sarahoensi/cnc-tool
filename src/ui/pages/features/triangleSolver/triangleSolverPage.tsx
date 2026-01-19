@@ -6,10 +6,9 @@ import {
   ResetButton,
 } from "@ui/components/Button/Button";
 import {
-  SplitPage,
   InputPanel,
   SidePanel,
-} from "@ui/components/Layout";
+} from "@ui/components/PanelSections";
 
 import { usePersistentState } from "@app/state";
 import { useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
@@ -18,7 +17,7 @@ import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater } from "@ui/pages/shared/workflow";
 import { useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
 
-
+import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 import type { TriangleFields } from "./model/triangleFields";
 import { getTriangleDisabledMap } from "./domain/policy/triangleDisabledPolicy";

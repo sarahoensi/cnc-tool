@@ -1,13 +1,43 @@
 import "./SideBar.css";
 import { NavLink } from "react-router-dom";
 
-export function SideBar() {
+type SideBarProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+const navItems = [
+  { to: "/", label: "Hullbearbeiding" },
+  { to: "/cutting-data", label: "Skjæredata" },
+  { to: "/spiral", label: "Spiral / Helix" },
+  { to: "/triangle", label: "Trekant" },
+];
+
+export function SideBar({ open, onClose }: SideBarProps) {
   return (
-    <div className="sidebar">
-      <NavLink to="/" className="nav-item">Hullbearbeiding</NavLink>
-      <NavLink to="/cutting-data" className="nav-item">Skjæredata</NavLink>
-      <NavLink to="/spiral" className="nav-item">Spiral/Helix</NavLink>
-      <NavLink to="/triangle" className="nav-item">Trekant</NavLink>
-    </div>
+    <>
+      {/* Overlay for mobil */}
+      {open && <div className="sidebar-backdrop" onClick={onClose} />}
+
+      <nav
+        className={`sidebar ${open ? "mobile-open" : ""}`}
+        aria-label="Hovednavigasjon"
+      >
+        <div className="sidebar-content">
+          {navItems.map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `nav-item ${isActive ? "active" : ""}`
+              }
+              onClick={onClose}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </>
   );
 }

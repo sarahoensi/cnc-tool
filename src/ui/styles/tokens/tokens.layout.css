@@ -1,0 +1,95 @@
+/* src/ui/styles/tokens.layout.css */
+
+/*
+=====================================
+Layout tokens & breakpoints
+=====================================
+
+Breakpoints:
+- Mobile:  max-width 768px
+- Tablet:  max-width 1024px
+- Desktop: 1025px+
+
+Rules:
+- This file contains ONLY CSS variables
+- No classes, no layout rules
+- Media queries only override tokens
+*/
+
+/* ================================= */
+/* Default (Desktop-first values)    */
+/* ================================= */
+
+:root {
+  /* ========================= */
+  /* Viewport / shell          */
+  /* ========================= */
+
+  --size-topbar-height: 60px;
+
+  --size-sidebar-width: 200px;
+  --size-sidebar-width-tablet: 120px;
+
+  /* ========================= */
+  /* Page & content spacing    */
+  /* ========================= */
+
+  --space-page-padding: 16px;
+  --space-section-gap: 12px;
+  --space-workspace-gap: 20px;
+
+  /* ========================= */
+  /* Panels & surfaces         */
+  /* ========================= */
+
+  --space-panel-padding: 16px 20px;
+  --radius-panel: 10px;
+  --radius-control: 6px;
+
+  /* ========================= */
+  /* Width constraints         */
+  /* ========================= */
+
+  --size-panel-min: 280px;
+  --size-panel-max: 420px;
+
+  /* ========================= */
+  /* Z-index scale             */
+  /* ========================= */
+
+  --z-topbar: 10;
+  --z-backdrop: 90;
+  --z-sidebar: 100;
+  --z-overlay: 110;
+
+  /* ========================= */
+  /* Form / NumberField        */
+  /* ========================= */
+
+  --space-input-padding: 0.4rem;
+  --size-input-unit-gap: 2.5rem;
+  --font-label-size: 1rem;
+}
+
+/* ================================= */
+/* Tablet overrides (≤1024px)        */
+/* ================================= */
+
+@media (max-width: 1024px) {
+  :root {
+    --size-sidebar-width: var(--size-sidebar-width-tablet);
+  }
+}
+
+/* ================================= */
+/* Mobile overrides (≤768px)         */
+/* ================================= */
+
+@media (max-width: 768px) {
+  :root {
+    --size-sidebar-width: 0px;
+
+    --space-page-padding: 12px;
+    --space-workspace-gap: 16px;
+  }
+}

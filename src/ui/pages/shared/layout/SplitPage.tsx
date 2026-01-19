@@ -1,4 +1,5 @@
 import "./SplitPage.css";
+import { Panel } from "@ui/components/Panel/Panel";
 
 type SplitPageProps = {
   left: React.ReactNode;
@@ -8,8 +9,8 @@ type SplitPageProps = {
 export function SplitPage({ left, right }: SplitPageProps) {
   return (
     <div className="split-page">
-      <div className="panel input-panel">{left}</div>
-      <div className="panel side-panel">{right}</div>
+      <Panel>{left}</Panel>
+      <Panel>{right}</Panel>
     </div>
   );
 }

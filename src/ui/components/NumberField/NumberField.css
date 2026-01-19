@@ -3,14 +3,21 @@
 .number-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
 }
 
+/* =============================== */
+/* Label                           */
+/* =============================== */
+
 .nf-label {
-  font-size: 1.5rem;
+  font-size: var(--font-label-size);
   font-weight: 500;
-  margin-bottom: 2px;
 }
+
+/* =============================== */
+/* Input wrapper                   */
+/* =============================== */
 
 .nf-input-wrapper {
   position: relative;
@@ -18,15 +25,18 @@
   align-items: center;
 }
 
+/* =============================== */
+/* Input                           */
+/* =============================== */
+
 .nf-input {
   width: 100%;
-  padding: 0.2rem;
-  padding-right: 38px;
-  box-sizing: border-box;
+  padding: var(--space-input-padding);
+  padding-right: var(--size-input-unit-gap);
   font-size: 1rem;
 }
 
-/* Input states – bruker tokens */
+/* State: source */
 .nf-input.user {
   background: var(--input-bg-user);
 }
@@ -44,45 +54,40 @@
   color: var(--text-placeholder);
 }
 
-.number-field.locked {
-  cursor: pointer;
-}
-
-.nf-input.locked {
-  background: var(--input-bg-locked);
-  cursor: pointer;
-  pointer-events: none;
-}
-
-.nf-label.locked {
-  opacity: 0.5;
-  cursor: pointer;
-}
-
+/* State: disabled / locked / error */
 .nf-input.disabled {
   background: var(--input-bg-disabled);
   color: var(--text-muted);
   cursor: not-allowed;
 }
 
+.nf-input.locked {
+  background: var(--input-bg-locked);
+  pointer-events: none;
+  cursor: pointer;
+}
+
 .nf-input.has-error {
   border-color: var(--border-error);
 }
 
-/* Unit */
+/* =============================== */
+/* Unit                            */
+/* =============================== */
+
 .nf-unit {
   position: absolute;
-  right: 10px;
-  color: #666;
+  right: 0.5rem;
   font-size: 1rem;
+  color: var(--text-muted);
   pointer-events: none;
 }
 
-/* Error message */
+/* =============================== */
+/* Error                           */
+/* =============================== */
+
 .nf-error {
-  color: var(--color-error);
   font-size: 0.75rem;
-  margin-top: 2px;
+  color: var(--color-error);
 }
-
-

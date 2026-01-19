@@ -33,7 +33,7 @@ export function NumberField({
   onKeyDown
 }: Props) {
   return (
-    <div className="number-field">
+    <div className="field number-field">
       <label className="nf-label">
         <LabelWithTooltip
           label={label}

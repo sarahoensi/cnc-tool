@@ -1,5 +1,8 @@
 /* src/ui/styles/tokens.css */
 :root {
+  --color-surface: #ffffff;
+  --surface-default: var(--color-surface);
+
     /* App layout */
     --app-bg: var(--color-app-bg, #ffffff);
 

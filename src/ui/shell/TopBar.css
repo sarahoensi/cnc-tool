@@ -1,31 +1,44 @@
 /* src/ui/shell/TopBar.css */
-
 .topbar {
   height: 60px;
   border-bottom: 1px solid var(--topbar-border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 20px;
   background: var(--topbar-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
 }
 
+/* Dette tvinger actions HELT til høyre */
 .topbar-title {
   font-size: 1.3rem;
   font-weight: 600;
+  margin-right: auto; /* 👈 viktig */
 }
 
 .topbar-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto; /* 👈 ekstra sikkerhet */
 }
 
+/* Anchor for menyen (relativt til knappen) */
+.settings-anchor {
+  position: relative; /* 👈 viktig */
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Menyen kommer under knappen, høyrejustert til knappen */
 .settings-layer {
   position: absolute;
-  top: 0;
   right: 0;
   pointer-events: none;
+  z-index: 100;
 }
 
 .settings-layer > * {

@@ -6,10 +6,9 @@ import {
   ResetButton,
 } from "@ui/components/Button/Button";
 import {
-  SplitPage,
   InputPanel,
   SidePanel,
-} from "@ui/components/Layout";
+} from "@ui/components/PanelSections";
 
 import { usePersistentState } from "@app/state";
 import { CuttingDataSolution } from "@core/cuttingData";
@@ -19,6 +18,7 @@ import {
   useFormFieldRenderer, useFieldUpdater, useFieldErrors, 
   usePageReset, useReformatOnDecimalsChange
 } from "@ui/pages/shared/workflow";
+import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 
 import { useCuttingSolve, useCuttingReset, useCuttingKeyboard } from "./workflow";

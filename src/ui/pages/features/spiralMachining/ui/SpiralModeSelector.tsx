@@ -9,7 +9,7 @@ type Props = {
 
 export function SpiralModeSelector({ mode, setMode }: Props) {
   return (
-    <div className="number-field">
+    <div className="field number-field">
       <label className="nf-label">
         <LabelWithTooltip
           label="Modus"
@@ -18,30 +18,24 @@ export function SpiralModeSelector({ mode, setMode }: Props) {
       </label>
 
       <div className="nf-radio-group">
-        <label>
-          <input
-            type="radio"
-            checked={mode === "inner"}
-            onChange={() => setMode("inner")}
-          />
-          <LabelWithTooltip
-            label="Inner"
-            tooltip={helixTooltips.inner}
-          />
-        </label>
+  <label className="nf-radio-option">
+    <input
+      type="radio"
+      checked={mode === "inner"}
+      onChange={() => setMode("inner")}
+    />
+    <LabelWithTooltip label="Inner" tooltip={helixTooltips.inner} />
+  </label>
 
-        <label>
-          <input
-            type="radio"
-            checked={mode === "outer"}
-            onChange={() => setMode("outer")}
-          />
-          <LabelWithTooltip
-            label="Outer"
-            tooltip={helixTooltips.outer}
-          />
-        </label>
-      </div>
+  <label className="nf-radio-option">
+    <input
+      type="radio"
+      checked={mode === "outer"}
+      onChange={() => setMode("outer")}
+    />
+    <LabelWithTooltip label="Outer" tooltip={helixTooltips.outer} />
+  </label>
+</div>
     </div>
   );
 }
