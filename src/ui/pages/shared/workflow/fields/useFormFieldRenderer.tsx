@@ -8,6 +8,9 @@ type RendererArgs<F extends Record<string, FieldState>> = {
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   updateField: <K extends keyof F>(key: K, next: FieldState) => void;
   onAfterChange?: () => void;
+
+  onFocus?: <K extends keyof F>(key: K) => void;
+  onBlur?: () => void;
 };
 
 export function useFormFieldRenderer<F extends Record<string, FieldState>>({
@@ -17,6 +20,8 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
   onKeyDown,
   updateField,
   onAfterChange,
+  onFocus,
+  onBlur,
 }: RendererArgs<F>) {
   return <K extends keyof F>(
     key: K,
@@ -38,6 +43,10 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
           autoFocus={autoFocus}
           disabled={disabled}
           onKeyDown={onKeyDown}
+
+          onFocus={() => onFocus?.(key)}
+          onBlur={() => onBlur?.()}
+
           onChange={next => {
             if (disabled) return;
             updateField(key, next);

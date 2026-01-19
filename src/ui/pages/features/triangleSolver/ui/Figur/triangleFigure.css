@@ -1,0 +1,26 @@
+.triangle-figure {
+  width: 100%;
+  max-width: 280px;
+  margin: auto;
+}
+
+.triangle-part {
+  stroke: #222;
+  stroke-width: 2;
+  fill: none;
+  transition: all 0.15s ease;
+}
+
+.triangle-part.active {
+  stroke: #e53935;
+  stroke-width: 4;
+}
+
+.triangle-part.disabled {
+  opacity: 0.25;
+}
+
+.right-angle {
+  stroke: #222;
+  fill: none;
+}

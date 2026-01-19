@@ -1,4 +1,5 @@
 import "./triangleSolverPage.css";
+import { useState } from "react";
 
 
 import {
@@ -30,6 +31,7 @@ import { useTriangleReset } from "./workflow/useTriangleReset";
 import { useTriangleKeyboard } from "./workflow/useTriangleKeyboard";
 import { triangleFieldConfig } from "./ui/triangleFieldConfig";
 import { useTriangleSolve } from "./workflow/useTriangleSolve";
+import { TriangleFigure } from "./ui/Figur/triangleFigure";
 
 // --------------------------------------------------
 // TYPES
@@ -46,7 +48,11 @@ export function TriangleSolver() {
   // FELTER
   // --------------------------------------------------
   const [fields, setFields, resetFields] =
-  useTriangleFieldsState();
+    useTriangleFieldsState();
+
+  const [activeField, setActiveField] =
+    useState<FieldKeys | null>(null);
+
 
   // --------------------------------------------------
   // FEIL
@@ -76,11 +82,11 @@ export function TriangleSolver() {
   // --------------------------------------------------
 
 
- const { constraints } =
-  useTriangleConstraints(fields, setFields);
+  const { constraints } =
+    useTriangleConstraints(fields, setFields);
 
-const disabledMap =
-  getTriangleDisabledMap(fields, constraints);
+  const disabledMap =
+    getTriangleDisabledMap(fields, constraints);
 
 
   // --------------------------------------------------
@@ -89,11 +95,11 @@ const disabledMap =
   const resetPage = usePageReset("triangle:");
 
   const { reset } = useTriangleReset({
-  resetPage,
-  resetFields,
-  clearAllFieldErrors,
-  setError,
-});
+    resetPage,
+    resetFields,
+    clearAllFieldErrors,
+    setError,
+  });
 
 
 
@@ -101,35 +107,38 @@ const disabledMap =
   // BEREGNING
   // --------------------------------------------------
   const { handleSolve } = useTriangleSolve({
-  fields,
-  clearAllFieldErrors,
-  setFieldErrors,
-  setError,
-  applyFormattedResult,
-});
-
-
-const { onEnterKeyDown, shortcuts } =
-  useTriangleKeyboard({
-    onSolve: handleSolve,
-    onReset: reset,
+    fields,
+    clearAllFieldErrors,
+    setFieldErrors,
+    setError,
+    applyFormattedResult,
   });
 
-useKeyboardShortcuts(shortcuts);
+
+  const { onEnterKeyDown, shortcuts } =
+    useTriangleKeyboard({
+      onSolve: handleSolve,
+      onReset: reset,
+    });
+
+  useKeyboardShortcuts(shortcuts);
 
 
   // --------------------------------------------------
   // INPUT-RENDER
   // --------------------------------------------------
   const renderField =
-      useFormFieldRenderer<TriangleFields>({
-        fields,
-        fieldErrors,
-        disabledMap,
-        updateField,
-        onKeyDown: onEnterKeyDown,
-        
-      });
+    useFormFieldRenderer<TriangleFields>({
+      fields,
+      fieldErrors,
+      disabledMap,
+      updateField,
+      onKeyDown: onEnterKeyDown,
+
+
+      onFocus: (key) => setActiveField(key),
+      onBlur: () => setActiveField(null),
+    });
 
   // --------------------------------------------------
   // RENDER
@@ -156,8 +165,11 @@ useKeyboardShortcuts(shortcuts);
         </InputPanel>
       }
       right={
-        <SidePanel title="Resultat" children={undefined}>
-          {/* kan bygges senere */}
+        <SidePanel title="Figur">
+          <TriangleFigure
+            activeField={activeField}
+            disabledMap={disabledMap}
+          />
         </SidePanel>
       }
     />
