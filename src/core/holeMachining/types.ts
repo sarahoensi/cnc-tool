@@ -42,6 +42,7 @@ export interface HolePlan {
 
 export interface HoleLogEntry {
   step: number;      // 1..N
+  startDiameter: number; // diameter ved start av steget
   measured: number;  // MÅLT Ø
   deltaD: number;    // faktisk diameterøkning dette steget
   ae: number;        // faktisk radialt inngrep dette steget
@@ -64,6 +65,7 @@ export interface HoleExecutionState {
 //
 
 export interface NextTargetInfo {
+  startDiameter: number; // diameter ved start av neste steg
   nextDiameter: number; // diameter brukeren skal prøve å oppnå
   deltaD: number;       // økning fra lastDiameter → nextDiameter
   ae: number;           // deltaD / 2

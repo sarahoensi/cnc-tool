@@ -160,22 +160,15 @@ export function HoleExecutionTable({
             log?.ae ?? (isCurrent ? nextTarget?.ae : null);
 
           function getStartDiameter(step: number): number | null {
-            // Hvis steget allerede er utført → vis egen måling
-            const ownLog = state.log.find(l => l.step === step);
-            if (ownLog) return ownLog.measured;
+            const log = state.log.find(l => l.step === step);
+            if (log) return log.startDiameter;
 
-            // Hvis dette er neste aktive steg → bruk siste måling
-            if (!state.finished && step === state.step + 1) {
-              const last = state.log
-                .slice()
-                .sort((a, b) => b.step - a.step)[0];
+            if (isCurrent) return nextTarget?.startDiameter ?? null;
 
-              return last ? last.measured : state.D_start;
-            }
-
-            // Fremtidige steg → ikke tilgjengelig
             return null;
           }
+
+
           const startDiameter = getStartDiameter(step);
 
 
@@ -222,6 +215,11 @@ export function HoleExecutionTable({
                     ref={isCurrent ? currentRef : undefined}
                     className="measure-input"
                     value={measurements[step] ?? ""}
+                    placeholder={
+                      isCurrent && nextTarget
+                        ? formatNumber(nextTarget.nextDiameter, decimals)
+                        : ""
+                    }
                     onChange={e =>
                       setMeasurements(m => ({
                         ...m,

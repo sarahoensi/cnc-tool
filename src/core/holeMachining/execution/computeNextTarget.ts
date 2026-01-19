@@ -13,6 +13,8 @@ export function computeNextTarget(
   if (state.finished) return null;
   if (state.step >= state.N) return null;
 
+  
+
   const remainingSteps = state.N - state.step;
   const remainingDelta = state.D_target - state.lastDiameter;
 
@@ -22,6 +24,7 @@ export function computeNextTarget(
   if (remainingSteps === 1) {
     const deltaD = remainingDelta;
     return {
+      startDiameter: state.lastDiameter,
       nextDiameter: state.D_target,
       deltaD,
       ae: deltaD / 2,
@@ -31,6 +34,7 @@ export function computeNextTarget(
   const deltaD = remainingDelta / remainingSteps;
 
   return {
+    startDiameter: state.lastDiameter,
     nextDiameter: state.lastDiameter + deltaD,
     deltaD,
     ae: deltaD / 2,

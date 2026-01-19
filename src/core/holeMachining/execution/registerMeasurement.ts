@@ -21,6 +21,7 @@ export function registerMeasurement(
 
   const logEntry: HoleLogEntry = {
     step: state.step + 1,
+    startDiameter: state.lastDiameter,
     measured,
     deltaD: next.deltaD,
     ae: next.ae,
