@@ -1,0 +1,95 @@
+.spiral-figure {
+  width: 100%;
+  max-width: 300px;
+  margin: auto;
+}
+
+/* MATERIAL */
+
+.material {
+  fill: #e0e0e0;
+  stroke: #999;
+}
+
+/* HOLE */
+
+.hole {
+  fill: #ffffff;
+  stroke: #999999;
+  stroke-width: 1.5;
+}
+
+.hole.active {
+  stroke: #e53935;
+  stroke-width: 3;
+}
+
+/* HELIX */
+
+.helix-front {
+  fill: none;
+  stroke: #1e40af;
+  stroke-width: 2.8;
+}
+
+.helix-front.active {
+  stroke: #e53935;
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 2px rgba(229, 57, 53, 0.6));
+}
+
+.helix-back {
+  fill: none;
+  stroke: #1e40af;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+/* GENERIC PART */
+
+.spiral-part {
+  stroke: #1e40af;
+  stroke-width: 2;
+  fill: none;
+}
+
+.spiral-part.active {
+  stroke: #e53935;
+  stroke-width: 3.5;
+}
+
+/* TOOL */
+
+.tool {
+  opacity: 0.95;
+}
+
+.tool-body {
+  fill: #9ca3af;
+  stroke: #374151;
+  stroke-width: 1.5;
+}
+
+.tool-top,
+.tool-bottom {
+  fill: #9ca3af;
+  stroke: #374151;
+  stroke-width: 1.5;
+}
+
+.tool.active .tool-body,
+.tool.active .tool-top,
+.tool.active .tool-bottom {
+  stroke: #e53935;
+  stroke-width: 2.5;
+}
+
+.hole {
+  fill: var(--panel-bg, #f9fafb); /* samme som panelet */
+  stroke: none;                  /* ← VIKTIG */
+}
+
+.hole.active {
+  fill: rgba(229, 57, 53, 0.08);  /* svak rød tone */
+}

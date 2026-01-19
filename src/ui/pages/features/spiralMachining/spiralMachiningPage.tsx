@@ -35,7 +35,8 @@ import { useSpiralReset } from "./workflow/useSpiralReset";
 import { spiralFieldConfig } from "./ui/spiralFieldConfig";
 import { useFormFieldRenderer } from "@ui/pages/shared/workflow";
 import { SpiralModeSelector } from "./ui/SpiralModeSelector";
-
+import { useState } from "react";
+import { SpiralFigureInner, SpiralFigureOuter } from "./ui/Figur";
 
 
 
@@ -48,6 +49,8 @@ export function SpiralMachining() {
   const [fields, setFields, resetFields] =
     useSpiralFieldsState();
 
+  const [activeField, setActiveField] =
+    useState<keyof SpiralFields | null>(null);
 
 
 
@@ -147,9 +150,12 @@ export function SpiralMachining() {
       disabledMap,
       updateField,
       onKeyDown: onEnterKeyDown,
+      
       onAfterChange: () => {
         setResult(null);
       },
+      onFocus: (key) => setActiveField(key),
+      onBlur: () => setActiveField(null),
     });
 
   /* ---------------- RENDER ---------------- */
@@ -184,24 +190,20 @@ export function SpiralMachining() {
         </InputPanel>
       }
       right={
-        <SidePanel title="Resultat">
-          {result ? (
-            <>
-              <div>
-                Effektiv diameter:{" "}
-                {result.effectiveDiameter.toFixed(4)}
-              </div>
-              <div>Pitch: {result.pitch.toFixed(4)}</div>
-              <div>
-                Vinkel: {result.angle.toFixed(4)}°
-              </div>
-            </>
+        <SidePanel title="Figur">
+          {mode === "inner" ? (
+            <SpiralFigureInner
+              activeField={activeField}
+              disabledMap={disabledMap}
+            />
           ) : (
-            <p className="hint">
-              Ingen beregning utført ennå.
-            </p>
+            <SpiralFigureOuter
+              activeField={activeField}
+              disabledMap={disabledMap}
+            />
           )}
         </SidePanel>
+
       }
     />
   );

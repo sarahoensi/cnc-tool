@@ -1,13 +1,13 @@
 // ui/pages/spiral/hooks/useSpiralAvailability.ts
 import { toNumber } from "@utils/number";
 import type { SpiralFields } from "../../model/spiralFields";
-import type { SpiralMode } from "../../model/spiralModes.ts";
+import type { HelixMode } from "@core/helix/types";
 import { getHelixAvailability } from "@core/helix/rules/availability";
 
 
 export function useSpiralAvailability(
   fields: SpiralFields,
-  mode: SpiralMode,
+  mode: HelixMode,
 ) {
   return getHelixAvailability({
     mode,
