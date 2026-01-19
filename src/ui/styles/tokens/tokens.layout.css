@@ -27,8 +27,8 @@ Rules:
 
   --size-topbar-height: 60px;
 
-  --size-sidebar-width: 200px;
-  --size-sidebar-width-tablet: 120px;
+  --size-sidebar-width: 160px;
+  --size-sidebar-width-tablet: 140px;
 
   /* ========================= */
   /* Page & content spacing    */
@@ -51,7 +51,7 @@ Rules:
   /* ========================= */
 
   --size-panel-min: 280px;
-  --size-panel-max: 420px;
+  --size-panel-max: 300px;
 
   /* ========================= */
   /* Z-index scale             */

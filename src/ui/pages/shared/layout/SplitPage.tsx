@@ -7,10 +7,15 @@ type SplitPageProps = {
 };
 
 export function SplitPage({ left, right }: SplitPageProps) {
-  return (
+    return (
     <div className="split-page">
-      <Panel>{left}</Panel>
-      <Panel>{right}</Panel>
+      <div className="split-page__left">
+        <Panel>{left}</Panel>
+      </div>
+
+      <div className="split-page__right">
+        <Panel>{right}</Panel>
+      </div>
     </div>
   );
 }

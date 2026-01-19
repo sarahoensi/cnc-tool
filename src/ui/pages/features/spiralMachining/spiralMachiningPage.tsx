@@ -158,11 +158,6 @@ export function SpiralMachining() {
     <SplitPage
       left={
         <InputPanel title="Spiral / Helix">
-          <p className="hint">
-            Velg indre/ytre. Oppgi diameter,
-            verktøydiameter og enten pitch eller vinkel.
-          </p>
-
           <SpiralModeSelector
             mode={mode}
             setMode={setMode}
