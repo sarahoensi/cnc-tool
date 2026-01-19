@@ -1,16 +1,12 @@
 /* src/ui/shell/TopBar.css */
 .topbar {
-  height: 60px;
-  border-bottom: 1px solid var(--topbar-border);
+  height: var(--size-topbar-height);
   display: flex;
   align-items: center;
   padding: 0 20px;
-  background: var(--topbar-bg);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  width: 100%;
+  border-bottom: 1px solid var(--topbar-border);
 }
+
 
 /* Dette tvinger actions HELT til høyre */
 .topbar-title {

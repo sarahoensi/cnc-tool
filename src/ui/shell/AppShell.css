@@ -1,27 +1,44 @@
-/* AppShell.css */
+/* App shell */
 
 .app-shell {
-  display: flex;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Desktop layout */
-.app-shell {
-  --topbar-height: 60px;
-  --sidebar-width: 200px;
+/* Header */
+
+.app-header {
+  flex-shrink: 0;
 }
 
-/* Tablet */
-@media (max-width: 1024px) {
-  .app-shell {
-    --sidebar-width: 120px;
-  }
+/* Layout under header */
+
+.app-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
 }
 
-/* Mobil */
-@media (max-width: 768px) {
-  .app-shell {
-    flex-direction: column;
-    --sidebar-width: 0px;
-  }
+/* Sidebar + main */
+
+.app-sidebar {
+  width: var(--size-sidebar-width);
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Scroll container */
+
+.app-body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-page-padding);
 }

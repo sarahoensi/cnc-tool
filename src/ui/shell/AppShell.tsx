@@ -8,13 +8,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-shell">
-      <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <div className="main-area">
+      <header className="app-header">
         <TopBar
-          onToggleSidebar={() => setSidebarOpen(prev => !prev)}
+          onToggleSidebar={() => setSidebarOpen(p => !p)}
         />
-        <div className="page-content">{children}</div>
+      </header>
+
+      <div className="app-layout">
+        <aside className="app-sidebar">
+          <SideBar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        </aside>
+
+        <main className="app-main">
+          <div className="app-body">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

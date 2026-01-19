@@ -15,7 +15,7 @@ import "@ui/styles/themes/theme-forest.css";
 
 /* 🧱 Base styles */
 import "@ui/styles/base.css";
-import "@ui/styles/app-layout.css";
+import "@ui/shell/AppShell.css";
 
 /* ============================== */
 /* 🔑 Theme init (single source)  */

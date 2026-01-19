@@ -20,8 +20,6 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
       <div className="topbar-title">CNC Tool</div>
 
       <div className="topbar-actions">
-        
-
         <div className="settings-anchor">
           <SettingsButton
             aria-label="Innstillinger"

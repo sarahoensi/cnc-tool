@@ -3,7 +3,7 @@
 /* SideBar.css */
 
 .sidebar {
-  width: var(--sidebar-width);
+  width: var(--size-sidebar-width);
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
 }
@@ -55,26 +55,21 @@
 /* Mobil */
 @media (max-width: 768px) {
   .sidebar {
-    display: none;
-  }
-
-  /* Klar for hamburger / overlay */
-  .sidebar.mobile-open {
-    display: flex;
     position: fixed;
-    top: 60px; /* høyden på topbar */
+    top: var(--size-topbar-height);
     left: 0;
-    height: calc(100vh - 60px);
+    height: calc(100vh - var(--size-topbar-height));
     width: 220px;
+
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+
     z-index: 100;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   }
-}
 
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 90;
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
 }
 
