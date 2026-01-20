@@ -1,4 +1,5 @@
 import "./triangleSolverPage.css";
+import "@ui/pages/shared/styles/forms.css";
 import { useState } from "react";
 
 
@@ -23,7 +24,6 @@ import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 import type { TriangleFields } from "./model/triangleFields";
 import { getTriangleDisabledMap } from "./domain/policy/triangleDisabledPolicy";
 
-import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
 import { useTriangleConstraints } from "./domain/constraints/useTriangleConstraints";
 import { useTriangleFieldsState } from "./model";
 

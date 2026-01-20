@@ -14,10 +14,7 @@ import { usePersistentState } from "@app/state";
 import { useFieldErrors, useFieldUpdater, usePageReset, useClearMachineFieldsOnChange, useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
 import { useSpiralSolve } from "./workflow/useSpiralSolve";
 
-
 import { getSpiralDisabledMap } from "./domain/policy/spiralDisabledPolicy";
-
-
 import { useSpiralDrivers } from "./domain/driver/useSpiralDrivers";
 
 import {
@@ -34,8 +31,6 @@ import { SpiralFigureInner, SpiralFigureOuter } from "./ui/Figur";
 import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
 import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
-
-
 
 
 export function SpiralMachining() {
