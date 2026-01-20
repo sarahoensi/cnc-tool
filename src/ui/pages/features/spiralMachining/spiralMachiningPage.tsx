@@ -27,7 +27,8 @@ import { useSpiralDrivers } from "./domain/driver/useSpiralDrivers";
 import {
   useSpiralFieldsState,
   type SpiralFields,
-  useSpiralModeState
+  useSpiralModeState,
+  SpiralFieldKey
 } from "./model";
 import { useSpiralKeyboard } from "./workflow/useSpiralKeyboard";
 import { useSpiralReset } from "./workflow/useSpiralReset";
@@ -37,6 +38,9 @@ import { useFormFieldRenderer } from "@ui/pages/shared/workflow";
 import { SpiralModeSelector } from "./ui/SpiralModeSelector";
 import { useState } from "react";
 import { SpiralFigureInner, SpiralFigureOuter } from "./ui/Figur";
+import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
+import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
+
 
 
 
@@ -101,22 +105,32 @@ export function SpiralMachining() {
     useReformatOnDecimalsChange<SpiralFields>(setFields);
 
 
-  const {
-  focus: focusFirstField,
-} = useAutoFocusOnVisibility<HTMLInputElement>();
+
+/* ---------------- FOCUS MANAGEMENT ---------------- */
+const fieldOrder = spiralFieldConfig.map(f => f.key);
+
+const focus = useFormFocus({
+  keys: fieldOrder,
+  fields,
+  disabledMap,
+  autoFocusOnMount: true,
+});
 
 
   /* ---------------- RESET ---------------- */
   //TODO: Ikke bytte mode ved reset
   const resetPage = usePageReset("spiral:");
 
-  const { reset } = useSpiralReset({
-    resetPage,
-    resetFields,
-    clearAllFieldErrors,
-    setResult,
-    setError,
-    focusFirstField,
+  const { reset } = useWorkflowReset({
+    steps: [
+      resetPage,
+      resetFields,
+      clearAllFieldErrors,
+      () => setError(null),
+    ],
+    onAfterReset: () => {
+      focus.focusFirst();
+    },
   });
 
   useClearMachineFieldsOnChange(mode, setFields, {
@@ -155,6 +169,7 @@ export function SpiralMachining() {
       onAfterChange: () => {
         setResult(null);
       },
+      focus,
       onFocus: (key) => setActiveField(key),
       onBlur: () => setActiveField(null),
     });

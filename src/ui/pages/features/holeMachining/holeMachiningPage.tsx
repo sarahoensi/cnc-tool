@@ -20,7 +20,7 @@ import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
 import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
 import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
 
-import { holeFieldConfig } from "./ui/holeFieldConfig";
+import { holeFieldConfig, HoleFieldKey } from "./ui/holeFieldConfig";
 
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";
@@ -28,6 +28,8 @@ import { HoleFields } from "./model/holeFields";
 
 import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
 import { useHoleKeyboard } from "./workflow/useHolePlanKeyboard";
+import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
+import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
 
 
 
@@ -109,11 +111,22 @@ export function HoleMachining() {
     setError,
   });
 
+  const fieldOrder = holeFieldConfig.map(f => f.key);
+  
+  const focus = useFormFocus({
+  keys: fieldOrder,
+  fields,
+  disabledMap,
+  autoFocusOnMount: true,
+});
+
+
 
   /* --------------------------------------------------
    * RESET
    * -------------------------------------------------- */
   const resetPage = usePageReset("hole:");
+  /*
   const { focus: focusFirstField } =
     useAutoFocusOnVisibility<HTMLInputElement>();
 
@@ -125,8 +138,23 @@ export function HoleMachining() {
     setState,
     setMeasurements,
     setError,
-    focusFirstField,
-  });
+  });*/
+
+ const { reset } = useWorkflowReset({
+     steps: [
+       resetPage,
+       resetFields,
+       clearAllFieldErrors,
+       () => setError(null),
+       () => setState(null),
+       () => setPlan(null),
+       () => setMeasurements({}),
+       () => setError(null),
+     ],
+     onAfterReset: () => {
+       focus.focusFirst();
+     },
+   });
 
   function handleReset() {
     if (state && state.log.length > 0) {
@@ -158,6 +186,7 @@ export function HoleMachining() {
     disabledMap,
     updateField,
     onKeyDown: onEnterKeyDown,
+    focus
 
   });
 

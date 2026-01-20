@@ -4,7 +4,7 @@ type Params = {
   clearAllFieldErrors: () => void;
   setResult: (res: null) => void;
   setError: (err: null) => void;
-  focusFirstField: () => void;
+  onAfterReset?: () => void;
 };
 
 export function useSpiralReset({
@@ -13,7 +13,7 @@ export function useSpiralReset({
   clearAllFieldErrors,
   setResult,
   setError,
-  focusFirstField,
+  onAfterReset
 }: Params) {
   function reset() {
     // Nullstill UI-state
@@ -26,7 +26,11 @@ export function useSpiralReset({
     setError(null);
 
     // UX
-    focusFirstField();
+     if (onAfterReset) {
+      requestAnimationFrame(() => {
+        onAfterReset();
+      });
+    }
   }
 
   return { reset };

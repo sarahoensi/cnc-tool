@@ -13,7 +13,6 @@ import {
 import { usePersistentState } from "@app/state";
 import { CuttingDataSolution } from "@core/cuttingData";
 
-import { useClearDrivers } from "@ui/pages/shared/domain/driver";
 import {
   useFormFieldRenderer, useFieldUpdater, useFieldErrors, 
   usePageReset, useReformatOnDecimalsChange
@@ -21,11 +20,13 @@ import {
 import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 
-import { useCuttingSolve, useCuttingReset, useCuttingKeyboard } from "./workflow";
+import { useCuttingSolve, useCuttingKeyboard } from "./workflow";
 import { getCuttingDisabledMap, useCuttingAvailability, 
   useSpeedFeedDrivers } from "./domain";
 import { cuttingFieldConfig } from "./ui/cuttingFieldConfig";
 import { useCuttingFieldsState, CuttingFields } from "./model";
+import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
+import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
 
 
 
@@ -68,20 +69,51 @@ export function CuttingData() {
     "cutting:error",
     null
   );
+  
+  const availability = useCuttingAvailability(fields);
+  const disabledMap = getCuttingDisabledMap({
+    fields,
+    availability,
+    drivers: {
+      speed: speedDriver.driver,
+      feed: feedDriver.driver,
+    },
+  });
+
+  /* FOCUS MANAGEMENT */
+  const fieldOrder = cuttingFieldConfig.map(f => f.key);
+  
+  const focus = useFormFocus({
+  keys: fieldOrder,
+  fields,
+  disabledMap,
+  autoFocusOnMount: true,
+});
+
 
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
   const resetPage = usePageReset("cutting:");
-  const clearDrivers = useClearDrivers(speedDriver, feedDriver);
 
-  const { reset } = useCuttingReset({
+ /* const { reset } = useCuttingReset({
     resetPage,
     resetFields,
     clearAllFieldErrors,
     setResult,
     setError,
     clearDrivers,
+  });*/
+  const { reset } = useWorkflowReset({
+    steps: [
+      resetPage,
+      resetFields,
+      clearAllFieldErrors,
+      () => setError(null),
+    ],
+    onAfterReset: () => {
+      focus.focusFirst();
+    },
   });
 
 
@@ -97,15 +129,7 @@ export function CuttingData() {
     },
   });
 
-  const availability = useCuttingAvailability(fields);
-  const disabledMap = getCuttingDisabledMap({
-    fields,
-    availability,
-    drivers: {
-      speed: speedDriver.driver,
-      feed: feedDriver.driver,
-    },
-  });
+  
 
   // --------------------------------------------------
   // BEREGNING
@@ -120,6 +144,8 @@ export function CuttingData() {
     setError,
     setResult,
     applyFormattedResult,
+
+    
   });
 
   const { onEnterKeyDown } = useCuttingKeyboard({
@@ -135,6 +161,7 @@ export function CuttingData() {
     fields,
     fieldErrors,
     disabledMap,
+    focus,
     updateField,
     onKeyDown: onEnterKeyDown,
     onAfterChange: () => {

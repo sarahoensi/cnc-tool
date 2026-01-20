@@ -1,7 +1,7 @@
 import type { HoleFields } from "../model/holeFields";
 import { holeTooltips } from "./holeTooltips";
 
-type HoleFieldKey = keyof HoleFields;
+export type HoleFieldKey = keyof HoleFields;
 
 type HoleFieldConfig = {
   key: HoleFieldKey;

@@ -1,5 +1,6 @@
 import type { FieldState } from "@app/state/field";
 import { NumberField } from "@ui/components/NumberField";
+import type { FormFieldFocus } from "./FormFieldFocus";
 
 type RendererArgs<F extends Record<string, FieldState>> = {
   fields: F;
@@ -8,6 +9,8 @@ type RendererArgs<F extends Record<string, FieldState>> = {
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   updateField: <K extends keyof F>(key: K, next: FieldState) => void;
   onAfterChange?: () => void;
+
+  focus: FormFieldFocus<keyof F>;
 
   onFocus?: <K extends keyof F>(key: K) => void;
   onBlur?: () => void;
@@ -20,6 +23,7 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
   onKeyDown,
   updateField,
   onAfterChange,
+  focus,
   onFocus,
   onBlur,
 }: RendererArgs<F>) {
@@ -44,7 +48,12 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
           disabled={disabled}
           onKeyDown={onKeyDown}
 
+
+
+          
+          inputRef={focus.register(key)}
           onFocus={() => onFocus?.(key)}
+
           onBlur={() => onBlur?.()}
 
           onChange={next => {

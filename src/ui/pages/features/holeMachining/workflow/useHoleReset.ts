@@ -9,7 +9,7 @@ type Params = {
   setMeasurements: (m: {}) => void;
   setError: (error: null) => void;
 
-  focusFirstField: () => void;
+  
 };
 
 export function useHoleReset({
@@ -20,7 +20,7 @@ export function useHoleReset({
   setState,
   setMeasurements,
   setError,
-  focusFirstField,
+  
 }: Params) {
   function reset() {
     resetPage();
@@ -32,7 +32,7 @@ export function useHoleReset({
     setMeasurements({});
     setError(null);
 
-    focusFirstField();
+    
   }
 
   return { reset };

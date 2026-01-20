@@ -27,11 +27,13 @@ import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcut
 import { useTriangleConstraints } from "./domain/constraints/useTriangleConstraints";
 import { useTriangleFieldsState } from "./model";
 
-import { useTriangleReset } from "./workflow/useTriangleReset";
 import { useTriangleKeyboard } from "./workflow/useTriangleKeyboard";
 import { triangleFieldConfig } from "./ui/triangleFieldConfig";
 import { useTriangleSolve } from "./workflow/useTriangleSolve";
 import { TriangleFigure } from "./ui/Figur/triangleFigure";
+import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
+import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
+
 
 // --------------------------------------------------
 // TYPES
@@ -77,6 +79,7 @@ export function TriangleSolver() {
     useReformatOnDecimalsChange<TriangleFields>(setFields);
 
 
+
   // --------------------------------------------------
   // CONSTRAINT 
   // --------------------------------------------------
@@ -90,16 +93,35 @@ export function TriangleSolver() {
 
 
   // --------------------------------------------------
+  // FOCUS MANAGEMENT
+  // --------------------------------------------------
+
+ const fieldOrder = triangleFieldConfig.map(f => f.key);
+
+const focus = useFormFocus({
+  keys: fieldOrder,
+  fields,
+  disabledMap,
+  autoFocusOnMount: true,
+});
+
+
+  // --------------------------------------------------
   // RESET
   // --------------------------------------------------
   const resetPage = usePageReset("triangle:");
 
-  const { reset } = useTriangleReset({
+  const { reset } = useWorkflowReset({
+  steps: [
     resetPage,
     resetFields,
     clearAllFieldErrors,
-    setError,
-  });
+    () => setError(null),
+  ],
+  onAfterReset: () => {
+    focus.focusFirst();
+  },
+});
 
 
 
@@ -112,6 +134,12 @@ export function TriangleSolver() {
     setFieldErrors,
     setError,
     applyFormattedResult,
+
+    onValidationError: () => {
+    console.log("FIELDS ON VALIDATION ERROR:", fields);
+    focus.focusFirst();
+},
+
   });
 
 
@@ -135,7 +163,7 @@ export function TriangleSolver() {
       updateField,
       onKeyDown: onEnterKeyDown,
 
-
+      focus,
       onFocus: (key) => setActiveField(key),
       onBlur: () => setActiveField(null),
     });
