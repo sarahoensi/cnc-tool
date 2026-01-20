@@ -49,7 +49,7 @@ export const ResetButton = forwardRef<
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(function ResetButton(props, ref) {
   return (
-    <Button ref={ref} variant="danger" size="medium" {...props}>
+    <Button ref={ref} variant="danger" size="small" {...props}>
       Nullstill
     </Button>
   );

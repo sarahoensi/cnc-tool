@@ -113,7 +113,7 @@ export function HoleExecutionTable({
 
           <th>
             <LabelWithTooltip
-              label="Startdiameter"
+              label="Start Ø"
               tooltip="Forrige målte hullstørrelse"
             />
           </th>

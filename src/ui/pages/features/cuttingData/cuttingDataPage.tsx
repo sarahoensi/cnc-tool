@@ -20,13 +20,14 @@ import {
 import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 
-import { useCuttingSolve, useCuttingKeyboard } from "./workflow";
+import { useCuttingSolve } from "./workflow";
 import { getCuttingDisabledMap, useCuttingAvailability, 
   useSpeedFeedDrivers } from "./domain";
 import { cuttingFieldConfig } from "./ui/cuttingFieldConfig";
 import { useCuttingFieldsState, CuttingFields } from "./model";
 import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
+import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
 
 
 
@@ -148,7 +149,7 @@ export function CuttingData() {
     
   });
 
-  const { onEnterKeyDown } = useCuttingKeyboard({
+  const { onEnterKeyDown } = useKeyboardShortcutsPage({
     onSolve: handleSolve,
     onReset: reset,
   });

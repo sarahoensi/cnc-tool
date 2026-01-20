@@ -21,3 +21,9 @@ body {
   margin: 0;
   overflow: hidden;
 }
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0.5rem 0;
+}

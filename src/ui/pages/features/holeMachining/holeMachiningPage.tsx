@@ -24,10 +24,10 @@ import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";
 import { HoleFields } from "./model/holeFields";
 
-import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
-import { useHoleKeyboard } from "./workflow/useHolePlanKeyboard";
+
 import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
+import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
 
 
 
@@ -167,13 +167,13 @@ export function HoleMachining() {
   /* --------------------------------------------------
    * SHORTCUT
    * -------------------------------------------------- */
-  const { onEnterKeyDown, shortcuts } =
-    useHoleKeyboard({
+  const { onEnterKeyDown} =
+    useKeyboardShortcutsPage({
       onSolve: handleSolve,
       onReset: handleReset,
     });
 
-  useKeyboardShortcuts(shortcuts);
+
 
   /* --------------------------------------------------
    * INPUT-RENDER
