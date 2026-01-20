@@ -11,10 +11,6 @@ import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 import { usePersistentState } from "@app/state";
 
-import {
-  useAutoFocusOnVisibility
-} from "@app/hooks/ui";
-
 import { useFieldErrors, useFieldUpdater, usePageReset, useClearMachineFieldsOnChange, useReformatOnDecimalsChange } from "@ui/pages/shared/workflow";
 import { useSpiralSolve } from "./workflow/useSpiralSolve";
 
@@ -28,10 +24,8 @@ import {
   useSpiralFieldsState,
   type SpiralFields,
   useSpiralModeState,
-  SpiralFieldKey
 } from "./model";
 import { useSpiralKeyboard } from "./workflow/useSpiralKeyboard";
-import { useSpiralReset } from "./workflow/useSpiralReset";
 
 import { spiralFieldConfig } from "./ui/spiralFieldConfig";
 import { useFormFieldRenderer } from "@ui/pages/shared/workflow";

@@ -7,20 +7,18 @@ import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
 import { HoleExecutionTable } from "./ui/HoleExecutionTable";
 
-import { useAutoFocusOnVisibility } from "@app/hooks/ui";
 import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
 import { useHoleFieldsState } from "./model/useHoleFieldsState";
 import { useHoleExecution } from "./workflow/useHoleExecution";
 import { useHolePlanSolve } from "./workflow/useHolePlanSolve";
-import { useHoleReset } from "./workflow/useHoleReset";
 
 import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
 import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
 import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
 
-import { holeFieldConfig, HoleFieldKey } from "./ui/holeFieldConfig";
+import { holeFieldConfig} from "./ui/holeFieldConfig";
 
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";

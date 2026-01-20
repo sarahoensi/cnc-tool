@@ -7,7 +7,7 @@ export function useFormFocus<K extends string>(options: {
   disabledMap?: Partial<Record<K, boolean>>;
   autoFocusOnMount?: boolean;
 }) {
-  const { keys, fields, disabledMap, autoFocusOnMount } = options;
+  const { keys, disabledMap, autoFocusOnMount } = options;
 
   // ---------------- refs ----------------
   const refs = useRef<Partial<Record<K, HTMLInputElement>>>({});
