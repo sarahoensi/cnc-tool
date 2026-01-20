@@ -102,8 +102,9 @@ export function SpiralMachining() {
 
 
   const {
-    focus: focusFirstField,
-  } = useAutoFocusOnVisibility<HTMLInputElement>();
+  focus: focusFirstField,
+} = useAutoFocusOnVisibility<HTMLInputElement>();
+
 
   /* ---------------- RESET ---------------- */
   //TODO: Ikke bytte mode ved reset
@@ -176,14 +177,14 @@ export function SpiralMachining() {
               f.label,
               f.unit,
               f.tooltip,
-              f.autoFocus
+              f.autoFocus,
             )
           )}
 
 
           <div className="button-row">
             <CalculateButton onClick={handleSolve} />
-            <ResetButton onClick={reset} />
+            <ResetButton  onClick={reset} />
           </div>
 
           {error && <div className="error">{error}</div>}
