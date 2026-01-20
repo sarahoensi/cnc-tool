@@ -27,12 +27,12 @@ import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcut
 import { useTriangleConstraints } from "./domain/constraints/useTriangleConstraints";
 import { useTriangleFieldsState } from "./model";
 
-import { useTriangleKeyboard } from "./workflow/useTriangleKeyboard";
 import { triangleFieldConfig } from "./ui/triangleFieldConfig";
 import { useTriangleSolve } from "./workflow/useTriangleSolve";
 import { TriangleFigure } from "./ui/Figur/triangleFigure";
 import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
+import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
 
 
 // --------------------------------------------------
@@ -143,13 +143,13 @@ const focus = useFormFocus({
   });
 
 
-  const { onEnterKeyDown, shortcuts } =
-    useTriangleKeyboard({
+  const { onEnterKeyDown} =
+    useKeyboardShortcutsPage({
       onSolve: handleSolve,
       onReset: reset,
     });
 
-  useKeyboardShortcuts(shortcuts);
+  //useKeyboardShortcuts(shortcuts);
 
 
   // --------------------------------------------------

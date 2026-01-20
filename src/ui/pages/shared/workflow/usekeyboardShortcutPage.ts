@@ -1,28 +1,30 @@
 import { useEnterNavigation } from "@app/hooks/ui/keyboard/useEnterNavigation";
+import { useKeyboardShortcuts } from "@app/hooks/ui/keyboard/useKeyboardShortcuts";
 
 type Params = {
   onSolve: () => void;
   onReset: () => void;
 };
 
-export function useHoleKeyboard({
+export function useKeyboardShortcutsPage({
   onSolve,
   onReset,
 }: Params) {
-  // Enter i input-felt
+  // Enter / Shift+Enter navigasjon i felter
   const { onKeyDown: onEnterKeyDown } =
     useEnterNavigation({
+        
       onSubmit: onSolve,
     });
+    
 
-  // Globale shortcuts
-  const shortcuts = {
+  // Globale snarveier
+  useKeyboardShortcuts({
     Escape: onReset,
     "Ctrl+Enter": onSolve,
-  };
+  });
 
   return {
     onEnterKeyDown,
-    shortcuts,
   };
 }
