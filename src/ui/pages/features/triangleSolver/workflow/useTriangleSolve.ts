@@ -11,6 +11,7 @@ type Params = {
   setFieldErrors: (errors: Partial<Record<FieldKeys, string>>) => void;
   setError: (error: string | null) => void;
   applyFormattedResult: (result: TriangleSolverInput) => void;
+  onValidationError?: () => void;
 };
 
 export function useTriangleSolve({
@@ -19,6 +20,7 @@ export function useTriangleSolve({
   setFieldErrors,
   setError,
   applyFormattedResult,
+  onValidationError,
 }: Params) {
   function handleSolve() {
     setError(null);
@@ -39,6 +41,7 @@ export function useTriangleSolve({
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
+      onValidationError?.();
       return;
     }
 

@@ -21,6 +21,8 @@ type Props = {
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
 
+  inputRef?: React.Ref<HTMLInputElement>;
+
   
 };
 
@@ -35,7 +37,9 @@ export function NumberField({
   error,
   disabled = false,
   autoFocus,
+  inputRef,
   onKeyDown,
+
   onFocus,
   onBlur,
 }: Props) {
@@ -54,7 +58,9 @@ export function NumberField({
           step={step}
           value={field.value}
           autoFocus={autoFocus}
+          ref={inputRef}
           disabled={disabled}
+          
           onFocus={onFocus}
           onBlur={onBlur}
           onValue={(val) => onChange({ ...field, value: val })}
