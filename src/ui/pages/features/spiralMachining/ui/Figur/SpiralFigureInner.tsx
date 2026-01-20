@@ -88,21 +88,37 @@ export function SpiralFigureInner({
         >
             {/* ---------------- MATERIAL ---------------- */}
 
+            <defs>
+                <mask id="hole-mask">
+
+                    <rect
+                        x="0"
+                        y="0"
+                        width="100%"
+                        height="100%"
+                        fill="white"
+                    />
+
+
+                    <rect
+                        x={holeX}
+                        y={topY - 1}
+                        width={holeWidth}
+                        height={162}
+                        fill="black"
+                    />
+                </mask>
+            </defs>
+
             <rect
                 x="20"
                 y={topY}
                 width="200"
                 height="180"
                 className="material"
+                mask="url(#hole-mask)"
             />
 
-            <rect
-                x="70"
-                y={topY - 1}
-                width="100"
-                height="160"
-                className="hole"
-            />
 
             {/* ---------------- HOLE DIAMETER ---------------- */}
 
@@ -230,7 +246,7 @@ export function SpiralFigureInner({
                 return (
                     <path
                         d={front}
-                        className={clsx("helix-front", part("helix"))}
+                        className="helix-front"
                     />
                 );
             })()}
