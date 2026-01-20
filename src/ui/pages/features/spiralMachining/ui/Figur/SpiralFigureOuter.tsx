@@ -1,25 +1,25 @@
 import clsx from "clsx";
-import type { SpiralFields } from "../../model";
 import "./spiralFigure.css";
-import { SpiralFieldKey } from "../../model/spiralFields";
-
-/* ---------------------------------------------
- * VISUELLE NØKLER (UI-only, ikke input-felter)
- * ------------------------------------------- */
-
-type SpiralVisualKey =
-  | "helix"
-  | "pitch"
-  | "depth";
+import { SpiralFieldKey } from "../../model";
 
 /* ---------------------------------------------
  * PROPS
  * ------------------------------------------- */
 
 type Props = {
-  activeField?: keyof SpiralFields | null;
-  disabledMap: Partial<Record<keyof SpiralFields, boolean>>;
+  activeField?: SpiralFieldKey | null;
+  disabledMap: Partial<Record<SpiralFieldKey, boolean>>;
 };
+
+/* ---------------------------------------------
+ * VISUELLE NØKLER
+ * ------------------------------------------- */
+
+type VisualKey =
+  | "helix"
+  | "pitch"
+  | "tool"
+  | "holeDiameter";
 
 /* ---------------------------------------------
  * INPUT → VISUAL MAPPING
@@ -27,124 +27,267 @@ type Props = {
 
 function mapFieldToVisualKeys(
   field?: SpiralFieldKey | null
-): SpiralVisualKey[] {
+): VisualKey[] {
   switch (field) {
+    case "toolDiameter":
+      return ["tool"];
     case "pitch":
       return ["pitch", "helix"];
-
-    case "angle":
-      return ["depth", "helix"];
-
     case "diameter":
-    case "toolDiameter":
-      return ["helix"];
-
+      return ["holeDiameter"];
     default:
       return [];
   }
 }
 
-
-
 /* ---------------------------------------------
  * COMPONENT
  * ------------------------------------------- */
 
-export function SpiralFigureOuter({
-  activeField,
-  disabledMap,
-}: Props) {
-  const activeVisualKeys =
-    mapFieldToVisualKeys(activeField);
+export function SpiralFigureOuter({ activeField }: Props) {
+  const activeKeys = mapFieldToVisualKeys(activeField);
 
-  const part = (key: SpiralVisualKey) =>
+  const part = (key: VisualKey) =>
     clsx(
       "spiral-part",
-      activeVisualKeys.includes(key) && "active"
+      activeKeys.includes(key) && "active"
     );
 
   /* -------------------------------------------
-   * VISUELLE KONSTANTER (ikke reelle mål)
+   * VISUELLE KONSTANTER
    * ----------------------------------------- */
 
-  const centerX = 120;
-  const topY = 50;
-  const turnHeight = 26;
+  const cx = 120;
+  const topY = 30;
+  const height = 160;
+
+  const rx = 60;
+  const ry = 14;
   const turns = 4;
-  const radiusX = 55;
-  const radiusY = 12;
+  const turnHeight = height / turns;
+
+  const baseHeight = 25;
+
+  /* --- Tool --- */
+
+  const toolRadius = 8;
+  const toolX = cx + rx - 17;
+  const toolTopY = topY - 10;
+  const toolBottomY = topY + height - 4;
+
+  const holeX = 70;
+  const holeWidth = 100;
+  const holeY = topY - 20;
 
   return (
     <svg
-      viewBox="0 0 240 260"
+      viewBox="0 0 240 220"
       className="spiral-figure"
       aria-hidden
     >
-      {/* ---------------- MATERIAL ---------------- */}
+      {/* ---------------- BASE MATERIAL (UNTOUCHED) ---------------- */}
 
       <rect
-        x="40"
-        y="70"
-        width="160"
-        height="150"
+        x="20"
+        y={topY + height}
+        width="200"
+        height={baseHeight}
         className="material"
       />
 
-      {/* ---------------- HELIX (BAKSIDE) ---------------- */}
+      {/* ---------------- MASK ---------------- */}
 
-      {Array.from({ length: turns }).map((_, i) => (
-        <ellipse
-          key={`helix-back-${i}`}
-          cx={centerX}
-          cy={topY + i * turnHeight}
-          rx={radiusX}
-          ry={radiusY}
-          className="helix-back"
-        />
-      ))}
+      <defs>
+        <mask id="outer-mask" maskUnits="userSpaceOnUse">
+          {/* Alt skjult */}
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill="black"
+          />
 
-      {/* ---------------- HELIX (FORSIDE) ---------------- */}
+          {/* Kun materiale inni spiralen beholdes */}
+          <rect
+            x={holeX}
+            y={topY - 1}
+            width={holeWidth}
+            height={height + 2}
+            fill="white"
+          />
+        </mask>
+      </defs>
 
-      {Array.from({ length: turns }).map((_, i) => (
-        <ellipse
-          key={`helix-front-${i}`}
-          cx={centerX}
-          cy={topY + i * turnHeight + radiusY}
-          rx={radiusX}
-          ry={radiusY}
-          className={clsx(
-            "helix-front",
-            part("helix")
-          )}
-        />
-      ))}
+      {/* ---------------- CUTTING GROUP ---------------- */}
 
-      {/* ---------------- DEPTH (Z) ---------------- */}
+      <rect
+  x="20"
+  y={topY}
+  width="200"
+  height="180"
+  className="material"
+  mask="url(#outer-mask)"
+/>
+
+        {/* ---------------- HELIX (BACK) ---------------- */}
+
+        {(() => {
+          const steps = 240;
+          let back = "";
+          let lastSide: "front" | "back" | null = null;
+
+          for (let i = 0; i <= steps; i++) {
+            const u = i / steps;
+            const t = u * turns * Math.PI * 2;
+
+            const x = Math.cos(t) * rx;
+            const y = Math.sin(t) * ry;
+            const z = u * height;
+
+            const px = cx + x;
+            const py = topY + z + y * 0.5;
+
+            const side =
+              Math.sin(t) > 0 ? "front" : "back";
+
+            if (side === "back") {
+              const cmd =
+                back === "" || lastSide !== "back"
+                  ? `M ${px} ${py}`
+                  : `L ${px} ${py}`;
+              back += cmd;
+            }
+
+            lastSide = side;
+          }
+
+          return (
+            <path
+              d={back}
+              className="helix-back"
+            />
+          );
+        })()}
+
+        {/* ---------------- TOOL ---------------- */}
+
+        <g className={clsx("tool", part("tool"))}>
+          <rect
+            x={toolX+9}
+            y={toolTopY}
+            width={toolRadius * 2}
+            height={toolBottomY - toolTopY}
+            rx={toolRadius * 0.4}
+            className="tool-body"
+          />
+
+          <ellipse
+            cx={toolX + 17}
+            cy={toolTopY}
+            rx={toolRadius}
+            ry={toolRadius / 2}
+            className="tool-top"
+          />
+
+          <ellipse
+            cx={toolX + 17}
+            cy={toolBottomY}
+            rx={toolRadius}
+            ry={toolRadius / 2}
+            className="tool-bottom"
+          />
+        </g>
+
+        {/* ---------------- HELIX (FRONT) ---------------- */}
+
+        {(() => {
+          const steps = 240;
+          let front = "";
+          let lastSide: "front" | "back" | null = null;
+
+          for (let i = 0; i <= steps; i++) {
+            const u = i / steps;
+            const t = u * turns * Math.PI * 2;
+
+            const x = Math.cos(t) * rx;
+            const y = Math.sin(t) * ry;
+            const z = u * height;
+
+            const px = cx + x;
+            const py = topY + z + y * 0.5;
+
+            const side =
+              Math.sin(t) > 0 ? "front" : "back";
+
+            if (side === "front") {
+              const cmd =
+                front === "" || lastSide !== "front"
+                  ? `M ${px} ${py}`
+                  : `L ${px} ${py}`;
+              front += cmd;
+            }
+
+            lastSide = side;
+          }
+
+          return (
+            <path
+              d={front}
+              className="helix-front"
+            />
+          );
+        })()}
+      
+      {/* ---------------- HOLE DIAMETER ---------------- */}
 
       <line
-        x1="190"
-        y1={topY}
-        x2="190"
-        y2={topY + turns * turnHeight + 10}
-        className={part("depth")}
+        x1={holeX}
+        y1={holeY}
+        x2={holeX + holeWidth}
+        y2={holeY}
+        className={part("holeDiameter")}
       />
 
-      <polygon
-        points="186,205 194,205 190,215"
-        className={part("depth")}
+      <line
+        x1={holeX}
+        y1={holeY - 4}
+        x2={holeX}
+        y2={holeY + 4}
+        className={part("holeDiameter")}
+      />
+
+      <line
+        x1={holeX + holeWidth}
+        y1={holeY - 4}
+        x2={holeX + holeWidth}
+        y2={holeY + 4}
+        className={part("holeDiameter")}
       />
 
       {/* ---------------- PITCH ---------------- */}
 
       <line
-        x1="40"
-        y1={topY + turnHeight}
-        x2="40"
-        y2={topY + 2 * turnHeight}
+        x1="50"
+        y1={topY + 20}
+        x2="50"
+        y2={topY + 20 + turnHeight}
         className={part("pitch")}
       />
-
-     
+      <line
+        x1="46"
+        y1={topY + 20}
+        x2="54"
+        y2={topY + 20}
+        className={part("pitch")}
+      />
+      <line
+        x1="46"
+        y1={topY + 20 + turnHeight}
+        x2="54"
+        y2={topY + 20 + turnHeight}
+        className={part("pitch")}
+      />
     </svg>
   );
 }
