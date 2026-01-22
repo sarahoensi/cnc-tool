@@ -1,2 +1,2 @@
-export * from "./config/holeFieldConfig";
-export * from "./text/holeTooltips";
+export * from "./holeFieldConfig";
+export * from "./holeTooltips";

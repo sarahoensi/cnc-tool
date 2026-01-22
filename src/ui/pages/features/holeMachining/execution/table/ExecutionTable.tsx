@@ -17,9 +17,9 @@ import { formatNumber } from "@utils/format";
 import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/focus/useAutoFocusOnVisibility";
 
-import { holeExecutionTooltips } from "../../ui/text/holeTooltips";
-import { CutMode, useHoleCutMode } from "../../workflow/useHoleCutMode";
-import { useHoleMeasurementValidation } from "../domain/measurement/useHoleMeasurementValidation";
+import { holeExecutionTooltips } from "../ui/executionTooltips";
+import { CutMode, useHoleCutMode } from "../workflow/useHoleCutMode";
+import { useHoleMeasurementValidation } from "../domain/useHoleMeasurementValidation";
 
 import { useExecutionRow } from "./useExecutionRow";
 import { useExecutionEdit } from "./useExecutionEdit";

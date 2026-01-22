@@ -11,12 +11,12 @@ import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
 import { useHoleFieldsState } from "./model/useHoleFieldsState";
-import { useHoleExecution } from "./workflow/useHoleExecution";
-import { useHolePlanSolve } from "./workflow/useHolePlanSolve";
+import { useHoleExecution } from "./execution/workflow/useHoleExecution";
+import { useHolePlanSolve } from "./plan/workflow/useHolePlanSolve";
 
-import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
-import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
-import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
+import { useHoleAvailability } from "./plan/domain/useHoleAvailability";
+import { getHoleDisabledMap } from "./plan/domain/holeDisabledPolicy";
+import { useHoleDrivers } from "./plan/domain/useHoleDrivers";
 
 import { holeFieldConfig} from "./ui";
 
