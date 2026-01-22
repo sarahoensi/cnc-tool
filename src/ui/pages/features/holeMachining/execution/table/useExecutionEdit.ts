@@ -1,19 +1,16 @@
-// src/ui/pages/features/holeMachining/workflow/useHoleExecutionEditing.ts
-
 import { useState } from "react";
 
-export function useHoleExecutionEditing() {
+export function useExecutionEdit() {
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [pendingValue, setPendingValue] = useState("");
-  const [submitAttempted, setSubmitAttempted] = useState<number | null>(null);
-
-  const isEditing = editingStep !== null;
+  const [submitAttempted, setSubmitAttempted] =
+    useState<number | null>(null);
 
   return {
     editingStep,
     pendingValue,
     submitAttempted,
-    isEditing,
+    isEditing: editingStep !== null,
 
     startEdit(step: number, value: string) {
       setEditingStep(step);

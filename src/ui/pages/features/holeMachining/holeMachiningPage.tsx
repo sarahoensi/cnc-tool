@@ -5,7 +5,7 @@ import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { InputPanel, SidePanel } from "@ui/components/PanelSections";
 import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
-import { HoleExecutionTable } from "./ui/HoleExecutionTable";
+import { HoleExecutionTable } from "./execution/table/ExecutionTable";
 
 import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
@@ -18,7 +18,7 @@ import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
 import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
 import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
 
-import { holeFieldConfig} from "./ui/holeFieldConfig";
+import { holeFieldConfig} from "./ui";
 
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";

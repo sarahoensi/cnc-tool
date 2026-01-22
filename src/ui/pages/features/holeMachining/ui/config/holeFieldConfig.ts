@@ -1,5 +1,5 @@
-import type { HoleFields } from "../model/holeFields";
-import { holeTooltips } from "./holeTooltips";
+import type { HoleFields } from "../../model/holeFields";
+import { holeTooltips } from "../text/holeTooltips";
 
 export type HoleFieldKey = keyof HoleFields;
 
