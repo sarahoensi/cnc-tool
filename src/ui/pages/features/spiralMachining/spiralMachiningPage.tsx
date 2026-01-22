@@ -60,7 +60,7 @@ export function SpiralMachining() {
 
   /* ---------------- RESULT / ERROR ---------------- */
 
-  const [result, setResult] =
+  const [, setResult] =
     usePersistentState<HelixSolution | null>(
       "spiral:result",
       null

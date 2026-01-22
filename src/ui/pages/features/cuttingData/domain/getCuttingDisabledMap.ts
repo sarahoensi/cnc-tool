@@ -1,7 +1,7 @@
 import type {
   CuttingFields
 } from "../model/cuttingFields";
-import type { SpeedDriver, FeedDriver } from "../drivers/types";
+import type { SpeedDriver, FeedDriver } from "./types";
 
 type Availability = {
   has: {

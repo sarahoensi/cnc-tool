@@ -10,7 +10,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="app-shell">
       <header className="app-header">
         <TopBar
-          onToggleSidebar={() => setSidebarOpen(p => !p)}
         />
       </header>
 

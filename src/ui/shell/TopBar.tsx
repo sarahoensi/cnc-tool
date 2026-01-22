@@ -3,11 +3,9 @@ import "./TopBar.css";
 import { SettingsButton } from "@ui/components/Button/Button";
 import { SettingsMenu } from "@ui/components/Settings/SettingsMenu";
 
-type TopBarProps = {
-  onToggleSidebar: () => void;
-};
 
-export function TopBar({ onToggleSidebar }: TopBarProps) {
+
+export function TopBar(){
   const [open, setOpen] = useState(false);
 
   function handleToggle(e: React.MouseEvent) {
