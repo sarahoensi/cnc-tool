@@ -5,14 +5,15 @@ import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { InputPanel, SidePanel } from "@ui/components/PanelSections";
 import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
-import { HoleExecutionTable } from "./execution/table/ExecutionTable";
+import { DiameterExecutionTable } from "./execution/table/ExecutionTable";
 
 import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
 import { useHoleFieldsState } from "./model/useHoleFieldsState";
-import { useHoleExecution } from "./execution/workflow/useHoleExecution";
+//import { useHoleExecution } from "./execution/workflow/useHoleExecution.ts";
 import { useHolePlanSolve } from "./plan/workflow/useHolePlanSolve";
+import { useDiameterExecution } from "./execution/workflow/useDiameterExecution.ts";
 
 import { useHoleAvailability } from "./plan/domain/useHoleAvailability";
 import { getHoleDisabledMap } from "./plan/domain/holeDisabledPolicy";
@@ -65,7 +66,8 @@ export function HoleMachining() {
     submitMeasurement,
     updateMeasurement,
     nextTarget,
-  } = useHoleExecution({
+  } = useDiameterExecution({
+    mode:"inner",
     state,
     setState,
     measurements,
@@ -216,7 +218,8 @@ export function HoleMachining() {
       right={
         <SidePanel title="Fres Ø – Utførelse">
           {state && plan ? (
-            <HoleExecutionTable
+            <DiameterExecutionTable
+            mode="inner"
               plan={plan}
               state={state}
               nextTarget={nextTarget}

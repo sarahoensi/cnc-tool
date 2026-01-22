@@ -18,16 +18,23 @@ import { useDecimalsValue } from "@app/hooks/ui/formatting/useDecimalsValue";
 import { useAutoFocusOnVisibility } from "@app/hooks/ui/focus/useAutoFocusOnVisibility";
 
 import { holeExecutionTooltips } from "../ui/executionTooltips";
-import { CutMode, useHoleCutMode } from "../workflow/useHoleCutMode";
-import { useHoleMeasurementValidation } from "../domain/useHoleMeasurementValidation";
+
+import {
+  CutMode,
+  useHoleCutMode,
+} from "../workflow/useHoleCutMode";
+
+import { useDiameterMeasurementValidation } from "../domain/useDiameterMeasurementValidation";
 
 import { useExecutionRow } from "./useExecutionRow";
 import { useExecutionEdit } from "./useExecutionEdit";
 import { useExecutionSubmit } from "./useExecutionSubmit";
-
 import { useExecutionKeyboard } from "./useExecutionKeyboard";
 
+import type { DiameterMode } from "../../model/diameterMode";
+
 type Props = {
+  mode: DiameterMode;
   plan: HolePlan;
   state: HoleExecutionState;
   nextTarget: NextTargetInfo | null;
@@ -41,7 +48,8 @@ type Props = {
   onUpdate(step: number, value: string): void;
 };
 
-export function HoleExecutionTable({
+export function DiameterExecutionTable({
+  mode: diameterMode,
   plan,
   state,
   nextTarget,
@@ -52,13 +60,36 @@ export function HoleExecutionTable({
 }: Props) {
   const decimals = useDecimalsValue();
 
+  /* --------------------------------------------------
+   * Editing / cut mode
+   * -------------------------------------------------- */
   const edit = useExecutionEdit();
-  const { mode, setMode } = useHoleCutMode();
-  const { validate } =
-    useHoleMeasurementValidation(state, decimals);
+  const {
+    mode: cutMode,
+    setMode: setCutMode,
+  } = useHoleCutMode();
 
-  const getRow = useExecutionRow(state, nextTarget);
+  /* --------------------------------------------------
+   * Validation
+   * -------------------------------------------------- */
+  const { validate } = useDiameterMeasurementValidation({
+    mode: diameterMode,
+    state,
+    decimals,
+  });
 
+  /* --------------------------------------------------
+   * Row model
+   * -------------------------------------------------- */
+  const getRow = useExecutionRow({
+    //mode: diameterMode,
+    state,
+    nextTarget,
+  });
+
+  /* --------------------------------------------------
+   * Submit handling
+   * -------------------------------------------------- */
   const submit = useExecutionSubmit({
     stateStep: state.step,
     measurements,
@@ -69,6 +100,9 @@ export function HoleExecutionTable({
     clearSubmitAttempt: edit.clearSubmitAttempt,
   });
 
+  /* --------------------------------------------------
+   * Autofocus
+   * -------------------------------------------------- */
   const { ref: currentRef, focus } =
     useAutoFocusOnVisibility<HTMLInputElement>();
 
@@ -77,22 +111,26 @@ export function HoleExecutionTable({
     requestAnimationFrame(() => focus());
   }, [state.step, state.finished, edit.isEditing, focus]);
 
+  /* --------------------------------------------------
+   * Keyboard
+   * -------------------------------------------------- */
   const keyboardEdit = useExecutionKeyboard({
-  onSubmit: () => {
-    if (edit.editingStep !== null) {
-      submit.update(edit.editingStep, edit.pendingValue);
-      edit.cancelEdit();
-    }
-  },
-  onCancel: edit.cancelEdit,
-});
+    onSubmit: () => {
+      if (edit.editingStep !== null) {
+        submit.update(edit.editingStep, edit.pendingValue);
+        edit.cancelEdit();
+      }
+    },
+    onCancel: edit.cancelEdit,
+  });
 
-const keyboardNew = useExecutionKeyboard({
-  onSubmit: submit.submitCurrent,
-});
+  const keyboardNew = useExecutionKeyboard({
+    onSubmit: submit.submitCurrent,
+  });
 
-
-
+  /* --------------------------------------------------
+   * Render
+   * -------------------------------------------------- */
   return (
     <table className="step-table">
       <thead>
@@ -107,16 +145,16 @@ const keyboardNew = useExecutionKeyboard({
           <th>
             <LabelWithTooltip
               label="Start Ø"
-              tooltip="Forrige målte hullstørrelse"
+              tooltip="Forrige målte diameter"
             />
           </th>
 
           <th>
             <select
               className="header-select"
-              value={mode}
+              value={cutMode}
               onChange={e =>
-                setMode(e.target.value as CutMode)
+                setCutMode(e.target.value as CutMode)
               }
             >
               <option value="deltaD">ΔD</option>
@@ -166,7 +204,7 @@ const keyboardNew = useExecutionKeyboard({
                 </td>
 
                 <td>
-                  {mode === "deltaD" &&
+                  {cutMode === "deltaD" &&
                     row.deltaD != null && (
                       <div>
                         {formatNumber(
@@ -176,7 +214,7 @@ const keyboardNew = useExecutionKeyboard({
                       </div>
                     )}
 
-                  {mode === "ae" &&
+                  {cutMode === "ae" &&
                     row.ae != null && (
                       <div>
                         {formatNumber(
@@ -198,10 +236,10 @@ const keyboardNew = useExecutionKeyboard({
                           edit.setPendingValue(
                             e.target.value
                           )
-                          
                         }
-                          onKeyDown={keyboardEdit.onKeyDown}
-
+                        onKeyDown={
+                          keyboardEdit.onKeyDown
+                        }
                       />
                     ) : (
                       <span className="readonly-value">
@@ -234,9 +272,12 @@ const keyboardNew = useExecutionKeyboard({
                           [step]: e.target.value,
                         }))
                       }
-                      onKeyDown={keyboardNew.onKeyDown}
+                      onKeyDown={
+                        keyboardNew.onKeyDown
+                      }
                       disabled={
-                        !row.isCurrent || edit.isEditing
+                        !row.isCurrent ||
+                        edit.isEditing
                       }
                     />
                   )}

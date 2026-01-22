@@ -1,11 +1,16 @@
-import {
-  registerMeasurement,
-  computeNextTarget,
+import type {
+  HoleExecutionState,
+  NextTargetInfo,
 } from "@core/holeMachining";
-import type { HoleExecutionState } from "@core/holeMachining";
 import { toNumber } from "@utils/number";
 
+import type { DiameterMode } from "../../model/diameterMode";
+import type { DiameterExecutionRules } from "../rules/diameterExecutionRules";
+import { innerDiameterExecutionRules } from "../rules/innerDiameterExecutionRules";
+import { outerDiameterExecutionRules } from "../rules/outerDiameterExecutionRules";
+
 type Params = {
+  mode: DiameterMode;
   state: HoleExecutionState | null;
   setState: React.Dispatch<
     React.SetStateAction<HoleExecutionState | null>
@@ -14,12 +19,24 @@ type Params = {
   setError: (err: string | null) => void;
 };
 
-export function useHoleExecution({
+function getRules(mode: DiameterMode): DiameterExecutionRules {
+  switch (mode) {
+    case "inner":
+      return innerDiameterExecutionRules;
+    case "outer":
+      return outerDiameterExecutionRules;
+  }
+}
+
+export function useDiameterExecution({
+  mode,
   state,
   setState,
   measurements,
   setError,
 }: Params) {
+  const rules = getRules(mode);
+
   function submitMeasurement(step: number) {
     if (!state) return;
 
@@ -27,7 +44,7 @@ export function useHoleExecution({
     if (!raw) return;
 
     try {
-      const updated = registerMeasurement(
+      const updated = rules.registerMeasurement(
         state,
         toNumber(raw)
       );
@@ -43,7 +60,9 @@ export function useHoleExecution({
     if (!state) return;
 
     try {
-      const trimmed = state.log.filter(l => l.step < step);
+      const trimmed = state.log.filter(
+        l => l.step < step
+      );
 
       const rewound: HoleExecutionState = {
         ...state,
@@ -56,7 +75,7 @@ export function useHoleExecution({
         finished: false,
       };
 
-      const updated = registerMeasurement(
+      const updated = rules.registerMeasurement(
         rewound,
         toNumber(value)
       );
@@ -69,8 +88,8 @@ export function useHoleExecution({
     }
   }
 
-  const nextTarget =
-    state ? computeNextTarget(state) : null;
+  const nextTarget: NextTargetInfo | null =
+    state ? rules.computeNextTarget(state) : null;
 
   return {
     submitMeasurement,
