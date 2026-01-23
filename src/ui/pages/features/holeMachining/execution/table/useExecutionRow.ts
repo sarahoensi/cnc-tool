@@ -2,7 +2,6 @@ import type {
   HoleExecutionState,
   NextTargetInfo,
 } from "@core/holeMachining";
-import { DiameterMode } from "../../model/diameterMode";
 
 //import type { DiameterMode } from "../../model/diameterMode";
 
@@ -42,9 +41,14 @@ export function useExecutionRow({
       /* -----------------------------
        * Cut values
        * ----------------------------- */
-      deltaD:
-        log?.deltaD ??
-        (isCurrent ? nextTarget?.deltaD ?? null : null),
+      deltaProgress:
+  log?.deltaProgress ??
+  (isCurrent ? nextTarget?.deltaProgress ?? null : null),
+
+deltaDiameter:
+  log?.deltaDiameter ??
+  (isCurrent ? nextTarget?.deltaDiameter ?? null : null),
+
 
       ae:
         log?.ae ??

@@ -19,7 +19,7 @@ import { useHoleAvailability } from "./plan/domain/useHoleAvailability";
 import { getHoleDisabledMap } from "./plan/domain/holeDisabledPolicy";
 import { useHoleDrivers } from "./plan/domain/useHoleDrivers";
 
-import { holeFieldConfig} from "./ui";
+import { holeFieldConfig } from "./ui";
 
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";
@@ -55,8 +55,8 @@ function confirmChangeExecutionMode(): boolean {
 
 export function HoleMachining() {
 
-   const { mode, setMode, modeRef } = useDiameterModeState();
-   
+  const { mode, setMode } = useDiameterModeState();
+
 
   const [fields, setFields, resetFields] =
     useHoleFieldsState();
@@ -81,11 +81,9 @@ export function HoleMachining() {
     updateMeasurement,
     nextTarget,
   } = useDiameterExecution({
-    modeRef,
     state,
     setState,
     measurements,
-    setError,
   });
 
 
@@ -116,6 +114,7 @@ export function HoleMachining() {
   });
 
   const { handleSolve } = useHolePlanSolve({
+    mode,
     fields,
     clearAllFieldErrors,
     setFieldErrors,
@@ -126,31 +125,34 @@ export function HoleMachining() {
   });
 
   function handleChangeMode(nextMode: typeof mode) {
-  if (nextMode === mode) return;
+    if (nextMode === mode) return;
 
-  const hasActiveExecution = state && state.log.length > 0;
+    const hasActiveExecution = state && state.log.length > 0;
 
-  if (hasActiveExecution) {
-    const confirmed = confirmChangeExecutionMode();
-    if (!confirmed) return;
+    if (hasActiveExecution) {
+      const confirmed = confirmChangeExecutionMode();
+      if (!confirmed) return;
 
-    // Viktig: nullstill utførelsen før modusbytte
-    //reset();
+      // Viktig: nullstill utførelsen før modusbytte
+      //reset();
+    }
+
+    setMode(nextMode);
+    setPlan(null);
+    setState(null);
+    setMeasurements({});
+    
   }
-  
-  setMode(nextMode);
-  handleSolve();
-}
 
 
   const fieldOrder = holeFieldConfig.map(f => f.key);
-  
+
   const focus = useFormFocus({
-  keys: fieldOrder,
-  fields,
-  disabledMap,
-  autoFocusOnMount: true,
-});
+    keys: fieldOrder,
+    fields,
+    disabledMap,
+    autoFocusOnMount: true,
+  });
 
 
 
@@ -172,21 +174,21 @@ export function HoleMachining() {
     setError,
   });*/
 
- const { reset } = useWorkflowReset({
-     steps: [
-       resetPage,
-       resetFields,
-       clearAllFieldErrors,
-       () => setError(null),
-       () => setState(null),
-       () => setPlan(null),
-       () => setMeasurements({}),
-       () => setError(null),
-     ],
-     onAfterReset: () => {
-       focus.focusFirst();
-     },
-   });
+  const { reset } = useWorkflowReset({
+    steps: [
+      resetPage,
+      resetFields,
+      clearAllFieldErrors,
+      () => setError(null),
+      () => setState(null),
+      () => setPlan(null),
+      () => setMeasurements({}),
+      () => setError(null),
+    ],
+    onAfterReset: () => {
+      focus.focusFirst();
+    },
+  });
 
   function handleReset() {
     if (state && state.log.length > 0) {
@@ -202,7 +204,7 @@ export function HoleMachining() {
   /* --------------------------------------------------
    * SHORTCUT
    * -------------------------------------------------- */
-  const { onEnterKeyDown} =
+  const { onEnterKeyDown } =
     useKeyboardShortcutsPage({
       onSolve: handleSolve,
       onReset: handleReset,
@@ -233,9 +235,9 @@ export function HoleMachining() {
       left={
         <InputPanel title="Fres Ø – Planlegging">
           <DiameterModeSelector
-                      mode={mode}
-                      setMode={handleChangeMode}
-                    />
+            mode={mode}
+            setMode={handleChangeMode}
+          />
 
 
           {holeFieldConfig.map(f =>
@@ -260,7 +262,6 @@ export function HoleMachining() {
         <SidePanel title="Fres Ø – Utførelse">
           {state && plan ? (
             <DiameterExecutionTable
-            mode={mode}
               plan={plan}
               state={state}
               nextTarget={nextTarget}

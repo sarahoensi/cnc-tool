@@ -1,27 +1,41 @@
 export function useExecutionSubmit(params: {
   stateStep: number;
   measurements: Record<number, string>;
-  validate: (step: number, value: string) => string | null;
   onSubmit: (step: number) => void;
   onUpdate: (step: number, value: string) => void;
-  markSubmitAttempt: (step: number) => void;
+  markSubmitAttempt: (step: number, message?: string) => void;
   clearSubmitAttempt: () => void;
 }) {
   function submitCurrent() {
     const step = params.stateStep + 1;
     const value = params.measurements[step] ?? "";
-    const error = params.validate(step, value);
 
-    if (!error) {
+    if (!value.trim()) {
+      params.markSubmitAttempt(step, "Målt Ø mangler");
+      return;
+    }
+
+    try {
       params.onSubmit(step);
       params.clearSubmitAttempt();
-    } else {
-      params.markSubmitAttempt(step);
+    } catch (e) {
+      params.markSubmitAttempt(
+        step,
+        e instanceof Error ? e.message : "Ukjent feil"
+      );
     }
   }
 
   function update(step: number, value: string) {
-    params.onUpdate(step, value);
+    try {
+      params.onUpdate(step, value);
+      params.clearSubmitAttempt();
+    } catch (e) {
+      params.markSubmitAttempt(
+        step,
+        e instanceof Error ? e.message : "Ukjent feil"
+      );
+    }
   }
 
   return {

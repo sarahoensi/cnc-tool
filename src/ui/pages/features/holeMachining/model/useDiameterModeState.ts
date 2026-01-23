@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { usePersistentState } from "@app/state";
-import type { DiameterMode } from "../model/diameterMode";
+import type { DiameterMode } from "@core/holeMachining/types";
 
 export function useDiameterModeState() {
   const [mode, setMode] =
-    usePersistentState<DiameterMode>("diameterMode", "inner");
+    usePersistentState<DiameterMode>("diameterMode", "ID");
 
   const modeRef = useRef(mode);
 

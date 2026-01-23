@@ -4,7 +4,7 @@ export function useExecutionEdit() {
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [pendingValue, setPendingValue] = useState("");
   const [submitAttempted, setSubmitAttempted] =
-    useState<number | null>(null);
+    useState<{ step: number; message: string } | null>(null);
 
   return {
     editingStep,
@@ -15,16 +15,18 @@ export function useExecutionEdit() {
     startEdit(step: number, value: string) {
       setEditingStep(step);
       setPendingValue(value);
+      setSubmitAttempted(null);
     },
 
     cancelEdit() {
       setEditingStep(null);
+      setSubmitAttempted(null);
     },
 
     setPendingValue,
 
-    markSubmitAttempt(step: number) {
-      setSubmitAttempted(step);
+    markSubmitAttempt(step: number, message = "Ugyldig verdi") {
+      setSubmitAttempted({ step, message });
     },
 
     clearSubmitAttempt() {

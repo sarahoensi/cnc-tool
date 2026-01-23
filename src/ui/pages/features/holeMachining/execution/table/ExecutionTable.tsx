@@ -24,17 +24,13 @@ import {
   useHoleCutMode,
 } from "../workflow/useHoleCutMode";
 
-import { useDiameterMeasurementValidation } from "../domain/useDiameterMeasurementValidation";
-
 import { useExecutionRow } from "./useExecutionRow";
 import { useExecutionEdit } from "./useExecutionEdit";
 import { useExecutionSubmit } from "./useExecutionSubmit";
 import { useExecutionKeyboard } from "./useExecutionKeyboard";
 
-import type { DiameterMode } from "../../model/diameterMode";
 
 type Props = {
-  mode: DiameterMode;
   plan: HolePlan;
   state: HoleExecutionState;
   nextTarget: NextTargetInfo | null;
@@ -49,7 +45,6 @@ type Props = {
 };
 
 export function DiameterExecutionTable({
-  mode: diameterMode,
   plan,
   state,
   nextTarget,
@@ -70,15 +65,6 @@ export function DiameterExecutionTable({
   } = useHoleCutMode();
 
   /* --------------------------------------------------
-   * Validation
-   * -------------------------------------------------- */
-  const { validate } = useDiameterMeasurementValidation({
-    mode: diameterMode,
-    state,
-    decimals,
-  });
-
-  /* --------------------------------------------------
    * Row model
    * -------------------------------------------------- */
   const getRow = useExecutionRow({
@@ -93,7 +79,6 @@ export function DiameterExecutionTable({
   const submit = useExecutionSubmit({
     stateStep: state.step,
     measurements,
-    validate,
     onSubmit,
     onUpdate,
     markSubmitAttempt: edit.markSubmitAttempt,
@@ -180,14 +165,11 @@ export function DiameterExecutionTable({
             const rowIsEditing =
               edit.editingStep === step;
 
+
+
             const error =
-              edit.submitAttempted === step
-                ? validate(
-                    step,
-                    rowIsEditing
-                      ? edit.pendingValue
-                      : measurements[step] ?? ""
-                  )
+              edit.submitAttempted?.step === step
+                ? edit.submitAttempted.message
                 : null;
 
             return (
@@ -197,18 +179,18 @@ export function DiameterExecutionTable({
                 <td>
                   {row.startDiameter != null
                     ? formatNumber(
-                        row.startDiameter,
-                        decimals
-                      )
+                      row.startDiameter,
+                      decimals
+                    )
                     : ""}
                 </td>
 
                 <td>
                   {cutMode === "deltaD" &&
-                    row.deltaD != null && (
+                    row.deltaProgress != null && (
                       <div>
                         {formatNumber(
-                          row.deltaD,
+                          row.deltaProgress,
                           decimals
                         )}
                       </div>
@@ -261,9 +243,9 @@ export function DiameterExecutionTable({
                       placeholder={
                         row.isCurrent && nextTarget
                           ? formatNumber(
-                              nextTarget.nextDiameter,
-                              decimals
-                            )
+                            nextTarget.nextDiameter,
+                            decimals
+                          )
                           : ""
                       }
                       onChange={e =>

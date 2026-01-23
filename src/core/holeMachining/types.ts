@@ -1,22 +1,26 @@
 // src/core/holeMachining/types.ts
 
+export type DiameterMode = "ID" | "OD";
 //
 // PLAN INPUT TYPES
 //
 
 export interface HolePlanFromNInput {
+  mode: DiameterMode;
   D_start: number;
   D_target: number;
   N: number;
 }
 
 export interface HolePlanFromAeInput {
+  mode: DiameterMode;
   D_start: number;
   D_target: number;
   ae: number;
 }
 
 export interface HolePlanFromNoStartInput {
+  mode: DiameterMode;
   D_target: number;
   N: number;
   ae: number;
@@ -27,12 +31,14 @@ export interface HolePlanFromNoStartInput {
 //
 
 export interface HolePlan {
+  mode: DiameterMode;
   D_start: number;
   D_target: number;
   N: number;
 
   diameters: number[];  // N+1 verdier inkludert start og target
-  deltaD: number;       // nominell
+  //deltaD: number;       // nominell
+  deltaProgress: number,
   ae: number;           // nominell radialt inngrep = deltaD/2
 }
 
@@ -44,11 +50,15 @@ export interface HoleLogEntry {
   step: number;      // 1..N
   startDiameter: number; // diameter ved start av steget
   measured: number;  // MÅLT Ø
-  deltaD: number;    // faktisk diameterøkning dette steget
+  //deltaD: number;    // faktisk diameterøkning dette steget
+  deltaProgress: number,
+  deltaDiameter: number;
   ae: number;        // faktisk radialt inngrep dette steget
 }
 
 export interface HoleExecutionState {
+  mode: DiameterMode;
+
   D_start: number;
   D_target: number;
   N: number;
@@ -67,6 +77,9 @@ export interface HoleExecutionState {
 export interface NextTargetInfo {
   startDiameter: number; // diameter ved start av neste steg
   nextDiameter: number; // diameter brukeren skal prøve å oppnå
-  deltaD: number;       // økning fra lastDiameter → nextDiameter
+  //deltaD: number;       // økning fra lastDiameter → nextDiameter
+  deltaProgress: number;
+  deltaDiameter: number;
+  
   ae: number;           // deltaD / 2
 }

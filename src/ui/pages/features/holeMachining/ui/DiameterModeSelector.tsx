@@ -1,4 +1,4 @@
-import type { DiameterMode } from "../model/diameterMode";
+import type { DiameterMode } from "@core/holeMachining/types";
 import { holeTooltips } from "./holeTooltips";
 import { ModeSelector } from "@ui/pages/shared/components/modeSelector/ModeSelector";
 
@@ -16,12 +16,12 @@ export function DiameterModeSelector({ mode, setMode }: Props) {
       onChange={setMode}
       options={[
         {
-          value: "inner",
+          value: "ID",
           label: "Inner",
           tooltip: holeTooltips.inner,
         },
         {
-          value: "outer",
+          value: "OD",
           label: "Outer",
           tooltip: holeTooltips.outer,
         },

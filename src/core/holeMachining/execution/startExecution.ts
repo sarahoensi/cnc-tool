@@ -10,6 +10,7 @@ export function startExecution(
   plan: HolePlan
 ): HoleExecutionState {
   return {
+    mode: plan.mode,
     D_start: plan.D_start,
     D_target: plan.D_target,
     N: plan.N,
