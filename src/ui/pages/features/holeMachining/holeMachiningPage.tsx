@@ -5,20 +5,21 @@ import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { InputPanel, SidePanel } from "@ui/components/PanelSections";
 import { SplitPage } from "@ui/pages/shared/layout/SplitPage";
 
-import { HoleExecutionTable } from "./ui/HoleExecutionTable";
+import { DiameterExecutionTable } from "./execution/table/ExecutionTable";
 
 import { usePageReset } from "@ui/pages/shared/workflow";
 import { useFieldErrors, useFieldUpdater, useFormFieldRenderer } from "@ui/pages/shared/workflow/fields";
 
 import { useHoleFieldsState } from "./model/useHoleFieldsState";
-import { useHoleExecution } from "./workflow/useHoleExecution";
-import { useHolePlanSolve } from "./workflow/useHolePlanSolve";
+//import { useHoleExecution } from "./execution/workflow/useHoleExecution.ts";
+import { useHolePlanSolve } from "./plan/workflow/useHolePlanSolve";
+import { useDiameterExecution } from "./execution/workflow/useDiameterExecution.ts";
 
-import { useHoleAvailability } from "./domain/availability/useHoleAvailability";
-import { getHoleDisabledMap } from "./domain/policy/holeDisabledPolicy";
-import { useHoleDrivers } from "./domain/driver/useHoleDrivers";
+import { useHoleAvailability } from "./plan/domain/useHoleAvailability";
+import { getHoleDisabledMap } from "./plan/domain/holeDisabledPolicy";
+import { useHoleDrivers } from "./plan/domain/useHoleDrivers";
 
-import { holeFieldConfig} from "./ui/holeFieldConfig";
+import { holeFieldConfig } from "./ui";
 
 import { usePersistentState } from "@app/state";
 import { useHoleExecutionState } from "./model/useHoleExecutionState";
@@ -29,7 +30,9 @@ import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
 import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
 
+import { useDiameterModeState } from "./model/useDiameterModeState.ts";
 
+import { DiameterModeSelector } from "./ui/DiameterModeSelector.tsx";
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -42,7 +45,19 @@ function confirmDiscardExecution(): boolean {
   );
 }
 
+function confirmChangeExecutionMode(): boolean {
+  return window.confirm(
+    "Du har en pågående utførelse.\n\n" +
+    "Dette vil slette all fremdrift.\n\n" +
+    "Vil du fortsette?"
+  );
+}
+
 export function HoleMachining() {
+
+  const { mode, setMode } = useDiameterModeState();
+
+
   const [fields, setFields, resetFields] =
     useHoleFieldsState();
 
@@ -65,11 +80,10 @@ export function HoleMachining() {
     submitMeasurement,
     updateMeasurement,
     nextTarget,
-  } = useHoleExecution({
+  } = useDiameterExecution({
     state,
     setState,
     measurements,
-    setError,
   });
 
 
@@ -100,6 +114,7 @@ export function HoleMachining() {
   });
 
   const { handleSolve } = useHolePlanSolve({
+    mode,
     fields,
     clearAllFieldErrors,
     setFieldErrors,
@@ -109,14 +124,35 @@ export function HoleMachining() {
     setError,
   });
 
+  function handleChangeMode(nextMode: typeof mode) {
+    if (nextMode === mode) return;
+
+    const hasActiveExecution = state && state.log.length > 0;
+
+    if (hasActiveExecution) {
+      const confirmed = confirmChangeExecutionMode();
+      if (!confirmed) return;
+
+      // Viktig: nullstill utførelsen før modusbytte
+      //reset();
+    }
+
+    setMode(nextMode);
+    setPlan(null);
+    setState(null);
+    setMeasurements({});
+    
+  }
+
+
   const fieldOrder = holeFieldConfig.map(f => f.key);
-  
+
   const focus = useFormFocus({
-  keys: fieldOrder,
-  fields,
-  disabledMap,
-  autoFocusOnMount: true,
-});
+    keys: fieldOrder,
+    fields,
+    disabledMap,
+    autoFocusOnMount: true,
+  });
 
 
 
@@ -138,21 +174,21 @@ export function HoleMachining() {
     setError,
   });*/
 
- const { reset } = useWorkflowReset({
-     steps: [
-       resetPage,
-       resetFields,
-       clearAllFieldErrors,
-       () => setError(null),
-       () => setState(null),
-       () => setPlan(null),
-       () => setMeasurements({}),
-       () => setError(null),
-     ],
-     onAfterReset: () => {
-       focus.focusFirst();
-     },
-   });
+  const { reset } = useWorkflowReset({
+    steps: [
+      resetPage,
+      resetFields,
+      clearAllFieldErrors,
+      () => setError(null),
+      () => setState(null),
+      () => setPlan(null),
+      () => setMeasurements({}),
+      () => setError(null),
+    ],
+    onAfterReset: () => {
+      focus.focusFirst();
+    },
+  });
 
   function handleReset() {
     if (state && state.log.length > 0) {
@@ -164,10 +200,11 @@ export function HoleMachining() {
 
 
 
+
   /* --------------------------------------------------
    * SHORTCUT
    * -------------------------------------------------- */
-  const { onEnterKeyDown} =
+  const { onEnterKeyDown } =
     useKeyboardShortcutsPage({
       onSolve: handleSolve,
       onReset: handleReset,
@@ -188,6 +225,8 @@ export function HoleMachining() {
 
   });
 
+
+
   /* --------------------------------------------------
    * RENDER
    * -------------------------------------------------- */
@@ -195,6 +234,12 @@ export function HoleMachining() {
     <SplitPage
       left={
         <InputPanel title="Fres Ø – Planlegging">
+          <DiameterModeSelector
+            mode={mode}
+            setMode={handleChangeMode}
+          />
+
+
           {holeFieldConfig.map(f =>
             renderField(
               f.key,
@@ -216,7 +261,7 @@ export function HoleMachining() {
       right={
         <SidePanel title="Fres Ø – Utførelse">
           {state && plan ? (
-            <HoleExecutionTable
+            <DiameterExecutionTable
               plan={plan}
               state={state}
               nextTarget={nextTarget}

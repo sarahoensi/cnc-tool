@@ -10,7 +10,7 @@ function isPos(x: unknown): x is number {
 export function createPlanFromAe(
   input: HolePlanFromAeInput
 ): HolePlan {
-  const { D_start, D_target, ae } = input;
+  const { mode, D_start, D_target, ae } = input;
   const errors: Record<string, string> = {};
 
   if (!isPos(D_start)) {
@@ -21,9 +21,9 @@ export function createPlanFromAe(
     errors.D_target = "Target Ø må være > 0";
   }
 
-  if (isPos(D_start) && isPos(D_target) && D_target <= D_start) {
+  if (isPos(D_start) && isPos(D_target) && D_start === D_target) {
     errors.D_target =
-      "Target Ø må være større enn Start Ø";
+      "Start Ø og Target Ø kan ikke være like";
   }
 
   if (!isPos(ae)) {
@@ -34,28 +34,29 @@ export function createPlanFromAe(
     throw new FieldValidationError(errors);
   }
 
-  const totalDeltaD = D_target - D_start;
+  const totalProgress = Math.abs(D_target - D_start);
 
   // Minst 1 steg
   const N = Math.max(
     1,
-    Math.ceil(totalDeltaD / (2 * ae))
+    Math.ceil(totalProgress  / (2 * ae))
   );
 
-  const deltaD = totalDeltaD / N;
-  const aeEff = deltaD / 2;
+  const deltaProgress = totalProgress  / N;
+  const aeEff = deltaProgress / 2;
 
   const diameters = Array.from(
     { length: N + 1 },
-    (_, i) => D_start + i * deltaD
+    (_, i) => D_start + i * deltaProgress
   );
 
   return {
+    mode,
     D_start,
     D_target,
     N,
     diameters,
-    deltaD,
+    deltaProgress,
     ae: aeEff,
   };
 }

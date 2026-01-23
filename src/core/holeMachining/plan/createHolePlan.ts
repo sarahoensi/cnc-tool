@@ -4,8 +4,11 @@ import {
   createPlanFromNoStart,
 } from "./";
 import { validateHolePlanInput } from "../rules/validateHolePlanInput";
+import { DiameterMode } from "../types";
+
 
 export function createHolePlan(input: {
+  mode: DiameterMode;
   D_start?: number;
   D_target?: number;
   N?: number;

@@ -5,12 +5,14 @@ import {
 import { FieldValidationError } from "@core/errors";
 import { toNumber } from "@utils/number";
 
-import type { HoleFields } from "../model/holeFields";
+import type { HoleFields } from "../../model/holeFields";
 import type { HolePlan, HoleExecutionState } from "@core/holeMachining";
+import { DiameterMode } from "@core/holeMachining/types";
 
 type FieldKeys = keyof HoleFields;
 
 type Params = {
+  mode: DiameterMode;
   fields: HoleFields;
 
   clearAllFieldErrors: () => void;
@@ -24,6 +26,7 @@ type Params = {
 };
 
 export function useHolePlanSolve({
+  mode,
   fields,
   clearAllFieldErrors,
   setFieldErrors,
@@ -38,6 +41,7 @@ export function useHolePlanSolve({
 
     try {
       const input = {
+        mode,
         D_start: toNumber(fields.D_start.value),
         D_target: toNumber(fields.D_target.value),
         N: toNumber(fields.N.value),

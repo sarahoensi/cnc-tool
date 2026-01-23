@@ -1,6 +1,7 @@
 import { interpretHolePlanInput } from "../input/interpretHolePlanInput";
 
 type HolePlanInput = {
+  // mode er irrelevant for availability
   D_start?: number;
   D_target?: number;
   N?: number;

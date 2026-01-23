@@ -1,7 +1,10 @@
 import { FieldValidationError } from "../../errors";
 import { getHolePlanAvailability } from "./availability";
+import type { DiameterMode } from "../types";
+
 
 export function validateHolePlanInput(input: {
+  mode: DiameterMode;
   D_start?: number;
   D_target?: number;
   N?: number;
@@ -11,15 +14,20 @@ export function validateHolePlanInput(input: {
   const errors: Record<string, string> = {};
 
   if (!availability.has.D_target) {
-    errors.D_target = "Target Ø må være > 0";
-  }
+  errors.D_target = "Target Ø må være > 0";
+}
 
   if (availability.has.D_start && availability.has.D_target) {
-    if (input.D_target! <= input.D_start!) {
-      errors.D_target =
-        "Target Ø må være større enn Start Ø";
-    }
+  if (input.mode === "ID" && input.D_target! <= input.D_start!) {
+    errors.D_target =
+      "For indre diameter må Target Ø være større enn Start Ø";
   }
+
+  if (input.mode === "OD" && input.D_target! >= input.D_start!) {
+    errors.D_target =
+      "For ytre diameter må Target Ø være mindre enn Start Ø";
+  }
+}
 
   if (
     !availability.canPlanFromN &&

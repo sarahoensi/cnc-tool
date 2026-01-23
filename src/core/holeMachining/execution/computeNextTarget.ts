@@ -1,3 +1,7 @@
+import {
+  denormalizeDiameter,
+  normalizeDiameterSpace,
+} from "../normalizedDiameterSpace";
 import type {
   HoleExecutionState,
   NextTargetInfo,
@@ -13,30 +17,43 @@ export function computeNextTarget(
   if (state.finished) return null;
   if (state.step >= state.N) return null;
 
-  
+  const space = normalizeDiameterSpace(
+    state.D_start,
+    state.D_target,
+    state.mode
+  );
+
+  const currentProgress = Math.abs(
+    state.lastDiameter - state.D_start
+  );
 
   const remainingSteps = state.N - state.step;
-  const remainingDelta = state.D_target - state.lastDiameter;
+  const remainingProgress =
+    space.progressTarget - currentProgress;
 
-  if (remainingDelta <= 0) return null;
+  if (remainingProgress <= 0) return null;
 
-  // Siste steg → eksakt mål
-  if (remainingSteps === 1) {
-    const deltaD = remainingDelta;
-    return {
-      startDiameter: state.lastDiameter,
-      nextDiameter: state.D_target,
-      deltaD,
-      ae: deltaD / 2,
-    };
-  }
+  const deltaProgress =
+    remainingSteps === 1
+      ? remainingProgress
+      : remainingProgress / remainingSteps;
 
-  const deltaD = remainingDelta / remainingSteps;
+  const nextProgress =
+    currentProgress + deltaProgress;
+
+  const nextDiameter =
+    denormalizeDiameter(space, nextProgress);
+
+  const deltaDiameter =
+    nextDiameter - state.lastDiameter;
 
   return {
     startDiameter: state.lastDiameter,
-    nextDiameter: state.lastDiameter + deltaD,
-    deltaD,
-    ae: deltaD / 2,
+    nextDiameter,
+
+    deltaProgress,
+    deltaDiameter,
+
+    ae: deltaProgress / 2,
   };
 }
