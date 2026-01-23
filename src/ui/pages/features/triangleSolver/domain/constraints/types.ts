@@ -6,6 +6,7 @@ export type TriangleConstraint =
 export const triangleConstraints: TriangleConstraint[] = [
   ["a", "b"],
   ["a", "alpha"],
+  ["a", "beta"],
   ["b", "beta"],
   ["c", "alpha"],
   ["c", "beta"],

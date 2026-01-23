@@ -55,7 +55,6 @@ export function DiameterExecutionTable({
 }: Props) {
 
   const decimals = useDecimalsValue();
-  const isCompleted = state.finished;
   /* --------------------------------------------------
    * Editing / cut mode
    * -------------------------------------------------- */

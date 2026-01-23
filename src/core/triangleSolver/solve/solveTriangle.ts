@@ -6,7 +6,7 @@ import type {
 } from "../types";
 
 import { validateTriangleInput } from "../rules/validateTriangleInput";
-import { sinDeg, atanDeg } from "@utils/math";
+import { sinDeg, atanDeg, cosDeg } from "@utils/math";
 
 function isPos(x: unknown): x is number {
   return typeof x === "number" && Number.isFinite(x) && x > 0;
@@ -40,7 +40,10 @@ export function solveTriangle(
 
     // alpha
     if (!isPos(alpha)) {
-      if (isPos(a) && isPos(b)) {
+      if (isPos(beta)) {
+        alpha = 90 - beta;
+        changed = true;
+      } else if (isPos(a) && isPos(b)) {
         alpha = atanDeg(a / b);
         changed = true;
       } else if (isPos(a) && isPos(c)) {
@@ -56,6 +59,9 @@ export function solveTriangle(
     if (!isPos(b)) {
       if (isPos(a) && isPos(alpha)) {
         b = a / Math.tan(alpha * Math.PI / 180);
+        changed = true;
+      } else if (isPos(a) && isPos(beta)) {
+        b = a / Math.tan(beta * Math.PI / 180);
         changed = true;
       } else if (isPos(c) && isPos(beta)) {
         b = c * sinDeg(beta);
@@ -75,9 +81,14 @@ export function solveTriangle(
     }
 
     // c
-    if (!isPos(c) && isPos(a) && isPos(b)) {
-      c = Math.sqrt(a * a + b * b);
-      changed = true;
+    if (!isPos(c)) {
+      if (isPos(a) && isPos(b)) {
+        c = Math.sqrt(a * a + b * b);
+        changed = true;
+      } else if (isPos(a) && isPos(beta)) {
+        c = a / cosDeg(beta);
+        changed = true;
+      }
     }
   }
 
@@ -93,4 +104,5 @@ export function solveTriangle(
   }
 
   return result as TriangleSolverSolution;
+
 }
