@@ -233,7 +233,7 @@ export function HoleMachining() {
   return (
     <SplitPage
       left={
-        <InputPanel title="Fres Ø – Planlegging">
+        <InputPanel title="Finkjøring – Planlegging">
           <DiameterModeSelector
             mode={mode}
             setMode={handleChangeMode}
@@ -259,7 +259,7 @@ export function HoleMachining() {
         </InputPanel>
       }
       right={
-        <SidePanel title="Fres Ø – Utførelse">
+        <SidePanel title="Finkjøring Ø – Utførelse">
           {state && plan ? (
             <DiameterExecutionTable
               plan={plan}

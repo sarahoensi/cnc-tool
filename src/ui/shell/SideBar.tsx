@@ -7,7 +7,7 @@ type SideBarProps = {
 };
 
 const navItems = [
-  { to: "/", label: "Hullbearbeiding" },
+  { to: "/", label: "Finkjøring" },
   { to: "/cutting-data", label: "Skjæredata" },
   { to: "/spiral", label: "Spiral / Helix" },
   { to: "/triangle", label: "Trekant" },
