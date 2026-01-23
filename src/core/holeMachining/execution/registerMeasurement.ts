@@ -1,3 +1,4 @@
+import { normalizeDiameterSpace } from "../normalizedDiameterSpace";
 import type {
   HoleExecutionState,
   HoleLogEntry,
@@ -46,7 +47,17 @@ if (state.mode === "OD" && measured > state.lastDiameter) {
   };
 
   const step = state.step + 1;
-  const finished = step >= state.N;
+  const space = normalizeDiameterSpace(
+  state.D_start,
+  state.D_target,
+  state.mode
+);
+
+const progress = Math.abs(measured - space.D_start);
+
+const finished =
+  progress >= space.progressTarget ||
+  step >= state.N;
 
   return {
     ...state,

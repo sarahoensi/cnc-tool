@@ -53,8 +53,9 @@ export function DiameterExecutionTable({
   onSubmit,
   onUpdate,
 }: Props) {
-  const decimals = useDecimalsValue();
 
+  const decimals = useDecimalsValue();
+  const isCompleted = state.finished;
   /* --------------------------------------------------
    * Editing / cut mode
    * -------------------------------------------------- */
@@ -94,7 +95,7 @@ export function DiameterExecutionTable({
   useEffect(() => {
     if (state.finished) return;
     requestAnimationFrame(() => focus());
-  }, [state.step, state.finished, edit.isEditing, focus]);
+  }, [state.step, state.finished, nextTarget, edit.isEditing, focus]);
 
   /* --------------------------------------------------
    * Keyboard
@@ -159,8 +160,9 @@ export function DiameterExecutionTable({
       </thead>
 
       <tbody>
-        {Array.from({ length: plan.N }, (_, i) => i + 1).map(
-          step => {
+        {Array.from({ length: plan.N }, (_, i) => i + 1)
+          .filter(step => !state.finished || step <= state.step)
+          .map(step => {
             const row = getRow(step);
             const rowIsEditing =
               edit.editingStep === step;
@@ -258,6 +260,7 @@ export function DiameterExecutionTable({
                         keyboardNew.onKeyDown
                       }
                       disabled={
+                        state.finished ||
                         !row.isCurrent ||
                         edit.isEditing
                       }
@@ -326,8 +329,21 @@ export function DiameterExecutionTable({
               </tr>
             );
           }
-        )}
+          )}
+
+          {state.finished && (
+    <tr>
+      <td colSpan={5} className="execution-complete">
+        ✅ Target Ø er nådd – utførelsen er fullført.
+      </td>
+    </tr>
+          )}
+
       </tbody>
+      
     </table>
+
+
   );
+
 }
