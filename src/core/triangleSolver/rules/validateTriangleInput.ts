@@ -40,6 +40,7 @@ export function validateTriangleInput(input: TriangleSolverInput) {
   const validMinimumSets: TriangleField[][] = [
     ["a", "b"],
     ["a", "alpha"],
+    ["a", "beta"],
     ["b", "beta"],
     ["c", "alpha"],
     ["c", "beta"],
