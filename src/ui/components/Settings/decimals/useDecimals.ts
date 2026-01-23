@@ -10,7 +10,13 @@ export function setDecimals(decimals: Decimals) {
 
 
 export function getDecimals(): Decimals {
-  const raw = localStorage.getItem(DECIMALS_KEY);
+    const raw = localStorage.getItem(DECIMALS_KEY);
+
+if (raw === null) {
+    localStorage.setItem(DECIMALS_KEY, String(DEFAULT_DECIMALS));
+    return DEFAULT_DECIMALS;
+  }
+
   const value = Number(raw);
 
   if (Number.isInteger(value) && value >= 0 && value <= 6) {
