@@ -30,7 +30,9 @@ import { useFormFocus } from "@ui/pages/shared/workflow/fields/useFormFocus";
 import { useWorkflowReset } from "@ui/pages/shared/workflow/fields/useWorkflowReset";
 import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardShortcutPage";
 
+import { useDiameterModeState } from "./model/useDiameterModeState.ts";
 
+import { DiameterModeSelector } from "./ui/DiameterModeSelector.tsx";
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -43,7 +45,19 @@ function confirmDiscardExecution(): boolean {
   );
 }
 
+function confirmChangeExecutionMode(): boolean {
+  return window.confirm(
+    "Du har en pågående utførelse.\n\n" +
+    "Dette vil slette all fremdrift.\n\n" +
+    "Vil du fortsette?"
+  );
+}
+
 export function HoleMachining() {
+
+   const { mode, setMode, modeRef } = useDiameterModeState();
+   
+
   const [fields, setFields, resetFields] =
     useHoleFieldsState();
 
@@ -67,7 +81,7 @@ export function HoleMachining() {
     updateMeasurement,
     nextTarget,
   } = useDiameterExecution({
-    mode:"inner",
+    modeRef,
     state,
     setState,
     measurements,
@@ -110,6 +124,24 @@ export function HoleMachining() {
     setMeasurements,
     setError,
   });
+
+  function handleChangeMode(nextMode: typeof mode) {
+  if (nextMode === mode) return;
+
+  const hasActiveExecution = state && state.log.length > 0;
+
+  if (hasActiveExecution) {
+    const confirmed = confirmChangeExecutionMode();
+    if (!confirmed) return;
+
+    // Viktig: nullstill utførelsen før modusbytte
+    //reset();
+  }
+  
+  setMode(nextMode);
+  handleSolve();
+}
+
 
   const fieldOrder = holeFieldConfig.map(f => f.key);
   
@@ -166,6 +198,7 @@ export function HoleMachining() {
 
 
 
+
   /* --------------------------------------------------
    * SHORTCUT
    * -------------------------------------------------- */
@@ -190,6 +223,8 @@ export function HoleMachining() {
 
   });
 
+
+
   /* --------------------------------------------------
    * RENDER
    * -------------------------------------------------- */
@@ -197,6 +232,12 @@ export function HoleMachining() {
     <SplitPage
       left={
         <InputPanel title="Fres Ø – Planlegging">
+          <DiameterModeSelector
+                      mode={mode}
+                      setMode={handleChangeMode}
+                    />
+
+
           {holeFieldConfig.map(f =>
             renderField(
               f.key,
@@ -219,7 +260,7 @@ export function HoleMachining() {
         <SidePanel title="Fres Ø – Utførelse">
           {state && plan ? (
             <DiameterExecutionTable
-            mode="inner"
+            mode={mode}
               plan={plan}
               state={state}
               nextTarget={nextTarget}

@@ -20,5 +20,14 @@ export const holeTooltips = {
   execution:
     "Utførelsesmodus. Registrer målt diameter etter hvert kutt for å få neste mål.",
 
+  mode:
+  "",
+
+  inner:
+  "",
+
+  outer:
+  "",
+
 } as const;
 

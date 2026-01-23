@@ -10,7 +10,7 @@ import { innerDiameterExecutionRules } from "../rules/innerDiameterExecutionRule
 import { outerDiameterExecutionRules } from "../rules/outerDiameterExecutionRules";
 
 type Params = {
-  mode: DiameterMode;
+  modeRef: React.RefObject<DiameterMode>;
   state: HoleExecutionState | null;
   setState: React.Dispatch<
     React.SetStateAction<HoleExecutionState | null>
@@ -29,19 +29,20 @@ function getRules(mode: DiameterMode): DiameterExecutionRules {
 }
 
 export function useDiameterExecution({
-  mode,
+  modeRef,
   state,
   setState,
   measurements,
   setError,
 }: Params) {
-  const rules = getRules(mode);
 
   function submitMeasurement(step: number) {
     if (!state) return;
 
     const raw = measurements[step];
     if (!raw) return;
+
+    const rules = getRules(modeRef.current);
 
     try {
       const updated = rules.registerMeasurement(
@@ -58,6 +59,8 @@ export function useDiameterExecution({
 
   function updateMeasurement(step: number, value: string) {
     if (!state) return;
+
+    const rules = getRules(modeRef.current);
 
     try {
       const trimmed = state.log.filter(
@@ -88,8 +91,9 @@ export function useDiameterExecution({
     }
   }
 
-  const nextTarget: NextTargetInfo | null =
-    state ? rules.computeNextTarget(state) : null;
+  const nextTarget: NextTargetInfo | null = state
+    ? getRules(modeRef.current).computeNextTarget(state)
+    : null;
 
   return {
     submitMeasurement,
@@ -97,3 +101,4 @@ export function useDiameterExecution({
     nextTarget,
   };
 }
+

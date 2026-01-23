@@ -2,6 +2,7 @@ import type {
   HoleExecutionState,
   NextTargetInfo,
 } from "@core/holeMachining";
+import { DiameterMode } from "../../model/diameterMode";
 
 //import type { DiameterMode } from "../../model/diameterMode";
 
