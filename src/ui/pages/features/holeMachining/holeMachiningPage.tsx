@@ -1,5 +1,6 @@
 import "./holeMachiningPage.css";
 
+import {useState} from "react";
 
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { InputPanel, SidePanel } from "@ui/components/PanelSections";
@@ -33,6 +34,7 @@ import { useKeyboardShortcutsPage } from "@ui/pages/shared/workflow/usekeyboardS
 import { useDiameterModeState } from "./model/useDiameterModeState.ts";
 
 import { DiameterModeSelector } from "./ui/DiameterModeSelector.tsx";
+
 
 /* --------------------------------------------------
  * UI-policy helper
@@ -103,6 +105,10 @@ export function HoleMachining() {
 
 
 
+const [activeField, setActiveField] =
+  useState<keyof HoleFields | null>(null);
+
+
   const availability = useHoleAvailability(fields);
 
   const disabledMap = getHoleDisabledMap({
@@ -141,6 +147,7 @@ export function HoleMachining() {
     setPlan(null);
     setState(null);
     setMeasurements({});
+    setActiveField(null);
     
   }
 
@@ -221,7 +228,9 @@ export function HoleMachining() {
     disabledMap,
     updateField,
     onKeyDown: onEnterKeyDown,
-    focus
+    focus,
+     onFocus: (key) => setActiveField(key),
+  onBlur: () => setActiveField(null),
 
   });
 
@@ -269,12 +278,15 @@ export function HoleMachining() {
               setMeasurements={setMeasurements}
               onSubmit={submitMeasurement}
               onUpdate={updateMeasurement}
+              disableAutoFocus={activeField !== null}
             />
           ) : (
             <p className="hint">Ingen utførelse startet ennå.</p>
           )}
+          
         </SidePanel>
       }
+
     />
   );
 }

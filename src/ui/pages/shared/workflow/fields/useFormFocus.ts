@@ -14,6 +14,8 @@ export function useFormFocus<K extends string>(options: {
   const lastFocused = useRef<K | undefined>(undefined);
   const isProgrammatic = useRef(false);
   const didAutoFocus = useRef(false);
+  const hasUserFocused = useRef(false);
+
 
   // ---------------- registration ----------------
   const register = useCallback(
@@ -54,6 +56,7 @@ const firstField = useMemo(() => {
   useEffect(() => {
     if (!autoFocusOnMount) return;
     if (didAutoFocus.current) return;
+    if (hasUserFocused.current) return;
     if (!firstField) return;
 
     didAutoFocus.current = true;
@@ -63,6 +66,7 @@ const firstField = useMemo(() => {
   const onFieldFocus = useCallback((key: K) => {
     if (!isProgrammatic.current) {
       lastFocused.current = key;
+      hasUserFocused.current = true;
     }
   }, []);
 

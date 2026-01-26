@@ -42,6 +42,8 @@ type Props = {
 
   onSubmit(step: number): void;
   onUpdate(step: number, value: string): void;
+
+  disableAutoFocus?: boolean;
 };
 
 export function DiameterExecutionTable({
@@ -52,6 +54,7 @@ export function DiameterExecutionTable({
   setMeasurements,
   onSubmit,
   onUpdate,
+  disableAutoFocus,
 }: Props) {
 
   const decimals = useDecimalsValue();
@@ -92,10 +95,17 @@ export function DiameterExecutionTable({
     useAutoFocusOnVisibility<HTMLInputElement>();
 
   useEffect(() => {
-    if (state.finished) return;
-    requestAnimationFrame(() => focus());
-  }, [state.step, state.finished, nextTarget, edit.isEditing, focus]);
+  if (disableAutoFocus) return;
+  if (state.finished) return;
 
+  requestAnimationFrame(() => focus());
+}, [
+  disableAutoFocus,
+  state.step,
+  state.finished,
+  edit.isEditing,
+  focus,
+]);
   /* --------------------------------------------------
    * Keyboard
    * -------------------------------------------------- */
@@ -214,7 +224,6 @@ export function DiameterExecutionTable({
                       <input
                         className="measure-input edit-field"
                         value={edit.pendingValue}
-                        autoFocus
                         onChange={e =>
                           edit.setPendingValue(
                             e.target.value
