@@ -2,7 +2,7 @@
 
 import { machineField } from "@app/state/field";
 import type { FieldState } from "@app/state/field";
-import { canOverwriteWithMachine } from "@app/state/field";
+import { canOverwrite } from "@app/state/field";
 
 /**
  * Applies solver result values to FieldState records.
@@ -27,7 +27,7 @@ export function applySolveResult<
     const value = result[key];
     if (typeof value !== "number") continue;
 
-    if (!canOverwriteWithMachine(prev[key])) continue;
+    if (!canOverwrite(prev[key], "machine")) continue;
 
     next[key] = machineField(
       format(value, key)
