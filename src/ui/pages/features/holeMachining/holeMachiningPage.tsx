@@ -130,15 +130,6 @@ const [activeField, setActiveField] =
     setError,
   });
 
-  const fieldOrder = holeFieldConfig.map(f => f.key);
-
-  const focus = useFormFocus({
-    keys: fieldOrder,
-    fields,
-    disabledMap,
-    autoFocusOnMount: true,
-  });
-
   function setUsage(
   fields: HoleFields,
   usage: "idle" | "active",
@@ -191,6 +182,18 @@ const [activeField, setActiveField] =
     focus.focusFirst();
     
   }
+
+
+
+
+  const fieldOrder = holeFieldConfig.map(f => f.key);
+
+  const focus = useFormFocus({
+    keys: fieldOrder,
+    fields,
+    disabledMap,
+    autoFocusOnMount: true,
+  });
 
 
 
