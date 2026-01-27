@@ -1,6 +1,6 @@
 import "./holeMachiningPage.css";
 
-import {useState} from "react";
+import { useState } from "react";
 
 import { CalculateButton, ResetButton } from "@ui/components/Button/Button";
 import { InputPanel, SidePanel } from "@ui/components/PanelSections";
@@ -105,8 +105,8 @@ export function HoleMachining() {
 
 
 
-const [activeField, setActiveField] =
-  useState<keyof HoleFields | null>(null);
+  const [activeField, setActiveField] =
+    useState<keyof HoleFields | null>(null);
 
 
   const availability = useHoleAvailability(fields);
@@ -131,40 +131,34 @@ const [activeField, setActiveField] =
   });
 
   function setUsage(
-  fields: HoleFields,
-  usage: "idle" | "active",
-  keys?: (keyof HoleFields)[]
-): HoleFields {
-  const target = keys ?? (Object.keys(fields) as (keyof HoleFields)[]);
-  return {
-    ...fields,
-    ...Object.fromEntries(
-      target.map(k => [k, { ...fields[k], usage }])
-    ),
-  };
-}
-
+    fields: HoleFields,
+    usage: "idle" | "active",
+    keys?: (keyof HoleFields)[]
+  ): HoleFields {
+    const target = keys ?? (Object.keys(fields) as (keyof HoleFields)[]);
+    return {
+      ...fields,
+      ...Object.fromEntries(
+        target.map(k => [k, { ...fields[k], usage }])
+      ),
+    };
+  }
+  const hasActiveExecution =
+  Boolean(state && !state.finished && state.log.length > 0);
 
   function handleSolve() {
-    if (state) {
+    if (hasActiveExecution) {
       if (!confirmDiscardExecution()) return;
     }
 
     solve();
 
-    setFields(prev =>
-    setUsage(prev, "active", [
-      "D_start",
-      "D_target",
-      "N",
-      "ae",
-    ])
-  );
+    
   }
   function handleChangeMode(nextMode: typeof mode) {
     if (nextMode === mode) return;
 
-    if (state) {
+    if (hasActiveExecution) {
       const confirmed = confirmChangeExecutionMode();
       if (!confirmed) return;
 
@@ -179,8 +173,6 @@ const [activeField, setActiveField] =
     setActiveField(null);
     setFields(prev => setUsage(prev, "idle"));
 
-    focus.focusFirst();
-    
   }
 
 
@@ -233,12 +225,12 @@ const [activeField, setActiveField] =
   });
 
   function handleReset() {
-    if (state) {
+    if (hasActiveExecution) {
       if (!confirmDiscardExecution()) return;
     }
 
     reset();
-    
+
   }
 
 
@@ -265,8 +257,8 @@ const [activeField, setActiveField] =
     updateField,
     onKeyDown: onEnterKeyDown,
     focus,
-     onFocus: (key) => setActiveField(key),
-  onBlur: () => setActiveField(null),
+    onFocus: (key) => setActiveField(key),
+    onBlur: () => setActiveField(null),
 
   });
 
@@ -296,7 +288,9 @@ const [activeField, setActiveField] =
           )}
 
           <div className="button-row">
-            <CalculateButton onClick={handleSolve} />
+            {!hasActiveExecution && (
+              <CalculateButton onClick={handleSolve} />
+            )}
             <ResetButton onClick={handleReset} />
           </div>
 
@@ -315,11 +309,26 @@ const [activeField, setActiveField] =
               onSubmit={submitMeasurement}
               onUpdate={updateMeasurement}
               disableAutoFocus={activeField !== null}
+
+              onStarted={() => {
+                setFields(prev =>
+                  setUsage(prev, "active", [
+                    "D_start",
+                    "D_target",
+                    "N",
+                    "ae",
+                  ])
+                );
+              }}
+
+              onFinished={() => {
+                setFields(prev => setUsage(prev, "idle"));
+              }}
             />
           ) : (
             <p className="hint">Ingen utførelse startet ennå.</p>
           )}
-          
+
         </SidePanel>
       }
 

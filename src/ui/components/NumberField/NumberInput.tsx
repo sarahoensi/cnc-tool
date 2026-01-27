@@ -16,8 +16,10 @@ interface NumberInputProps
  * - validerer ikke hardt (soft validation)
  */
 const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ value, onValue, onKeyDown, ...props }, ref) => {
+  ({ value, onValue, onKeyDown, readOnly,  ...props }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
+
     const raw = e.target.value;
 
     // Tillat kun tall, punktum og komma (ingen minus).
@@ -36,6 +38,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       type="text"
       inputMode="decimal"
       value={value}
+      readOnly={readOnly}
       onChange={handleChange}
       onKeyDown={onKeyDown}
       ref={ref}
