@@ -119,7 +119,7 @@ const [activeField, setActiveField] =
     },
   });
 
-  const { handleSolve } = useHolePlanSolve({
+  const { solve } = useHolePlanSolve({
     mode,
     fields,
     clearAllFieldErrors,
@@ -130,12 +130,50 @@ const [activeField, setActiveField] =
     setError,
   });
 
+  const fieldOrder = holeFieldConfig.map(f => f.key);
+
+  const focus = useFormFocus({
+    keys: fieldOrder,
+    fields,
+    disabledMap,
+    autoFocusOnMount: true,
+  });
+
+  function setUsage(
+  fields: HoleFields,
+  usage: "idle" | "active",
+  keys?: (keyof HoleFields)[]
+): HoleFields {
+  const target = keys ?? (Object.keys(fields) as (keyof HoleFields)[]);
+  return {
+    ...fields,
+    ...Object.fromEntries(
+      target.map(k => [k, { ...fields[k], usage }])
+    ),
+  };
+}
+
+
+  function handleSolve() {
+    if (state) {
+      if (!confirmDiscardExecution()) return;
+    }
+
+    solve();
+
+    setFields(prev =>
+    setUsage(prev, "active", [
+      "D_start",
+      "D_target",
+      "N",
+      "ae",
+    ])
+  );
+  }
   function handleChangeMode(nextMode: typeof mode) {
     if (nextMode === mode) return;
 
-    const hasActiveExecution = state && state.log.length > 0;
-
-    if (hasActiveExecution) {
+    if (state) {
       const confirmed = confirmChangeExecutionMode();
       if (!confirmed) return;
 
@@ -148,18 +186,11 @@ const [activeField, setActiveField] =
     setState(null);
     setMeasurements({});
     setActiveField(null);
+    setFields(prev => setUsage(prev, "idle"));
+
+    focus.focusFirst();
     
   }
-
-
-  const fieldOrder = holeFieldConfig.map(f => f.key);
-
-  const focus = useFormFocus({
-    keys: fieldOrder,
-    fields,
-    disabledMap,
-    autoFocusOnMount: true,
-  });
 
 
 
@@ -194,15 +225,17 @@ const [activeField, setActiveField] =
     ],
     onAfterReset: () => {
       focus.focusFirst();
+      setFields(prev => setUsage(prev, "idle"));
     },
   });
 
   function handleReset() {
-    if (state && state.log.length > 0) {
+    if (state) {
       if (!confirmDiscardExecution()) return;
     }
 
     reset();
+    
   }
 
 
