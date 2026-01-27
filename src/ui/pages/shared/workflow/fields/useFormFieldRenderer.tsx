@@ -35,6 +35,8 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
     autoFocus?: boolean
   ) => {
     const disabled = disabledMap?.[key];
+    const readOnly = fields[key].usage === "active";
+
 
     return (
       <div className="field">
@@ -46,6 +48,9 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
           tooltip={tooltip}
           autoFocus={autoFocus}
           disabled={disabled}
+          readOnly={readOnly}
+
+
           onKeyDown={onKeyDown}
 
 
@@ -57,7 +62,7 @@ export function useFormFieldRenderer<F extends Record<string, FieldState>>({
           onBlur={() => onBlur?.()}
 
           onChange={next => {
-            if (disabled) return;
+            if (disabled || readOnly) return;
             updateField(key, next);
             onAfterChange?.();
           }}

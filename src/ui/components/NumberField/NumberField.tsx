@@ -15,6 +15,7 @@ type Props = {
   error?: string;
 
   disabled?: boolean;        // ekte disabled
+  readOnly?: boolean;
   autoFocus?: boolean;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 
@@ -36,6 +37,7 @@ export function NumberField({
   tooltip,
   error,
   disabled = false,
+  readOnly = false,
   autoFocus,
   inputRef,
   onKeyDown,
@@ -60,6 +62,7 @@ export function NumberField({
           autoFocus={autoFocus}
           ref={inputRef}
           disabled={disabled}
+          readOnly={readOnly}
 
           onFocus={onFocus}
           onBlur={onBlur}

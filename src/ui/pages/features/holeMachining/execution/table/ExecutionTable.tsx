@@ -43,6 +43,10 @@ type Props = {
   onSubmit(step: number): void;
   onUpdate(step: number, value: string): void;
 
+onStarted?: () => void;
+  onFinished?: () => void;
+  
+
   disableAutoFocus?: boolean;
 };
 
@@ -54,6 +58,8 @@ export function DiameterExecutionTable({
   setMeasurements,
   onSubmit,
   onUpdate,
+  onStarted,
+  onFinished,
   disableAutoFocus,
 }: Props) {
 
@@ -106,6 +112,20 @@ export function DiameterExecutionTable({
   edit.isEditing,
   focus,
 ]);
+
+useEffect(() => {
+  if (state.log.length === 1 && !state.finished) {
+    onStarted?.();
+  }
+}, [state.log.length, state.finished, onStarted]);
+
+
+useEffect(() => {
+  if (state.finished) {
+    onFinished?.();
+  }
+}, [state.finished, onFinished]);
+
   /* --------------------------------------------------
    * Keyboard
    * -------------------------------------------------- */
