@@ -36,12 +36,16 @@
   font-size: 1rem;
 }
 
+
+
 /* State: source */
-.nf-input.user {
+.nf-input.source-user {
   background: var(--input-bg-user);
 }
 
-.nf-input.machine {
+
+.nf-input.source-user.usage-active,
+.nf-input.source-machine {
   background: transparent;
   border: none;
   color: var(--text-strong);
@@ -49,7 +53,7 @@
   padding-left: 0;
 }
 
-.nf-input.empty {
+.nf-input.source-empty {
   background: var(--input-bg-empty);
   color: var(--text-placeholder);
 }

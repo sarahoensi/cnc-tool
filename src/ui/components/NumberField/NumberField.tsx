@@ -23,7 +23,7 @@ type Props = {
 
   inputRef?: React.Ref<HTMLInputElement>;
 
-  
+
 };
 
 export function NumberField({
@@ -60,13 +60,14 @@ export function NumberField({
           autoFocus={autoFocus}
           ref={inputRef}
           disabled={disabled}
-          
+
           onFocus={onFocus}
           onBlur={onBlur}
           onValue={(val) => onChange({ ...field, value: val })}
           className={[
             "nf-input",
-            field.source,
+            `source-${field.source}`,
+            field.usage ? `usage-${field.usage}` : "",
             disabled ? "disabled" : "",
             error ? "has-error" : "",
           ].join(" ")}

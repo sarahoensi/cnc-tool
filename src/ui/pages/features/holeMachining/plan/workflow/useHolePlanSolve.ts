@@ -35,7 +35,7 @@ export function useHolePlanSolve({
   setMeasurements,
   setError,
 }: Params) {
-  function handleSolve() {
+  function solve() {
     clearAllFieldErrors();
     setError(null);
 
@@ -63,5 +63,5 @@ export function useHolePlanSolve({
     }
   }
 
-  return { handleSolve };
+  return { solve };
 }
