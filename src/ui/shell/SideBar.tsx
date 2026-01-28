@@ -11,6 +11,7 @@ const navItems = [
   { to: "/cutting-data", label: "Skjæredata" },
   { to: "/spiral", label: "Spiral / Helix" },
   { to: "/triangle", label: "Trekant" },
+  { to: "/conversion", label: "Conversion"}
 ];
 
 export function SideBar({ open, onClose }: SideBarProps) {
